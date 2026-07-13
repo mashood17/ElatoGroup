@@ -35,7 +35,7 @@ export function Hero() {
           className="flex flex-col items-center gap-6 text-center lg:items-start lg:text-left"
         >
           <p className="text-caption text-secondary-500">Crafting Moments Worth Savoring</p>
-          <Logo className="text-5xl lg:text-7xl" />
+          <Logo as="h1" ariaLabel="ELATŌ — Where Every Celebration Begins" className="text-5xl lg:text-7xl" />
           <p className="text-body-lg max-w-md text-secondary-900">{heroContent.subStatement}</p>
           <Button variant="primary" onClick={scrollToServices}>
             {heroContent.ctaLabel}

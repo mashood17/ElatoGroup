@@ -14,22 +14,18 @@ import {
 } from '../../lib/validation'
 
 const EVENT_TYPES = [
-  'Birthday Celebration',
-  'Anniversary Celebration',
-  'Baby Shower',
+  'Wedding',
+  'Engagement',
+  'Birthday Party',
+  'Naming Ceremony',
   'Corporate Event',
-  'Engagement Party',
   'Family Gathering',
-  'Graduation Party',
-  'Bridal Shower',
-  'Farewell Party',
-  'Friends Reunion',
-  'Private Dining',
-  'Custom Celebration',
+  'Cultural Event',
+  'Anniversary Celebration',
 ] as const
 
 const GUEST_MIN = 1
-const GUEST_MAX = 100
+const GUEST_MAX = 250
 
 type Errors = Partial<
   Record<'name' | 'phone' | 'email' | 'date' | 'guests' | 'message', string>

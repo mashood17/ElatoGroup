@@ -37,14 +37,14 @@ export function EventsHero() {
           variants={staggerContainer}
           className="flex flex-col items-center gap-8 text-center lg:items-start lg:text-left"
         >
-          <motion.div variants={heroLoadIn} className="flex flex-col gap-2">
+          <motion.h1 variants={heroLoadIn} className="flex flex-col gap-2">
             <span className="font-display text-6xl font-semibold uppercase tracking-[0.08em] text-secondary-500 lg:text-8xl">
               {eventsHero.wordmarkLine1}
             </span>
             <span className="text-caption pl-1 text-neutral-warm-500 lg:text-base">
               {eventsHero.wordmarkLine2}
             </span>
-          </motion.div>
+          </motion.h1>
           <motion.p variants={heroLoadIn} className="text-body-lg max-w-md text-secondary-900">
             {eventsHero.statement}
           </motion.p>

@@ -1,34 +1,33 @@
 /**
- * Placeholder content for Phase 1 (Homepage only, no backend).
+ * Site content for the Homepage. Business info below is REAL, supplied by
+ * the client (project charter, Section 3) — not a placeholder. Instagram
+ * feed items, reviews, and aggregate rating remain placeholders pending a
+ * live Instagram Graph API / Google Places integration (Phase 8).
  *
- * Everything below is shaped like the future API responses described in the
- * PRD (site_content, instagram_cache, google_reviews_cache) so that wiring a
- * real Supabase/FastAPI backend later is a data-source swap, not a rewrite.
- *
- * PLACEHOLDER — every business detail (phone, WhatsApp number, address,
- * hours, Instagram handle, review content) is a stand-in pending real data
- * from the client. Replace before launch.
+ * Shaped like the future API responses (site_content, instagram_cache,
+ * google_reviews_cache) so wiring a real Supabase/FastAPI backend later is a
+ * data-source swap, not a rewrite.
  */
 
 export const businessInfo = {
-  address: 'Panemangalore, Mangaluru, Karnataka, India', // PLACEHOLDER
-  phone: '+91 90000 00000', // PLACEHOLDER
-  whatsappNumber: '919000000000', // PLACEHOLDER — E.164 digits only, for wa.me links
-  instagramHandle: '@elato.mangalore', // PLACEHOLDER
-  instagramUrl: 'https://instagram.com/elato.mangalore', // PLACEHOLDER
-  googleReviewsUrl: 'https://www.google.com/maps', // PLACEHOLDER
-  bookingComUrl: 'https://www.booking.com', // PLACEHOLDER
+  address: 'Near Mandovi Motors, Melkar, Panemangalore, Bantwal, Karnataka 574231',
+  phone: '+91 97314 00313',
+  whatsappNumber: '919731400313', // E.164 digits only, for wa.me links
+  email: 'elatogroups@gmail.com',
+  instagramHandle: '@elato.in',
+  instagramUrl: 'https://instagram.com/elato.in',
+  googleReviewsUrl: 'https://www.google.com/maps/search/?api=1&query=ELAT%C5%8C+CELEBR%C3%89+Panemangalore',
+  // Clean canonical listing path — tracking/session query params intentionally stripped.
+  bookingComUrl: 'https://www.booking.com/hotel/in/elato-events-amp-stay.en-gb.html',
   hours: [
-    { day: 'Mon – Thu', time: '11:00 AM – 10:00 PM' },
-    { day: 'Fri – Sun', time: '11:00 AM – 11:00 PM' },
-  ], // PLACEHOLDER
+    { day: 'Daily', time: 'Hours to be confirmed' }, // PLACEHOLDER — real hours not yet supplied
+  ],
 } as const
 
 export const heroContent = {
   overline: 'ELATŌ',
-  headline: 'Crafting Moments Worth Savoring',
-  subStatement:
-    'A premium dessert café, boutique stay, and celebration destination in Mangalore.',
+  headline: 'Where Every Celebration Begins',
+  subStatement: 'Premium Ice Cream • Café • Events • Stay — a premium lifestyle destination in Panemangalore.',
   ctaLabel: 'Discover Elato',
 }
 
@@ -36,38 +35,87 @@ export const servicesContent = [
   {
     id: 'stay',
     title: 'Elato Stay',
-    descriptor: 'A boutique place to slow down and stay a while.',
+    descriptor: 'A spacious 2BHK premium serviced apartment for 6–8 guests.',
   },
   {
     id: 'celebre',
     title: 'Elato Celebré',
-    descriptor: 'Signature ice creams, sundaes, cakes and shakes.',
+    descriptor: 'Handcrafted ice cream, artisan coffee, and signature desserts.',
   },
   {
     id: 'events',
     title: 'Elato Events',
-    descriptor: "A premium space to host life's milestone celebrations.",
+    descriptor: 'A 200–250 guest hall for weddings, engagements, and celebrations.',
   },
 ] as const
 
 export const aboutContent = {
   overline: 'Our Story',
-  title: 'A hospitality-grade experience, from the first impression onward',
+  title: 'A destination built from 30+ years of craft',
   paragraphs: [
-    'ELATŌ began as a single idea: that a dessert outing, a weekend stay, or an evening celebration should feel considered from the first moment to the last.',
-    'Every detail — from the pour of a sundae to the light in a boutique room — is handled with the same restraint and care, so that nothing about the experience ever feels rushed.',
+    'After decades of experience in the ice cream industry, our founder, Abdul Hakeem, envisioned something beyond a traditional ice cream parlour — a destination where people could celebrate every occasion under one roof. That vision became ELATŌ.',
+    'ELATŌ brings together handcrafted desserts, artisan beverages, elegant celebrations, and comfortable stays under one brand, combining traditional craftsmanship with modern hospitality.',
   ],
   ctaLabel: 'Read our full story',
 }
 
+export const founder = {
+  name: 'Abdul Hakeem',
+  bio: '30+ years in the ice cream industry.',
+}
+
+export const vision =
+  "To become Karnataka's most loved premium destination for desserts, celebrations, and hospitality while creating unforgettable experiences for every guest."
+
+export const mission = [
+  'Deliver premium quality in everything we serve.',
+  'Create memorable celebrations.',
+  'Build lasting customer relationships.',
+  'Continuously innovate our offerings.',
+  'Set new standards in hospitality.',
+]
+
+export const values = [
+  'Excellence',
+  'Quality',
+  'Hospitality',
+  'Integrity',
+  'Innovation',
+  'Passion',
+  'Customer Happiness',
+]
+
+export const whyChooseElato = [
+  'Premium Quality',
+  'Elegant Ambience',
+  'Family Friendly',
+  'Exceptional Hospitality',
+  'Experienced Team',
+  'Handcrafted Products',
+  'Modern Facilities',
+  'Memorable Celebrations',
+  'Customer First Approach',
+]
+
+export const galleryCategories = [
+  'Premium Café',
+  'Signature Desserts',
+  'Luxury Drinks',
+  'Celebration Hall',
+  'Events',
+  'Stay',
+  'Happy Guests',
+  'Behind the Scenes',
+] // PLACEHOLDER — no real gallery images yet; categories are real, media is not
+
 export const instagramItems = [
-  { id: 'ig-1', permalink: 'https://instagram.com/p/placeholder1', caption: 'Signature sundae, plated for a Friday evening.' },
-  { id: 'ig-2', permalink: 'https://instagram.com/p/placeholder2', caption: 'Morning light in the Stay courtyard.' },
-  { id: 'ig-3', permalink: 'https://instagram.com/p/placeholder3', caption: 'An engagement, celebrated in Celebré.' },
-  { id: 'ig-4', permalink: 'https://instagram.com/p/placeholder4', caption: 'Belgian chocolate, slow-poured.' },
-  { id: 'ig-5', permalink: 'https://instagram.com/p/placeholder5', caption: 'A quiet corner of the boutique stay.' },
-  { id: 'ig-6', permalink: 'https://instagram.com/p/placeholder6', caption: 'Table settings for a milestone birthday.' },
-] // PLACEHOLDER — shaped like GET /api/v1/instagram/latest
+  { id: 'ig-1', permalink: 'https://instagram.com/elato.in', caption: 'Signature sundae, plated for a Friday evening.' },
+  { id: 'ig-2', permalink: 'https://instagram.com/elato.in', caption: 'Morning light in the Stay courtyard.' },
+  { id: 'ig-3', permalink: 'https://instagram.com/elato.in', caption: 'An engagement, celebrated in Celebré.' },
+  { id: 'ig-4', permalink: 'https://instagram.com/elato.in', caption: 'Belgian chocolate, slow-poured.' },
+  { id: 'ig-5', permalink: 'https://instagram.com/elato.in', caption: 'A quiet corner of the boutique stay.' },
+  { id: 'ig-6', permalink: 'https://instagram.com/elato.in', caption: 'Table settings for a milestone birthday.' },
+] // PLACEHOLDER — shaped like GET /api/v1/instagram/latest; real handle @elato.in confirmed, real posts not yet synced
 
 export const reviews = [
   {
@@ -88,7 +136,7 @@ export const reviews = [
     rating: 5,
     text: 'A genuinely boutique stay — quiet, considered, and worth planning a weekend around.',
   },
-] // PLACEHOLDER — shaped like GET /api/v1/reviews/featured
+] // PLACEHOLDER — shaped like GET /api/v1/reviews/featured; real Google reviews not yet synced
 
 export const aggregateRating = {
   rating: 4.9,

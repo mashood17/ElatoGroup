@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion'
-import { introduction } from '../../content/stayContent'
+import { introduction, nearbyLocations } from '../../content/stayContent'
 import { sectionReveal, viewportOnce } from '../../lib/motion'
 
 export function StayIntroduction() {
@@ -27,6 +27,18 @@ export function StayIntroduction() {
               </li>
             ))}
           </ul>
+
+          <div className="mt-8 border-t border-primary-100 pt-6">
+            <p className="text-caption text-secondary-500">Nearby</p>
+            <ul className="mt-3 flex flex-col gap-1.5">
+              {nearbyLocations.map((loc) => (
+                <li key={loc.label} className="text-caption flex items-center justify-between normal-case tracking-normal text-neutral-warm-500">
+                  <span>{loc.label}</span>
+                  <span className="tabular-nums">{loc.distance}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
         </motion.div>
 
         <motion.div
