@@ -12,6 +12,7 @@ import logging
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from app.api.v1.router import api_router
 from app.core.config import get_settings
 from app.core.exceptions import register_exception_handlers
 from app.core.logging import configure_logging
@@ -33,6 +34,7 @@ app.add_middleware(
 )
 
 register_exception_handlers(app)
+app.include_router(api_router)
 
 
 @app.on_event("startup")

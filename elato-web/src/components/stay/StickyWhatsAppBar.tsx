@@ -3,6 +3,7 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { Button } from '../ui/Button'
 import { businessInfo } from '../../content/siteContent'
 import { buildWhatsAppLink } from '../../lib/whatsapp'
+import { trackEvent } from '../../lib/analytics'
 
 /** PRD Ch. 13 — sticky mobile CTA bar, appears once the visitor scrolls past the hero. */
 export function StickyWhatsAppBar() {
@@ -32,6 +33,7 @@ export function StickyWhatsAppBar() {
             target="_blank"
             rel="noreferrer"
             className="w-full"
+            onClick={() => trackEvent('whatsapp_click', 'stay', { source: 'sticky_bar' })}
           >
             Check Availability on WhatsApp
           </Button>

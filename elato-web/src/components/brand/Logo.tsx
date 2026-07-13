@@ -23,8 +23,10 @@ export function Logo({
       <span>ELAT</span>
       <span className="relative inline-block">
         O
+        {/* The macron is always --taupe — the brand's one distinctive visual
+            device, deliberately never the same color as the rest of the wordmark. */}
         <span
-          className="absolute left-1/2 -top-[0.42em] h-[0.09em] w-[0.5em] -translate-x-1/2 bg-neutral-warm-500"
+          className="absolute left-1/2 -top-[0.42em] h-[0.09em] w-[0.5em] -translate-x-1/2 bg-taupe"
           aria-hidden="true"
         />
       </span>

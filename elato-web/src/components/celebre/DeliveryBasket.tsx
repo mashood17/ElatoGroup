@@ -5,6 +5,7 @@ import { useBasket } from '../../lib/basketContext'
 import { businessInfo } from '../../content/siteContent'
 import { buildWhatsAppLink } from '../../lib/whatsapp'
 import { validateName, validateMessage } from '../../lib/validation'
+import { trackEvent } from '../../lib/analytics'
 
 const MAX_ITEM_LINES = 8
 
@@ -41,8 +42,14 @@ export function DeliveryBasket() {
     setErrors({ name: nameError, note: noteError })
     if (nameError || noteError) return
 
+    // No phone field on this form (order flow is name + note only, kept
+    // deliberately short) — the `enquiries` table requires phone, so this
+    // order is tracked via analytics only, not persisted as an enquiry row.
+    // WhatsApp remains the single source of truth for celebre orders.
     const message = buildOrderMessage(name, items, subtotal, note)
+    trackEvent('order_generated', 'celebre', { itemCount, subtotal })
     window.open(buildWhatsAppLink(businessInfo.whatsappNumber, message), '_blank', 'noreferrer')
+    trackEvent('whatsapp_click', 'celebre', { itemCount, subtotal })
     clear()
     setName('')
     setNote('')

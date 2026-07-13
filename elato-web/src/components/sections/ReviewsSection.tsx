@@ -3,7 +3,8 @@ import { motion } from 'framer-motion'
 import { Card } from '../ui/Card'
 import { SkeletonCard } from '../ui/SkeletonCard'
 import { Button } from '../ui/Button'
-import { reviews, aggregateRating, businessInfo } from '../../content/siteContent'
+import { aggregateRating, businessInfo } from '../../content/siteContent'
+import { getFeaturedReviews, type Review } from '../../lib/reviewsRepository'
 import { sectionReveal, staggerContainer, viewportOnce } from '../../lib/motion'
 
 function Stars({ count }: { count: number }) {
@@ -18,17 +19,26 @@ function Stars({ count }: { count: number }) {
   )
 }
 
-type LoadState = 'loading' | 'ready' | 'empty'
+type LoadState = 'loading' | 'ready' | 'empty' | 'error'
 
 export function ReviewsSection() {
   const [state, setState] = useState<LoadState>('loading')
+  const [reviews, setReviews] = useState<Review[]>([])
 
   useEffect(() => {
-    // Simulates the async fetch to GET /api/v1/reviews/featured (Ch. 42).
-    const timer = setTimeout(() => {
-      setState(reviews.length > 0 ? 'ready' : 'empty')
-    }, 500)
-    return () => clearTimeout(timer)
+    let cancelled = false
+    getFeaturedReviews()
+      .then((rows) => {
+        if (cancelled) return
+        setReviews(rows)
+        setState(rows.length > 0 ? 'ready' : 'empty')
+      })
+      .catch(() => {
+        if (!cancelled) setState('error')
+      })
+    return () => {
+      cancelled = true
+    }
   }, [])
 
   return (
@@ -82,6 +92,16 @@ export function ReviewsSection() {
           >
             Read our reviews on Google
           </a>
+        )}
+
+        {state === 'error' && (
+          <p className="rounded-lg bg-primary-50 py-12 text-center text-body text-neutral-warm-500">
+            Reviews are taking a moment to load —{' '}
+            <a href={businessInfo.googleReviewsUrl} className="font-semibold text-secondary-500 hover:underline">
+              see them on Google
+            </a>{' '}
+            in the meantime.
+          </p>
         )}
 
         <div className="mt-8 text-center">

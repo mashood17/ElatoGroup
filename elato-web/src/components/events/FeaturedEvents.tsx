@@ -5,6 +5,7 @@ import { SkeletonCard } from '../ui/SkeletonCard'
 import { getFeaturedEvents } from '../../lib/eventsRepository'
 import type { FeaturedEvent } from '../../content/eventsContent'
 import { sectionReveal, staggerContainer, viewportOnce } from '../../lib/motion'
+import { EventDetailModal } from './EventDetailModal'
 
 const gradients = [
   'from-primary-300 to-secondary-500',
@@ -20,9 +21,19 @@ const gradients = [
  */
 export function FeaturedEvents() {
   const [events, setEvents] = useState<FeaturedEvent[] | null>(null)
+  const [openEvent, setOpenEvent] = useState<FeaturedEvent | null>(null)
+  const [loadError, setLoadError] = useState(false)
+
+  const load = () => {
+    setLoadError(false)
+    setEvents(null)
+    getFeaturedEvents()
+      .then(setEvents)
+      .catch(() => setLoadError(true))
+  }
 
   useEffect(() => {
-    getFeaturedEvents().then(setEvents)
+    load()
   }, [])
 
   return (
@@ -38,12 +49,23 @@ export function FeaturedEvents() {
           Featured Celebrations
         </motion.h2>
 
-        {!events ? (
+        {loadError ? (
+          <div className="py-16 text-center">
+            <p className="text-body text-neutral-warm-500">Celebrations couldn&rsquo;t be loaded right now.</p>
+            <button type="button" onClick={load} className="text-body mt-3 font-semibold text-secondary-500 hover:underline">
+              Try again
+            </button>
+          </div>
+        ) : !events ? (
           <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
             {Array.from({ length: 6 }).map((_, i) => (
               <SkeletonCard key={i} className="aspect-3/4" />
             ))}
           </div>
+        ) : events.length === 0 ? (
+          <p className="rounded-lg bg-primary-50 py-16 text-center text-body text-neutral-warm-500">
+            Celebration packages are being updated — check back shortly, or enquire directly below.
+          </p>
         ) : (
           <motion.div
             initial="hidden"
@@ -54,29 +76,38 @@ export function FeaturedEvents() {
           >
             {events.map((event, i) => (
               <motion.div key={event.id} variants={sectionReveal}>
-                <Card className="flex h-full flex-col overflow-hidden">
-                  <div
-                    className={`aspect-4/3 w-full bg-gradient-to-br ${gradients[i % gradients.length]}`}
-                    aria-hidden="true"
-                  />
-                  <div className="flex flex-1 flex-col p-6">
-                    <h3 className="text-h3 text-secondary-900">{event.title}</h3>
-                    <p className="text-body mt-2 flex-1 text-neutral-warm-500">{event.description}</p>
-                    <div className="mt-4 flex items-center justify-between">
-                      <span className="text-caption text-secondary-500">{event.capacity}</span>
-                      {event.startingPrice && (
-                        <span className="text-body font-semibold text-secondary-900">
-                          From ₹{event.startingPrice.toLocaleString('en-IN')}
-                        </span>
-                      )}
+                <button
+                  type="button"
+                  onClick={() => setOpenEvent(event)}
+                  className="block w-full text-left focus-visible:outline-none"
+                  aria-haspopup="dialog"
+                >
+                  <Card className="flex h-full flex-col overflow-hidden transition-transform duration-300 ease-out hover:-translate-y-1">
+                    <div
+                      className={`aspect-4/3 w-full bg-gradient-to-br ${gradients[i % gradients.length]}`}
+                      aria-hidden="true"
+                    />
+                    <div className="flex flex-1 flex-col p-6">
+                      <h3 className="text-h3 text-secondary-900">{event.title}</h3>
+                      <p className="text-body mt-2 flex-1 text-neutral-warm-500">{event.description}</p>
+                      <div className="mt-4 flex items-center justify-between">
+                        <span className="text-caption text-secondary-500">{event.capacity}</span>
+                        {event.startingPrice && (
+                          <span className="text-body font-semibold text-secondary-900">
+                            From ₹{event.startingPrice.toLocaleString('en-IN')}
+                          </span>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                </Card>
+                  </Card>
+                </button>
               </motion.div>
             ))}
           </motion.div>
         )}
       </div>
+
+      <EventDetailModal event={openEvent} onClose={() => setOpenEvent(null)} />
     </section>
   )
 }

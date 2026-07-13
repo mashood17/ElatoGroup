@@ -2,10 +2,9 @@
 Typed, validated app settings. The app fails fast and loudly at startup if a
 value marked as required (no default) is missing — never at first request.
 
-SUPABASE_URL / SUPABASE_SECRET_KEY are Optional for now: nothing in the
-current scaffold touches the database yet (Phase 3/7 wires that up). Once
-repositories start using them, they should move to required (no default)
-so a misconfigured deploy fails at boot, not on the first real query.
+SUPABASE_URL / SUPABASE_SECRET_KEY are now required: repositories (Phase 5)
+query them on every request, so a misconfigured deploy should fail at boot,
+not on the first real query.
 """
 
 from functools import lru_cache
@@ -25,10 +24,22 @@ class Settings(BaseSettings):
     jwt_access_token_expire_minutes: int = 15
     jwt_refresh_token_expire_days: int = 7
 
-    supabase_url: str | None = Field(default=None, alias="SUPABASE_URL")
-    supabase_secret_key: str | None = Field(default=None, alias="SUPABASE_SECRET_KEY")
+    supabase_url: str = Field(alias="SUPABASE_URL")
+    supabase_secret_key: str = Field(alias="SUPABASE_SECRET_KEY")
 
     whatsapp_business_number: str = Field(default="+919731400313", alias="WHATSAPP_BUSINESS_NUMBER")
+
+    # Password reset emails — Supabase Auth's built-in email sender (see
+    # app/services/auth_service.py for the reasoning behind this choice).
+    frontend_admin_url: str = Field(
+        default="http://localhost:5174", alias="FRONTEND_ADMIN_URL"
+    )
+
+    google_places_api_key: str | None = Field(default=None, alias="GOOGLE_PLACES_API_KEY")
+    google_place_id: str | None = Field(default=None, alias="GOOGLE_PLACE_ID")
+    instagram_graph_token: str | None = Field(default=None, alias="INSTAGRAM_GRAPH_TOKEN")
+    instagram_business_id: str | None = Field(default=None, alias="INSTAGRAM_BUSINESS_ID")
+    sync_cron_secret: str = Field(default="dev-only-cron-secret-change-me", alias="SYNC_CRON_SECRET")
 
     cors_allowed_origins: str = Field(
         default="http://localhost:5173,http://localhost:5174",

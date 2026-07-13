@@ -15,10 +15,22 @@ export function MenuSection() {
   const [searchResults, setSearchResults] = useState<MenuItem[]>([])
   const [searching, setSearching] = useState(false)
   const [openItemId, setOpenItemId] = useState<string | null>(null)
+  const [loadError, setLoadError] = useState(false)
+
+  const loadMenu = () => {
+    setLoadError(false)
+    setCategories(null)
+    setMenuItems(null)
+    Promise.all([getCategories(), getMenuItems()])
+      .then(([cats, items]) => {
+        setCategories(cats)
+        setMenuItems(items)
+      })
+      .catch(() => setLoadError(true))
+  }
 
   useEffect(() => {
-    getCategories().then(setCategories)
-    getMenuItems().then(setMenuItems)
+    loadMenu()
   }, [])
 
   useEffect(() => {
@@ -56,6 +68,17 @@ export function MenuSection() {
             query={query}
             onOpenItem={setOpenItemId}
           />
+        ) : loadError ? (
+          <div className="py-16 text-center">
+            <p className="text-body text-neutral-warm-500">The menu couldn&rsquo;t be loaded right now.</p>
+            <button
+              type="button"
+              onClick={loadMenu}
+              className="text-body mt-3 font-semibold text-secondary-500 hover:underline"
+            >
+              Try again
+            </button>
+          </div>
         ) : !categories || !menuItems ? (
           <motion.p
             initial="hidden"

@@ -20,9 +20,18 @@ const gradients = [
  */
 export function FeaturedSpecials() {
   const [specials, setSpecials] = useState<Special[] | null>(null)
+  const [loadError, setLoadError] = useState(false)
+
+  const load = () => {
+    setLoadError(false)
+    setSpecials(null)
+    getSpecials()
+      .then(setSpecials)
+      .catch(() => setLoadError(true))
+  }
 
   useEffect(() => {
-    getSpecials().then(setSpecials)
+    load()
   }, [])
 
   return (
@@ -38,12 +47,23 @@ export function FeaturedSpecials() {
           Featured Specials
         </motion.h2>
 
-        {!specials ? (
+        {loadError ? (
+          <div className="py-12 text-center">
+            <p className="text-body text-neutral-warm-500">Specials couldn&rsquo;t be loaded right now.</p>
+            <button type="button" onClick={load} className="text-body mt-3 font-semibold text-secondary-500 hover:underline">
+              Try again
+            </button>
+          </div>
+        ) : !specials ? (
           <div className="flex gap-6 overflow-hidden">
             {Array.from({ length: 4 }).map((_, i) => (
               <SkeletonCard key={i} className="aspect-3/4 w-64 flex-none" />
             ))}
           </div>
+        ) : specials.length === 0 ? (
+          <p className="rounded-lg bg-primary-50 py-12 text-center text-body text-neutral-warm-500">
+            No specials are running right now — check back soon.
+          </p>
         ) : (
           <motion.div
             initial="hidden"

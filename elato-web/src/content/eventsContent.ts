@@ -28,3 +28,23 @@ export const featuredEvents: FeaturedEvent[] = [
   { id: 'ev-cultural', title: 'Cultural Events', description: 'A room that adapts to the occasion, not the other way around.', capacity: 'Up to 250 guests', sortOrder: 6 },
   { id: 'ev-anniversary', title: 'Anniversary Celebrations', description: 'A quieter, considered evening for milestones worth marking well.', capacity: 'Up to 250 guests', sortOrder: 7 },
 ] // REAL — client-confirmed event types and hall capacity (200–250 guests)
+
+export type EventGalleryItem = {
+  id: string
+  caption: string
+  category: (typeof featuredEvents)[number]['title']
+  span: 'tall' | 'wide' | 'normal'
+}
+
+export const eventGalleryItems: EventGalleryItem[] = [
+  { id: 'eg-1', caption: 'The hall, dressed for a wedding reception', category: 'Weddings', span: 'wide' },
+  { id: 'eg-2', caption: 'Table settings for an engagement evening', category: 'Engagements', span: 'tall' },
+  { id: 'eg-3', caption: 'A birthday table, set for the guest of honour', category: 'Birthday Parties', span: 'normal' },
+  { id: 'eg-4', caption: 'A naming ceremony, quietly decorated', category: 'Naming Ceremonies', span: 'normal' },
+  { id: 'eg-5', caption: 'The hall arranged for a corporate gathering', category: 'Corporate Events', span: 'wide' },
+  { id: 'eg-6', caption: 'A family gathering, long tables and warm light', category: 'Family Gatherings', span: 'tall' },
+  { id: 'eg-7', caption: 'A cultural evening, staged for performance', category: 'Cultural Events', span: 'normal' },
+  { id: 'eg-8', caption: 'An anniversary dinner, set for two', category: 'Anniversary Celebrations', span: 'normal' },
+  { id: 'eg-9', caption: 'The hall at dusk, before a wedding', category: 'Weddings', span: 'normal' },
+  { id: 'eg-10', caption: 'Floral details from a recent engagement', category: 'Engagements', span: 'normal' },
+] // PLACEHOLDER — captions describe real scenes; event photography not yet supplied

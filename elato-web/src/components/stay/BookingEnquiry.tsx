@@ -13,6 +13,8 @@ import {
   validateDateRange,
   validateGuests,
 } from '../../lib/validation'
+import { persistEnquiry } from '../../lib/enquiryRepository'
+import { trackEvent } from '../../lib/analytics'
 
 type Errors = Partial<
   Record<'name' | 'phone' | 'email' | 'checkIn' | 'checkOut' | 'guests' | 'message', string>
@@ -50,13 +52,22 @@ export function BookingEnquiry() {
     if (Object.values(validationErrors).some(Boolean)) return
 
     setSubmitting(true)
-    // No backend in this pass — simulate the request, then reveal success and
-    // open the pre-filled WhatsApp deep-link (PRD Ch. 39 "Stay booking enquiry").
     setTimeout(() => {
       const waMessage =
         `Hi Elato! My name is ${name.trim()}. I'd like to check availability for ` +
         `${checkIn} to ${checkOut}, ${guests} guest${guests > 1 ? 's' : ''}. ${message.trim()}`.trim()
+      persistEnquiry({
+        source_page: 'stay',
+        name: name.trim(),
+        phone: phone.trim(),
+        email: email.trim() || undefined,
+        message: `Check-out: ${checkOut}. ${message.trim()}`.trim(),
+        guests,
+        preferred_date: checkIn || undefined,
+      })
+      trackEvent('enquiry_submitted', 'stay', { guests })
       window.open(buildWhatsAppLink(businessInfo.whatsappNumber, waMessage), '_blank', 'noreferrer')
+      trackEvent('whatsapp_click', 'stay', { guests })
       setSubmitting(false)
       setSubmitted(true)
     }, 400)
@@ -188,6 +199,7 @@ export function BookingEnquiry() {
                   href={businessInfo.bookingComUrl}
                   target="_blank"
                   rel="noreferrer"
+                  onClick={() => trackEvent('booking_click', 'stay')}
                 >
                   View on Booking.com
                 </Button>

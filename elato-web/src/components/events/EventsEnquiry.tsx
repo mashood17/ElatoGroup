@@ -12,6 +12,8 @@ import {
   validateFutureDate,
   validateGuests,
 } from '../../lib/validation'
+import { persistEnquiry } from '../../lib/enquiryRepository'
+import { trackEvent } from '../../lib/analytics'
 
 const EVENT_TYPES = [
   'Wedding',
@@ -59,13 +61,22 @@ export function EventsEnquiry() {
     if (Object.values(validationErrors).some(Boolean)) return
 
     setSubmitting(true)
-    // No backend in this pass — simulate the request, then reveal success and
-    // open the pre-filled WhatsApp deep-link (PRD Ch. 39 Events composition).
     setTimeout(() => {
       const waMessage =
         `Hi Elato! My name is ${name.trim()}. I'd like to enquire about hosting a ${eventType} ` +
         `for ${guests} guest${guests > 1 ? 's' : ''} on ${date}. Contact: ${phone.trim()}. ${message.trim()}`.trim()
+      persistEnquiry({
+        source_page: 'events',
+        name: name.trim(),
+        phone: phone.trim(),
+        email: email.trim() || undefined,
+        message: `Event type: ${eventType}. ${message.trim()}`.trim(),
+        guests,
+        preferred_date: date || undefined,
+      })
+      trackEvent('enquiry_submitted', 'events', { eventType, guests })
       window.open(buildWhatsAppLink(businessInfo.whatsappNumber, waMessage), '_blank', 'noreferrer')
+      trackEvent('whatsapp_click', 'events', { eventType, guests })
       setSubmitting(false)
       setSubmitted(true)
     }, 400)

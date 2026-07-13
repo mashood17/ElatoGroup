@@ -2,6 +2,7 @@ import { Link, useLocation } from 'react-router-dom'
 import { Logo } from '../brand/Logo'
 import { businessInfo } from '../../content/siteContent'
 import { buildWhatsAppLink } from '../../lib/whatsapp'
+import { trackEvent } from '../../lib/analytics'
 
 export function Footer() {
   const year = new Date().getFullYear()
@@ -26,6 +27,7 @@ export function Footer() {
             <a
               href={buildWhatsAppLink(businessInfo.whatsappNumber, 'Hi Elato!')}
               className="hover:text-primary-300"
+              onClick={() => trackEvent('whatsapp_click', 'footer')}
             >
               WhatsApp
             </a>
@@ -62,6 +64,7 @@ export function Footer() {
               <a
                 href={buildWhatsAppLink(businessInfo.whatsappNumber, 'Hi Elato!')}
                 className="hover:text-primary-300"
+                onClick={() => trackEvent('whatsapp_click', 'footer')}
               >
                 Chat on WhatsApp
               </a>

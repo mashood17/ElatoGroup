@@ -1,20 +1,30 @@
 import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import { SkeletonCard } from '../ui/SkeletonCard'
-import { instagramItems, businessInfo } from '../../content/siteContent'
+import { businessInfo } from '../../content/siteContent'
+import { getLatestInstagramPosts, type InstagramItem } from '../../lib/instagramRepository'
 import { sectionReveal, viewportOnce } from '../../lib/motion'
 
-type LoadState = 'loading' | 'ready' | 'empty'
+type LoadState = 'loading' | 'ready' | 'empty' | 'error'
 
 export function InstagramSection() {
   const [state, setState] = useState<LoadState>('loading')
+  const [instagramItems, setInstagramItems] = useState<InstagramItem[]>([])
 
   useEffect(() => {
-    // Simulates the async fetch to GET /api/v1/instagram/latest (Ch. 41).
-    const timer = setTimeout(() => {
-      setState(instagramItems.length > 0 ? 'ready' : 'empty')
-    }, 500)
-    return () => clearTimeout(timer)
+    let cancelled = false
+    getLatestInstagramPosts()
+      .then((rows) => {
+        if (cancelled) return
+        setInstagramItems(rows)
+        setState(rows.length > 0 ? 'ready' : 'empty')
+      })
+      .catch(() => {
+        if (!cancelled) setState('error')
+      })
+    return () => {
+      cancelled = true
+    }
   }, [])
 
   return (
@@ -63,7 +73,7 @@ export function InstagramSection() {
           </div>
         )}
 
-        {state === 'empty' && (
+        {(state === 'empty' || state === 'error') && (
           <a
             href={businessInfo.instagramUrl}
             className="block rounded-lg bg-primary-50 py-12 text-center text-body font-semibold text-secondary-500 hover:underline"

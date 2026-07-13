@@ -1,12 +1,6 @@
 """
 Dependency-injection pattern for "current authenticated admin" — every
 protected route depends on `get_current_admin`, never parses a JWT inline.
-
-The JWT verification itself is fully functional. Looking the admin up by id
-is stubbed until the `admins` table exists (Phase 3) and the admin
-repository is wired in (Phase 5) — until then this raises, which is the
-correct behavior: no protected route should silently "work" against a
-database that isn't there yet.
 """
 
 from dataclasses import dataclass
@@ -42,9 +36,15 @@ async def get_current_admin(
     if not admin_id or not role:
         raise UnauthorizedError("Token missing required claims.")
 
-    # TODO(Phase 5): look up the admin row by id via the admin repository and
-    # confirm it still exists / isn't disabled, rather than trusting the JWT claims alone.
-    return CurrentAdmin(id=admin_id, role=role)
+    # Confirm the admin row still exists (not deleted) since the JWT was issued —
+    # a bare claims check would let a removed admin keep using an unexpired token.
+    from app.repositories import admin_repository
+
+    admin_row = admin_repository.get_by_id(admin_id)
+    if not admin_row:
+        raise UnauthorizedError("Admin account no longer exists.")
+
+    return CurrentAdmin(id=admin_row["id"], role=admin_row["role"])
 
 
 def require_role(*allowed_roles: str):

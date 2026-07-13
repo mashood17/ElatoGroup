@@ -5,6 +5,8 @@ import { businessInfo } from '../../content/siteContent'
 import { buildWhatsAppLink } from '../../lib/whatsapp'
 import { sectionReveal, viewportOnce } from '../../lib/motion'
 import { validateName, validatePhone, validateMessage } from '../../lib/validation'
+import { persistEnquiry } from '../../lib/enquiryRepository'
+import { trackEvent } from '../../lib/analytics'
 
 const purposes = ['Stay', 'Celebré', 'Events', 'General'] as const
 
@@ -33,11 +35,17 @@ export function VisitSection() {
     if (Object.values(validationErrors).some(Boolean)) return
 
     setSubmitting(true)
-    // No backend in this pass — simulate the request, then reveal success and
-    // open the pre-filled WhatsApp deep-link, matching PRD Ch. 29.2's flow.
     setTimeout(() => {
       const waMessage = `Hi Elato! My name is ${name.trim()}. Purpose: ${purpose}. ${message.trim()}`.trim()
+      persistEnquiry({
+        source_page: 'home',
+        name: name.trim(),
+        phone: phone.trim(),
+        message: `Purpose: ${purpose}. ${message.trim()}`.trim(),
+      })
+      trackEvent('enquiry_submitted', 'home', { purpose })
       window.open(buildWhatsAppLink(businessInfo.whatsappNumber, waMessage), '_blank', 'noreferrer')
+      trackEvent('whatsapp_click', 'home', { purpose })
       setSubmitting(false)
       setSubmitted(true)
     }, 400)
@@ -83,6 +91,7 @@ export function VisitSection() {
               href={buildWhatsAppLink(businessInfo.whatsappNumber, 'Hi Elato!')}
               target="_blank"
               rel="noreferrer"
+              onClick={() => trackEvent('whatsapp_click', 'home')}
             >
               Chat on WhatsApp
             </Button>

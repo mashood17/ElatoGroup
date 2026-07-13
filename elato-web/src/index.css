@@ -4,16 +4,42 @@
 @import "@fontsource/playfair-display/600.css";
 
 @theme {
-  /* Brand colors (PRD Ch. 23.1) */
-  --color-primary-50: #FBF3E7;
-  --color-primary-100: #F3E1C4;
-  --color-primary-300: #E7CAA0;
-  --color-secondary-500: #9E7641; /* corrected to match client-confirmed brand hex */
+  /*
+   * Canonical brand palette (semantic names + hex — see project README
+   * "Design tokens" note for why these superseded the old --color-primary-*
+   * / --color-secondary-* / --color-neutral-warm-* naming scheme).
+   * The numeric-scale tokens below are kept — the whole app already uses
+   * them as its Tailwind utility API (bg-secondary-500, text-primary-100,
+   * etc. across 40+ components) — but now resolve to these semantic values
+   * instead of the old ad hoc hexes, so there is one source of truth.
+   */
+  --sand: #E8DDC9;
+  --sand-light: #F3EEE1;
+  --tan: #DCD1BA;
+  --ochre: #94712B;
+  --taupe: #A3917C; /* reserved for the Ō macron diacritic — never general UI */
+  --ink: #3A2E1E;
+  --ink-soft: #6b5c45;
+
+  /* Brand colors — numeric scale, now sourced from the palette above. */
+  --color-primary-50: var(--sand-light);
+  --color-primary-100: var(--sand);
+  --color-primary-300: var(--tan);
+  --color-secondary-500: var(--ochre);
   --color-secondary-700: #6E4B2E;
-  --color-secondary-900: #2B2116;
-  --color-neutral-warm-500: #6B5B4A;
+  --color-secondary-900: var(--ink);
+  --color-neutral-warm-500: var(--ink-soft);
   --color-success: #4C7A54;
   --color-danger: #A44A3F;
+
+  /* Semantic utilities (bg-sand, text-ink, etc.) for new code. */
+  --color-sand: var(--sand);
+  --color-sand-light: var(--sand-light);
+  --color-tan: var(--tan);
+  --color-ochre: var(--ochre);
+  --color-taupe: var(--taupe);
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
 
   /* Surface tokens (PRD Ch. 21.2) */
   --color-surface-base: #FDFBF7;

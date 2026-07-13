@@ -4,6 +4,7 @@ import { EventsHero } from '../components/events/EventsHero'
 import { EventsCapacity } from '../components/events/EventsCapacity'
 import { FeaturedEvents } from '../components/events/FeaturedEvents'
 import { EventExperience } from '../components/events/EventExperience'
+import { EventsGallery } from '../components/events/EventsGallery'
 import { EventsQuote } from '../components/events/EventsQuote'
 import { EventsEnquiry } from '../components/events/EventsEnquiry'
 
@@ -21,6 +22,7 @@ export function EventsPage() {
         <EventsCapacity />
         <FeaturedEvents />
         <EventExperience />
+        <EventsGallery />
         <EventsQuote />
         <EventsEnquiry />
       </main>
