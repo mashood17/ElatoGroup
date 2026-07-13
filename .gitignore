@@ -1,0 +1,11 @@
+# Each app (elato-web, elato-admin, elato-backend) manages its own .gitignore
+# for its language-specific build artifacts (node_modules, dist, __pycache__, .venv, etc).
+# This root file only catches things that could appear at the monorepo root itself.
+
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.log
+.env
+.env.local
