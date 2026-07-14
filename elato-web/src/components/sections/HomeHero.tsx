@@ -25,21 +25,37 @@ const EASE_CINEMATIC = [0.16, 1, 0.3, 1] as const
  * is in scope.
  *
  * The logo owns its own cinematic entrance internally (see HeroLogo3D /
- * LogoScene) — its ~2.95s multi-stage reveal replaces what used to be a
- * simple Framer Motion fade/scale here. The tagline's own delay below is
- * tuned to start once that reveal has visually settled.
+ * LogoScene) — a ~3.9s multi-stage reveal (short pause, body settle, macron
+ * fall + landing highlight, one light sweep). The tagline and subheading
+ * below are timed to start only once that full sequence — plus its own
+ * short pause — has resolved, each with its own restrained reveal, staggered
+ * after one another.
  */
 export function HomeHero() {
   const reduceMotion = useReducedMotion()
 
-  const textReveal: Variants = {
-    hidden: { opacity: 0, y: reduceMotion ? 0 : 12 },
+  const taglineReveal: Variants = {
+    hidden: { opacity: 0, y: reduceMotion ? 0 : 10, filter: reduceMotion ? 'blur(0px)' : 'blur(6px)' },
+    visible: {
+      opacity: 1,
+      y: 0,
+      filter: 'blur(0px)',
+      transition: {
+        delay: reduceMotion ? 0 : 4.25,
+        duration: reduceMotion ? 0.4 : 1.0,
+        ease: EASE_CINEMATIC,
+      },
+    },
+  }
+
+  const subheadingReveal: Variants = {
+    hidden: { opacity: 0, y: reduceMotion ? 0 : 8 },
     visible: {
       opacity: 1,
       y: 0,
       transition: {
-        delay: reduceMotion ? 0 : 1.6,
-        duration: reduceMotion ? 0.4 : 0.8,
+        delay: reduceMotion ? 0 : 4.85,
+        duration: reduceMotion ? 0.4 : 0.85,
         ease: EASE_CINEMATIC,
       },
     },
@@ -62,19 +78,24 @@ export function HomeHero() {
       <div className="container-elato relative flex flex-col items-center gap-4 pt-20 text-center [@media(max-height:500px)]:gap-3 [@media(max-height:500px)]:pt-10 sm:gap-5 md:gap-6 lg:gap-4">
         <HeroLogo3D className="h-[90px] sm:h-28 md:h-36 lg:h-48 xl:h-56 [@media(max-height:500px)]:h-16" />
 
-        <motion.div
-          initial="hidden"
-          animate="visible"
-          variants={textReveal}
-          className="flex flex-col items-center gap-3 sm:gap-4"
-        >
-          <h1 className="max-w-lg font-sans text-[22px] font-light leading-snug tracking-[0.04em] text-secondary-900 sm:text-[24px] md:text-[28px] lg:text-[32px] xl:text-[34px]">
+        <div className="flex flex-col items-center gap-3 sm:gap-4">
+          <motion.h1
+            initial="hidden"
+            animate="visible"
+            variants={taglineReveal}
+            className="max-w-lg font-sans text-[22px] font-light leading-snug tracking-[0.04em] text-secondary-900 sm:text-[24px] md:text-[28px] lg:text-[32px] xl:text-[34px]"
+          >
             {heroContent.headline}
-          </h1>
-          <p className="text-[11px] uppercase tracking-[0.32em] text-ink-soft sm:text-[12px] md:text-[13px] lg:text-[14px]">
+          </motion.h1>
+          <motion.p
+            initial="hidden"
+            animate="visible"
+            variants={subheadingReveal}
+            className="text-[11px] uppercase tracking-[0.32em] text-ink-soft sm:text-[12px] md:text-[13px] lg:text-[14px]"
+          >
             {heroContent.subStatement}
-          </p>
-        </motion.div>
+          </motion.p>
+        </div>
       </div>
     </section>
   )

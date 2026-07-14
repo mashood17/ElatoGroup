@@ -1,29 +1,13 @@
-import { Component, Suspense, lazy, useEffect, useState, type ReactNode } from 'react'
+import { Component, Suspense, lazy, useState, type ReactNode } from 'react'
 import { useReducedMotion } from 'framer-motion'
 import { LogoImage } from '../brand/LogoImage'
 
 const LogoScene = lazy(() => import('./LogoScene'))
 
-// Project's own "Desktop" breakpoint (PRD grid system: Desktop = lg/1024px).
-// Phones and tablets are touch/mobile-GPU devices where the R3F canvas was
-// found to render as a broken white box — rather than chase the exact
-// mobile WebGL failure mode, the 3D scene is only ever attempted at desktop
-// viewport widths; everything below always gets the plain static wordmark.
-const DESKTOP_MEDIA_QUERY = '(min-width: 1024px)'
-
-function useIsDesktopViewport(): boolean {
-  const [isDesktop, setIsDesktop] = useState(false)
-
-  useEffect(() => {
-    const mql = window.matchMedia(DESKTOP_MEDIA_QUERY)
-    const update = () => setIsDesktop(mql.matches)
-    update()
-    mql.addEventListener('change', update)
-    return () => mql.removeEventListener('change', update)
-  }, [])
-
-  return isDesktop
-}
+// Must match LogoScene's own LOGO_ASPECT — kept here too so the loading
+// placeholder below reserves the exact same box (no layout shift) without
+// importing the whole 3D module just for one constant.
+const LOGO_ASPECT = 1180 / 342
 
 function isWebglSupported(): boolean {
   try {
@@ -57,27 +41,33 @@ class LogoSceneErrorBoundary extends Component<BoundaryProps, { hasError: boolea
  * Three Fiber implementation (LogoScene.tsx) is reached only through this
  * lazy import, so it never lands in the main bundle or on other pages.
  *
- * Falls back to the plain static `<LogoImage>` — same asset, same sizing via
- * the passed-through `className`, unaltered — below the desktop breakpoint,
- * for `prefers-reduced-motion`, for missing WebGL, or for any runtime error
- * in the scene. The wordmark itself is never at risk of not rendering.
+ * `webglOk` is computed with a lazy `useState` initializer — synchronously,
+ * during the very first render — rather than `useState(false)` + `useEffect`.
+ * The old version always rendered the *finished* static logo on the first
+ * paint (since the effect hadn't run yet), then swapped to the animated
+ * scene once the effect resolved — a visible "logo appears, then restarts
+ * its own entrance" flash. Computing it up front means the very first frame
+ * already commits to the right path.
+ *
+ * The Suspense fallback (shown only while the lazy chunk/texture are still
+ * loading) is an empty, same-sized placeholder — not the static logo — so
+ * there is never a frame showing a fully-formed wordmark before the
+ * animation begins. The static `<LogoImage>` is reserved for the genuinely
+ * final fallback states: `prefers-reduced-motion`, no WebGL, or a runtime
+ * error in the scene — where no entrance animation is expected to play at
+ * all, so showing it immediately is correct rather than a flash.
  */
 export function HeroLogo3D({ className }: { className?: string }) {
   const reduceMotion = useReducedMotion()
-  const isDesktop = useIsDesktopViewport()
-  const [webglOk, setWebglOk] = useState(false)
+  const [webglOk] = useState(isWebglSupported)
 
-  useEffect(() => {
-    setWebglOk(isWebglSupported())
-  }, [])
-
-  if (reduceMotion || !isDesktop || !webglOk) {
+  if (reduceMotion || !webglOk) {
     return <LogoImage className={className} />
   }
 
   return (
     <LogoSceneErrorBoundary fallback={<LogoImage className={className} />}>
-      <Suspense fallback={<LogoImage className={className} />}>
+      <Suspense fallback={<div className={className} style={{ aspectRatio: String(LOGO_ASPECT) }} aria-hidden="true" />}>
         <LogoScene className={className} />
       </Suspense>
     </LogoSceneErrorBoundary>
