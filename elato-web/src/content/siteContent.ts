@@ -27,7 +27,7 @@ export const businessInfo = {
 export const heroContent = {
   overline: 'ELATŌ',
   headline: 'Where Every Celebration Begins',
-  subStatement: 'Premium Ice Cream • Café • Events • Stay — a premium lifestyle destination in Panemangalore.',
+  subStatement: 'Premium Ice Cream • Café • Events • Stay',
   ctaLabel: 'Discover Elato',
 }
 

@@ -1,60 +1,66 @@
-import { motion, useScroll, useTransform } from 'framer-motion'
+import { motion, useReducedMotion, useScroll, useSpring, useTransform } from 'framer-motion'
 import { useRef } from 'react'
-import { Logo } from '../brand/Logo'
-import { RingPattern } from '../brand/RingPattern'
-import { Button } from '../ui/Button'
+import { HeroBackground } from '../brand/HeroBackground'
+import { LogoImage } from '../brand/LogoImage'
 import { heroContent } from '../../content/siteContent'
-import { heroLoadIn, PARALLAX_MAX_PX } from '../../lib/motion'
+import { heroLoadIn, staggerContainer } from '../../lib/motion'
 
+/**
+ * The hero is deliberately minimal — logo, headline, subheading, nothing
+ * else — so whitespace does the work instead of a card or CTA competing
+ * for attention (client direction: "let whitespace create the luxury").
+ *
+ * On top of the existing mount-in stagger, the whole content block also
+ * fades/scales/lifts out as the user scrolls through the hero's own height
+ * (spring-smoothed for a cinematic, not mechanical, feel), so the page
+ * never cuts straight from hero to the next section. This is layered on a
+ * separate wrapping element rather than merged into the entrance variants,
+ * since both would otherwise fight over the same `opacity`/`y` properties.
+ */
 export function Hero() {
   const ref = useRef<HTMLElement>(null)
+  const reduceMotion = useReducedMotion()
   const { scrollYProgress } = useScroll({
     target: ref,
     offset: ['start start', 'end start'],
   })
-  const parallaxY = useTransform(scrollYProgress, [0, 1], [0, PARALLAX_MAX_PX])
+  const smoothProgress = useSpring(scrollYProgress, { stiffness: 45, damping: 22, mass: 0.6 })
 
-  const scrollToServices = (e: React.MouseEvent) => {
-    e.preventDefault()
-    document.getElementById('services')?.scrollIntoView({ behavior: 'smooth' })
-  }
+  const exitOpacity = useTransform(smoothProgress, [0, 0.5], reduceMotion ? [1, 1] : [1, 0])
+  const exitScale = useTransform(smoothProgress, [0, 0.5], reduceMotion ? [1, 1] : [1, 0.95])
+  const exitY = useTransform(smoothProgress, [0, 0.5], reduceMotion ? [0, 0] : [0, -32])
 
   return (
     <section
       id="home"
       ref={ref}
-      className="relative flex min-h-screen items-center overflow-hidden bg-surface-base pt-20"
+      className="relative flex min-h-screen items-center overflow-hidden bg-sand pt-20"
     >
-      <RingPattern className="absolute inset-0 h-full w-full text-secondary-500" />
-
-      <div className="container-elato relative grid grid-cols-1 items-center gap-12 py-16 lg:grid-cols-[60%_40%] lg:gap-8">
+      <HeroBackground targetRef={ref} />
+      <motion.div
+        style={{ opacity: exitOpacity, scale: exitScale, y: exitY }}
+        className="container-elato relative flex flex-col items-center justify-center gap-8 py-16 text-center lg:gap-10"
+      >
         <motion.div
           initial="hidden"
           animate="visible"
-          variants={heroLoadIn}
-          className="flex flex-col items-center gap-6 text-center lg:items-start lg:text-left"
+          variants={staggerContainer}
+          className="flex flex-col items-center gap-8 lg:gap-10"
         >
-          <p className="text-caption text-secondary-500">Crafting Moments Worth Savoring</p>
-          <Logo as="h1" ariaLabel="ELATŌ — Where Every Celebration Begins" className="text-5xl lg:text-7xl" />
-          <p className="text-body-lg max-w-md text-secondary-900">{heroContent.subStatement}</p>
-          <Button variant="primary" onClick={scrollToServices}>
-            {heroContent.ctaLabel}
-          </Button>
+          <motion.div variants={heroLoadIn}>
+            <LogoImage className="h-16 sm:h-20 md:h-24 lg:h-32" />
+          </motion.div>
+          <motion.h1
+            variants={heroLoadIn}
+            className="text-display-1 max-w-3xl text-secondary-900"
+          >
+            {heroContent.headline}
+          </motion.h1>
+          <motion.p variants={heroLoadIn} className="text-body-lg max-w-xl text-secondary-900">
+            {heroContent.subStatement}
+          </motion.p>
         </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, scale: 1.03 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.7, ease: 'easeOut' }}
-          style={{ y: parallaxY }}
-          className="relative -mt-6 aspect-4/5 w-full max-w-sm justify-self-center overflow-hidden rounded-lg shadow-elato-xl lg:mt-0 lg:max-w-none lg:justify-self-auto"
-        >
-          <div
-            className="h-full w-full bg-gradient-to-br from-primary-300 via-primary-100 to-secondary-500"
-            aria-hidden="true"
-          />
-        </motion.div>
-      </div>
+      </motion.div>
     </section>
   )
 }

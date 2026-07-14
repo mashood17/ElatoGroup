@@ -1,6 +1,5 @@
 import { Helmet } from 'react-helmet-async'
 import { Button } from '../components/ui/Button'
-import { RingPattern } from '../components/brand/RingPattern'
 import { Logo } from '../components/brand/Logo'
 
 export function NotFoundPage() {
@@ -10,7 +9,6 @@ export function NotFoundPage() {
         <title>Page Not Found | ELATŌ</title>
         <meta name="robots" content="noindex" />
       </Helmet>
-      <RingPattern className="absolute inset-0 h-full w-full text-secondary-500 opacity-70" />
       <div className="container-elato relative flex flex-col items-center gap-6 py-24 text-center">
         <Logo className="text-4xl" />
         <h1 className="text-h1 text-secondary-900">This page hasn't been set</h1>

@@ -26,7 +26,7 @@ export function Logo({
         {/* The macron is always --taupe — the brand's one distinctive visual
             device, deliberately never the same color as the rest of the wordmark. */}
         <span
-          className="absolute left-1/2 -top-[0.42em] h-[0.09em] w-[0.5em] -translate-x-1/2 bg-taupe"
+          className="absolute left-1/2 -top-[0.16em] h-[0.09em] w-[0.5em] -translate-x-1/2 bg-taupe"
           aria-hidden="true"
         />
       </span>

@@ -1,26 +1,47 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type MouseEvent } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { Link, useLocation } from 'react-router-dom'
-import { Logo } from '../brand/Logo'
+import { LogoImage } from '../brand/LogoImage'
 import { Button } from '../ui/Button'
+import { NavPill, type ResolvedNavItem } from './NavPill'
 
+// `to` items are real routes; `hash` items are anchors on `basePath` (default home).
 const navItems = [
-  { label: 'Home', href: '#home' },
-  { label: 'Services', href: '#services' },
-  { label: 'About', href: '#about' },
-  { label: 'Instagram', href: '#instagram' },
-  { label: 'Reviews', href: '#reviews' },
-  { label: 'Visit', href: '#visit' },
-]
+  { label: 'Home', to: '/' },
+  { label: 'Stay', to: '/elato-stay' },
+  { label: 'Celebré', to: '/elato-celebre' },
+  { label: 'Events', to: '/elato-events' },
+  { label: 'Instagram', hash: '#instagram' },
+  { label: 'Visit', hash: '#visit' },
+] as const
+
+const MENU_BASE_PATH = '/elato-celebre'
+const MENU_ANCHOR = '#menu'
 
 export function Navbar() {
   const [scrolled, setScrolled] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
   const location = useLocation()
   const isHome = location.pathname === '/'
+  const isCelebrePage = location.pathname === MENU_BASE_PATH
 
   // Section anchors only resolve on the Homepage — elsewhere, route back to it first.
   const resolveHref = (hash: string) => (isHome ? hash : `/${hash}`)
+
+  const resolvedItems: ResolvedNavItem[] = navItems.map((item) =>
+    'to' in item
+      ? { label: item.label, href: item.to, isRoute: true, isActive: location.pathname === item.to }
+      : { label: item.label, href: resolveHref(item.hash), isRoute: false, isActive: false },
+  )
+
+  const menuHref = isCelebrePage ? MENU_ANCHOR : `${MENU_BASE_PATH}${MENU_ANCHOR}`
+  const handleMenuClick = (e: MouseEvent) => {
+    if (isCelebrePage) {
+      e.preventDefault()
+      document.getElementById('menu')?.scrollIntoView({ behavior: 'smooth' })
+    }
+    setMenuOpen(false)
+  }
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 64)
@@ -38,32 +59,29 @@ export function Navbar() {
       }`}
     >
       <nav className="container-elato flex h-20 items-center justify-between">
-        <Link to="/" className="text-xl">
-          <Logo />
+        <Link to="/">
+          <LogoImage />
         </Link>
 
-        <ul className="hidden items-center gap-8 lg:flex">
-          {navItems.map((item) => (
-            <li key={item.href}>
-              <a
-                href={resolveHref(item.href)}
-                className="text-body font-semibold text-secondary-900 transition-colors hover:text-secondary-500"
-              >
-                {item.label}
-              </a>
-            </li>
-          ))}
-        </ul>
+        <div className="hidden lg:block">
+          <NavPill items={resolvedItems} />
+        </div>
 
         <div className="hidden lg:block">
-          <Button as="a" href={resolveHref('#visit')} variant="primary">
-            Enquire
+          <Button
+            as="a"
+            href={menuHref}
+            variant="primary"
+            onClick={handleMenuClick}
+            className="shadow-elato-sm transition-all duration-300 ease-out hover:-translate-y-0.5 hover:bg-secondary-700 hover:shadow-elato-lg"
+          >
+            Our Menu
           </Button>
         </div>
 
         <button
           type="button"
-          className="flex h-11 w-11 items-center justify-center lg:hidden"
+          className="flex h-11 w-11 items-center justify-center rounded-full bg-sand/50 transition-colors hover:bg-sand lg:hidden"
           aria-label={menuOpen ? 'Close menu' : 'Open menu'}
           aria-expanded={menuOpen}
           onClick={() => setMenuOpen((v) => !v)}
@@ -81,23 +99,32 @@ export function Navbar() {
             transition={{ duration: 0.25 }}
             className="fixed inset-0 top-20 z-40 flex flex-col items-center gap-8 bg-surface-base pt-12 lg:hidden"
           >
-            {navItems.map((item) => (
-              <a
-                key={item.href}
-                href={resolveHref(item.href)}
-                className="text-h3 text-secondary-900"
-                onClick={() => setMenuOpen(false)}
-              >
-                {item.label}
-              </a>
-            ))}
-            <Button
-              as="a"
-              href={resolveHref('#visit')}
-              variant="primary"
-              onClick={() => setMenuOpen(false)}
-            >
-              Enquire
+            {resolvedItems.map((item) => {
+              const linkClassName = `text-h3 transition-colors ${
+                item.isActive ? 'text-secondary-500' : 'text-secondary-900'
+              }`
+              return item.isRoute ? (
+                <Link
+                  key={item.href}
+                  to={item.href}
+                  className={linkClassName}
+                  onClick={() => setMenuOpen(false)}
+                >
+                  {item.label}
+                </Link>
+              ) : (
+                <a
+                  key={item.href}
+                  href={item.href}
+                  className={linkClassName}
+                  onClick={() => setMenuOpen(false)}
+                >
+                  {item.label}
+                </a>
+              )
+            })}
+            <Button as="a" href={menuHref} variant="primary" onClick={handleMenuClick}>
+              Our Menu
             </Button>
           </motion.div>
         )}

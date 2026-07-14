@@ -1,6 +1,6 @@
 import { motion, useScroll, useTransform } from 'framer-motion'
 import { useRef } from 'react'
-import { RingPattern } from '../brand/RingPattern'
+import { HeroBackground } from '../brand/HeroBackground'
 import { heroLoadIn, staggerContainer, PARALLAX_MAX_PX } from '../../lib/motion'
 
 const celebreHero = {
@@ -16,19 +16,15 @@ export function CelebreHero() {
     offset: ['start start', 'end start'],
   })
 
-  const backgroundY = useTransform(scrollYProgress, [0, 1], [0, PARALLAX_MAX_PX * 0.5])
   const logoY = useTransform(scrollYProgress, [0, 1], [0, PARALLAX_MAX_PX * 0.15])
   const imageY = useTransform(scrollYProgress, [0, 1], [0, PARALLAX_MAX_PX])
 
   return (
     <section
       ref={ref}
-      className="relative flex min-h-screen items-center overflow-hidden bg-surface-base pt-20"
+      className="relative flex min-h-screen items-center overflow-hidden bg-sand pt-20"
     >
-      <motion.div style={{ y: backgroundY }} className="absolute inset-0 h-[120%] w-full">
-        <RingPattern className="h-full w-full text-secondary-500 opacity-70" />
-      </motion.div>
-
+      <HeroBackground targetRef={ref} />
       <div className="container-elato relative grid grid-cols-1 items-center gap-16 py-16 lg:grid-cols-[60%_40%] lg:gap-8">
         <motion.div
           style={{ y: logoY }}
