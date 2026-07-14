@@ -35,7 +35,7 @@ export function Footer() {
         </div>
 
         <div>
-          <h3 className="text-caption mb-4 text-primary-300">Explore</h3>
+          <p className="text-caption mb-4 text-primary-300">Explore</p>
           <ul className="flex flex-col gap-2 text-body">
             <li><a href={homeHash('#home')} className="hover:text-primary-300">Home</a></li>
             <li><Link to="/elato-stay" className="hover:text-primary-300">Stay</Link></li>
@@ -45,7 +45,7 @@ export function Footer() {
         </div>
 
         <div>
-          <h3 className="text-caption mb-4 text-primary-300">Visit</h3>
+          <p className="text-caption mb-4 text-primary-300">Visit</p>
           <ul className="flex flex-col gap-2 text-body text-primary-100">
             <li>{businessInfo.address}</li>
             {businessInfo.hours.map((h) => (
@@ -57,7 +57,7 @@ export function Footer() {
         </div>
 
         <div>
-          <h3 className="text-caption mb-4 text-primary-300">Contact</h3>
+          <p className="text-caption mb-4 text-primary-300">Contact</p>
           <ul className="flex flex-col gap-2 text-body text-primary-100">
             <li>{businessInfo.phone}</li>
             <li>
