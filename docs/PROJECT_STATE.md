@@ -116,19 +116,18 @@ Status
 
 Status
 
-🟡 In Progress
+🟢 Complete
 
 Completed
 
 - Shared Hero component
-- Client background
-- Wordmark logo
+- Client background (mobile crop fixed; desktop untouched)
+- Wordmark logo as dominant visual element
+- Premium cinematic intro animation
 
 Pending
 
-- Premium intro animation
 - Scroll storytelling
-- Final polish
 
 ---
 
@@ -374,11 +373,11 @@ Completed
 - Navbar
 - Card hover
 - Scroll reveals
+- Hero intro
+- Premium logo animation
 
 Pending
 
-- Hero intro
-- Premium logo animation
 - Section transitions
 - Page transitions
 
@@ -438,7 +437,6 @@ Pending
 
 # Known Issues
 
-- Hero animation requires refinement.
 - Final imagery pending.
 - Booking integration pending.
 - Instagram feed pending.
