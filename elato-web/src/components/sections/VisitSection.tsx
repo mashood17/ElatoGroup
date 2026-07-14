@@ -61,19 +61,29 @@ export function VisitSection() {
         className="container-elato grid grid-cols-1 gap-12 lg:grid-cols-2"
       >
         <div className="flex flex-col gap-6">
-          <button
-            type="button"
-            onClick={() => setMapActive(true)}
-            className="relative flex aspect-4/3 w-full items-center justify-center rounded-lg bg-primary-100 shadow-elato-sm"
-          >
+          <div className="relative aspect-4/3 w-full overflow-hidden rounded-lg bg-primary-100 shadow-elato-sm">
             {!mapActive ? (
-              <span className="text-body font-semibold text-secondary-500">Tap to load map</span>
+              <button
+                type="button"
+                onClick={() => setMapActive(true)}
+                aria-label="Load an interactive map of ELATŌ CELEBRÉ, Panemangalore"
+                className="flex h-full w-full items-center justify-center"
+              >
+                <span className="text-body font-semibold text-secondary-500">Tap to load map</span>
+              </button>
             ) : (
-              <span className="text-body text-neutral-warm-500">
-                Interactive map placeholder — wire a real Maps embed once a Places API key is configured (PRD Ch. 43).
-              </span>
+              // No-API-key embed — swap for the Places API "Embed" variant
+              // (adds a key param) once one is provisioned; query and output
+              // params carry no tracking/session data.
+              <iframe
+                title="ELATŌ CELEBRÉ, Panemangalore — map location"
+                src={`https://www.google.com/maps?q=${encodeURIComponent(businessInfo.address)}&output=embed`}
+                className="h-full w-full border-0"
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+              />
             )}
-          </button>
+          </div>
 
           <div className="text-body text-secondary-900">
             <p className="font-semibold">{businessInfo.address}</p>

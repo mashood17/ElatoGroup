@@ -347,7 +347,7 @@ function MenuItemFormModal({
           value={price}
           onChange={(e) => setPrice(e.target.value)}
         />
-        <ImagePickerField label="Image" bucket="menu-images" imageId={imageId} onChange={setImageId} />
+        <ImagePickerField label="Image" bucket="menu" imageId={imageId} onChange={setImageId} />
         <Switch checked={isAvailable} onChange={setIsAvailable} label="Available on the menu" />
       </form>
     </Modal>

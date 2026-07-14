@@ -242,7 +242,7 @@ function RoomFormModal({
         <Textarea label="Description" value={description} onChange={(e) => setDescription(e.target.value)} />
         <Input label="Capacity" type="number" min={0} value={capacity} onChange={(e) => setCapacity(e.target.value)} />
         <TagInput label="Amenities" value={amenities} onChange={setAmenities} placeholder="e.g. Air conditioning, Enter…" />
-        <MultiImagePickerField label="Images" bucket="rooms" imageIds={imageIds} onChange={setImageIds} />
+        <MultiImagePickerField label="Images" bucket="stay" imageIds={imageIds} onChange={setImageIds} />
         <Switch checked={isActive} onChange={setIsActive} label="Active" />
       </form>
     </Modal>

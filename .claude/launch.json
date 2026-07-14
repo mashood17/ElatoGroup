@@ -1,0 +1,25 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "elato-web",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev", "--prefix", "elato-web"],
+      "port": 5173,
+      "autoPort": true
+    },
+    {
+      "name": "elato-admin",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev", "--prefix", "elato-admin"],
+      "port": 5174,
+      "autoPort": true
+    },
+    {
+      "name": "elato-backend",
+      "runtimeExecutable": "elato-backend/.venv/Scripts/python.exe",
+      "runtimeArgs": ["-m", "uvicorn", "app.main:app", "--port", "8001", "--app-dir", "elato-backend"],
+      "port": 8001
+    }
+  ]
+}

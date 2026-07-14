@@ -22,7 +22,18 @@ import { errorMessage } from "../../lib/query-client";
 import { formatDate } from "../../lib/utils";
 import type { MediaBucket, MediaOut } from "../../types/api";
 
-const BUCKETS: MediaBucket[] = ["menu-images", "gallery", "hero-assets", "rooms", "events", "avatars"];
+const BUCKETS: MediaBucket[] = [
+  "public-assets",
+  "logos",
+  "hero",
+  "gallery",
+  "categories",
+  "menu",
+  "events",
+  "stay",
+  "reviews",
+  "uploads",
+];
 const LIMIT = 40;
 
 export function MediaLibraryPage() {

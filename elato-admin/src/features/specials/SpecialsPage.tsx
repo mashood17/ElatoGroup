@@ -255,7 +255,7 @@ function SpecialFormModal({
           <Input label="Active from" type="date" value={activeFrom} onChange={(e) => setActiveFrom(e.target.value)} />
           <Input label="Active to" type="date" value={activeTo} onChange={(e) => setActiveTo(e.target.value)} />
         </div>
-        <ImagePickerField label="Image" bucket="menu-images" imageId={imageId} onChange={setImageId} />
+        <ImagePickerField label="Image" bucket="menu" imageId={imageId} onChange={setImageId} />
         <Switch checked={isActive} onChange={setIsActive} label="Active" />
       </form>
     </Modal>

@@ -25,7 +25,23 @@ _MAGIC_BYTES: dict[bytes, str] = {
 }
 
 _BREAKPOINTS = {"thumbnail": 320, "sm": 640, "lg": 1280}
-_VALID_BUCKETS = {"menu-images", "gallery", "hero-assets", "rooms", "events", "avatars"}
+# Must match the buckets that actually exist in the live Supabase project —
+# migration 0001's `insert into storage.buckets` used different names
+# (menu-images/hero-assets/rooms/avatars) that were never applied; the
+# buckets that exist were created separately, matching the product brief's
+# Section 4 table. Corrected here rather than editing 0001.
+_VALID_BUCKETS = {
+    "public-assets",
+    "logos",
+    "hero",
+    "gallery",
+    "categories",
+    "menu",
+    "events",
+    "stay",
+    "reviews",
+    "uploads",
+}
 
 
 @dataclass

@@ -1,0 +1,7 @@
+[tool.pytest.ini_options]
+# Without this, bare `pytest` (as opposed to `python -m pytest`, which
+# prepends CWD to sys.path automatically) can't resolve `from app... import`
+# in test files — confirmed as the exact cause of a real CI failure
+# (elato-backend's pytest job: "ModuleNotFoundError: No module named 'app'"
+# passed locally via `python -m pytest` but failed in CI's bare `pytest -v`).
+pythonpath = ["."]

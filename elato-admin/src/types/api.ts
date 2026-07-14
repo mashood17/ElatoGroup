@@ -315,7 +315,19 @@ export interface DashboardStats {
 // media.py
 // ---------------------------------------------------------------------------
 
-export type MediaBucket = "menu-images" | "gallery" | "hero-assets" | "rooms" | "events" | "avatars";
+// Must match the buckets that actually exist in the live Supabase project
+// (Storage → Buckets), not any aspirational list in a migration file.
+export type MediaBucket =
+  | "public-assets"
+  | "logos"
+  | "hero"
+  | "gallery"
+  | "categories"
+  | "menu"
+  | "events"
+  | "stay"
+  | "reviews"
+  | "uploads";
 
 export interface MediaVariant {
   url: string;
