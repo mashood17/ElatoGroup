@@ -46,3 +46,39 @@ supabase db push
 ## Status
 
 🟡 Architecture scaffold complete and verified running (health check, structured logs, error shape, JWT utilities all tested locally). 🔴 No live Supabase connection, no business endpoints, no admin auth flow yet — blocked on real Supabase project credentials being wired into `.env`.
+
+> Note (testing pass): this "Status" section predates the "Backend Structure"
+> commit, which added real `/api/v1/*` routes, repositories, and admin auth
+> (see `app/api/v1/`) — it's stale and worth updating separately. Left as-is
+> here since narrating the app's build status isn't this testing pass's job.
+
+## Testing
+
+```bash
+python -m venv .venv
+.venv\Scripts\activate              # Windows
+pip install -r requirements-dev.txt  # requirements.txt + pytest
+pytest -v
+```
+
+Tests live in `tests/`. `tests/conftest.py` sets dummy `SUPABASE_URL` /
+`SUPABASE_SECRET_KEY` / `JWT_SECRET` env vars before anything imports
+`app.core.config` — `Settings` requires those two Supabase values with no
+default (fails fast at boot otherwise), but no test here makes a real
+Supabase call, so placeholder values are enough. Covers:
+
+- `test_health.py` — `/health` returns 200 and requires no auth (what
+  Render's health check actually probes).
+- `test_app_imports.py` — every `app/api/v1/*` route module imports cleanly,
+  the FastAPI app builds, and routes beyond `/health` are registered. Catches
+  boot-time breakage (bad import, router registration failure) that
+  per-function unit tests wouldn't.
+
+## Deployment (Render)
+
+`render.yaml` at the repo root defines the Render blueprint: Python runtime,
+`pip install -r requirements.txt`, `uvicorn app.main:app --host 0.0.0.0
+--port $PORT`, health check at `/health`. Every real secret
+(`JWT_SECRET`, `SUPABASE_URL`, `SUPABASE_SECRET_KEY`, etc.) is declared with
+`sync: false` so the blueprint never carries actual values — set them for
+real in the Render dashboard's Environment tab per service.

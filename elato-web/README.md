@@ -30,3 +30,17 @@ If you are developing a production application, we recommend enabling type-aware
 ```
 
 See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+
+## Testing
+
+- `npm run test` — Vitest unit/component tests (`src/**/__tests__`), jsdom + React Testing Library.
+- `npm run test:coverage` — same, with a coverage report.
+- `npm run e2e` — Playwright E2E specs (`e2e/`), against a local Vite dev server. Backend API calls made by the app are mocked at the network layer (`e2e/fixtures/api-mocks.ts`) so these don't depend on a live `elato-backend`/Supabase.
+- `npm run e2e:ui` — same, in Playwright's interactive UI mode.
+- `npx lhci autorun` — Lighthouse CI against the production build (`lighthouserc.cjs`); run `npm run build` first.
+
+## Deployment (Vercel)
+
+`vercel.json` sets the framework preset, build/output config, and SPA rewrites (react-router needs every path to resolve to `index.html`). It also sets baseline security headers (`X-Frame-Options`, `X-Content-Type-Options`, `Referrer-Policy`).
+
+`Strict-Transport-Security` and `Content-Security-Policy` are intentionally **not** set yet — both need to be finalized against the real production domain (CSP in particular needs the actual set of external origins the app talks to: the FastAPI backend, fonts, analytics) once one exists, rather than guessed at now.
