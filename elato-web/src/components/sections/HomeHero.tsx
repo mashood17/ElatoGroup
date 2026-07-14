@@ -20,15 +20,6 @@ const EASE_CINEMATIC = [0.16, 1, 0.3, 1] as const
 export function HomeHero() {
   const reduceMotion = useReducedMotion()
 
-  const backgroundReveal: Variants = {
-    hidden: { opacity: 0, scale: reduceMotion ? 1 : 1.05 },
-    visible: {
-      opacity: 1,
-      scale: 1,
-      transition: { duration: reduceMotion ? 0.4 : 1.8, ease: EASE_CINEMATIC },
-    },
-  }
-
   const contentStagger: Variants = {
     hidden: {},
     visible: {
@@ -59,19 +50,13 @@ export function HomeHero() {
   }
 
   return (
-    <section
-      id="home"
-      className="relative flex min-h-screen items-center justify-center overflow-hidden bg-sand pt-20"
-    >
-      <motion.img
+    <section id="home" className="relative flex h-screen items-center justify-center overflow-hidden">
+      <img
         src={heroBackground}
         alt=""
         aria-hidden="true"
         fetchPriority="high"
         decoding="async"
-        initial="hidden"
-        animate="visible"
-        variants={backgroundReveal}
         className="absolute inset-0 -z-10 h-full w-full object-cover object-center"
       />
 
@@ -79,7 +64,7 @@ export function HomeHero() {
         initial="hidden"
         animate="visible"
         variants={contentStagger}
-        className="container-elato relative flex flex-col items-center gap-8 py-16 text-center lg:gap-10"
+        className="container-elato relative flex flex-col items-center gap-8 pt-20 text-center lg:gap-10"
       >
         <motion.div variants={logoReveal}>
           <LogoImage className="h-14 sm:h-20 md:h-28 lg:h-36 xl:h-44" />
