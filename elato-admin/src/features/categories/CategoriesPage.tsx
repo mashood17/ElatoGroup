@@ -15,6 +15,7 @@ import {
   PageHeader,
   Switch,
   TableSkeleton,
+  Textarea,
 } from "../../components/ui";
 import { SortableList } from "../../components/ui/SortableList";
 import { useAuth } from "../../context/AuthContext";
@@ -121,7 +122,10 @@ export function CategoriesPage() {
               <div className="flex flex-1 items-center justify-between gap-3 py-2.5 pr-3">
                 <div className="min-w-0">
                   <p className="truncate text-sm font-medium text-neutral-800">{category.name}</p>
-                  <p className="truncate text-xs text-neutral-400">/{category.slug}</p>
+                  <p className="truncate text-xs text-neutral-400">
+                    /{category.slug}
+                    {category.description ? ` — ${category.description}` : ""}
+                  </p>
                 </div>
                 <div className="flex shrink-0 items-center gap-2">
                   <Badge tone={category.is_active ? "success" : "neutral"}>
@@ -195,6 +199,7 @@ function CategoryFormModal({
   const [name, setName] = useState("");
   const [slug, setSlug] = useState("");
   const [slugTouched, setSlugTouched] = useState(false);
+  const [description, setDescription] = useState("");
   const [isActive, setIsActive] = useState(true);
 
   useEffect(() => {
@@ -202,6 +207,7 @@ function CategoryFormModal({
       setName(category?.name ?? "");
       setSlug(category?.slug ?? "");
       setSlugTouched(!!category);
+      setDescription(category?.description ?? "");
       setIsActive(category?.is_active ?? true);
     }
   }, [open, category]);
@@ -209,8 +215,14 @@ function CategoryFormModal({
   const mutation = useMutation({
     mutationFn: () =>
       category
-        ? categoriesApi.update(category.id, { name, slug, is_active: isActive })
-        : categoriesApi.create({ name, slug, is_active: isActive, display_order: nextDisplayOrder }),
+        ? categoriesApi.update(category.id, { name, slug, description: description || null, is_active: isActive })
+        : categoriesApi.create({
+            name,
+            slug,
+            description: description || null,
+            is_active: isActive,
+            display_order: nextDisplayOrder,
+          }),
     onSuccess: () => {
       showToast({ title: category ? "Category updated" : "Category created", variant: "success" });
       onSaved();
@@ -259,6 +271,12 @@ function CategoryFormModal({
             setSlugTouched(true);
           }}
           hint="Lowercase letters, numbers and hyphens only."
+        />
+        <Textarea
+          label="Description"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          hint="Shown under the category name on the public menu."
         />
         <Switch checked={isActive} onChange={setIsActive} label="Active (visible on the public site)" />
       </form>

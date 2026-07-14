@@ -45,8 +45,15 @@ function toApiError(error: AxiosError<ApiErrorBody>): ApiError {
   return new ApiError("unknown_error", error.message || "Something went wrong.", error.response?.status);
 }
 
-// Concurrent-request-safe refresh: if several requests 401 at once we only
-// want a single refresh call in flight, and everyone else awaits its result.
+// Concurrent-request-safe refresh: if several requests 401 at once — or
+// AuthContext's boot-time restore races a 401 retry, e.g. under React
+// StrictMode's double-effect-invocation in dev — we only want a single
+// refresh call in flight against the rotating refresh token, and everyone
+// else (including AuthContext.bootstrap, via refreshSession() below) awaits
+// its result instead of firing their own concurrent call. Two concurrent
+// calls with the same refresh token would race: the backend revokes the
+// token on first use, so the loser fails and force-logs-out a session that
+// should have stayed valid.
 let refreshPromise: Promise<string> | null = null;
 
 async function performRefresh(): Promise<string> {
@@ -62,6 +69,16 @@ async function performRefresh(): Promise<string> {
   return response.data.access_token;
 }
 
+/** Public entry point for anything outside this module that needs to refresh
+ * the session (currently: AuthContext's boot-time restore) — always routes
+ * through the same dedup guard as the 401 interceptor below. */
+export function refreshSession(): Promise<string> {
+  refreshPromise ??= performRefresh().finally(() => {
+    refreshPromise = null;
+  });
+  return refreshPromise;
+}
+
 apiClient.interceptors.response.use(
   (response) => response,
   async (error: AxiosError<ApiErrorBody>) => {
@@ -72,10 +89,7 @@ apiClient.interceptors.response.use(
     if (status === 401 && originalRequest && !originalRequest._retried && !isAuthEndpoint) {
       originalRequest._retried = true;
       try {
-        refreshPromise ??= performRefresh().finally(() => {
-          refreshPromise = null;
-        });
-        const newAccessToken = await refreshPromise;
+        const newAccessToken = await refreshSession();
         originalRequest.headers.set("Authorization", `Bearer ${newAccessToken}`);
         return apiClient(originalRequest);
       } catch {

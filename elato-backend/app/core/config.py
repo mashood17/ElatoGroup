@@ -8,13 +8,20 @@ not on the first real query.
 """
 
 from functools import lru_cache
+from pathlib import Path
 
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+# Anchored to this file's location (elato-backend/app/core/config.py -> elato-backend/.env)
+# rather than left relative to the process's CWD — CWD varies across how the
+# app gets launched (uvicorn --app-dir, a process manager, etc.) and a silent
+# "wrong .env" is worse than an explicit path.
+_ENV_FILE = Path(__file__).resolve().parent.parent.parent / ".env"
+
 
 class Settings(BaseSettings):
-    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
+    model_config = SettingsConfigDict(env_file=_ENV_FILE, extra="ignore")
 
     env: str = Field(default="development", alias="ENV")
     port: int = Field(default=8000, alias="PORT")

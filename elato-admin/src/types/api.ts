@@ -80,6 +80,7 @@ export interface CategoryOut {
   id: string;
   name: string;
   slug: string;
+  description: string | null;
   display_order: number;
   is_active: boolean;
   created_at: string;
@@ -88,6 +89,7 @@ export interface CategoryOut {
 export interface CategoryCreate {
   name: string;
   slug: string;
+  description?: string | null;
   display_order?: number;
   is_active?: boolean;
 }
@@ -95,6 +97,7 @@ export interface CategoryCreate {
 export interface CategoryUpdate {
   name?: string;
   slug?: string;
+  description?: string | null;
   display_order?: number;
   is_active?: boolean;
 }

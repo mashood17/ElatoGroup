@@ -28,6 +28,11 @@ app.add_middleware(RequestLoggingMiddleware)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.cors_origins_list,
+    # Dev convenience only: preview tooling assigns random localhost ports
+    # when 5173/5174 are taken, so CORS_ALLOWED_ORIGINS alone is too static
+    # for local work. Never active in production — origins there are fixed,
+    # real domains and belong in CORS_ALLOWED_ORIGINS.
+    allow_origin_regex=r"^http://localhost:\d+$" if not settings.is_production else None,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

@@ -1,7 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import type { ReactNode } from "react";
 import { authApi } from "../api/auth";
-import { SESSION_EXPIRED_EVENT } from "../lib/api-client";
+import { SESSION_EXPIRED_EVENT, refreshSession } from "../lib/api-client";
 import {
   clearSession,
   getRefreshToken,
@@ -42,10 +42,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return;
       }
       try {
-        const res = await authApi.refresh({ refresh_token: refreshToken });
+        // Routed through the same dedup guard as the 401 interceptor
+        // (see lib/api-client.ts) — under React StrictMode this effect
+        // runs twice; without the shared guard both invocations would
+        // race the same (single-use, rotating) refresh token and one
+        // would always fail, force-logging-out a session that was fine.
+        await refreshSession();
         if (cancelled) return;
-        setAccessToken(res.access_token);
-        setRefreshToken(res.refresh_token);
         setAdmin(storedAdmin);
         setStatus("authenticated");
       } catch {
