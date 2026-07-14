@@ -5,10 +5,7 @@
  */
 
 export const stayHero = {
-  overline: 'ELATŌ',
-  wordmarkLine1: 'ELATŌ',
-  wordmarkLine2: 'STAY',
-  statement: 'A spacious 2BHK premium serviced apartment for family trips, wedding guests, and vacation stays.',
+  tagline: 'A spacious 2BHK premium serviced apartment for 6–8 guests.',
 }
 
 export const stayInfo = [

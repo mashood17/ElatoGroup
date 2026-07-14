@@ -224,10 +224,10 @@ Status
 Completed
 
 - Basic layout
+- Hero (shared `PremiumHero`, matches Home Hero exactly — see Reusable Components)
 
 Pending
 
-- Hero
 - Gallery
 - Amenities
 - Booking
@@ -241,9 +241,12 @@ Status
 
 🟡 In Progress
 
+Completed
+
+- Hero (shared `PremiumHero`, matches Home Hero exactly)
+
 Pending
 
-- Hero
 - Menu
 - Categories
 - Specials
@@ -257,9 +260,12 @@ Status
 
 🟡 In Progress
 
+Completed
+
+- Hero (shared `PremiumHero`, matches Home Hero exactly)
+
 Pending
 
-- Hero
 - Gallery
 - Capacity
 - Inquiry
@@ -346,7 +352,10 @@ Current Buckets
 
 Completed
 
-- Hero
+- Hero (Home only — locked/approved, its own standalone implementation)
+- PremiumHero (shared by Stay/Celebré/Events — parameterized twin of the Home
+  Hero's background/layout/logo-reveal/tagline; Home Hero itself was not
+  touched to build this)
 - Navbar
 - Buttons
 - Service Cards

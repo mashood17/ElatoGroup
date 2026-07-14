@@ -11,6 +11,10 @@
  * repository's internals, not touching a single component.
  */
 
+export const celebreHero = {
+  tagline: 'Handcrafted ice cream, artisan coffee, and signature desserts.',
+}
+
 export type Category = {
   id: string
   name: string

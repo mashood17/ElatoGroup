@@ -1,5 +1,5 @@
 import type { RefObject } from 'react'
-import backgroundImage from '../../assets/newbg/bg.png'
+import backgroundImage from '../../assets/newbg/bg.jpg'
 
 interface HeroBackgroundProps {
   targetRef: RefObject<HTMLElement | null>

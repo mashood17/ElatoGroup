@@ -1,7 +1,7 @@
 import { motion, useReducedMotion, type Variants } from 'framer-motion'
 import { HeroLogo3D } from '../hero/HeroLogo3D'
 import { heroContent } from '../../content/siteContent'
-import heroBackground from '../../assets/newbg/bg.png'
+import heroBackground from '../../assets/newbg/bg.jpg'
 import heroBackgroundMobile from '../../assets/newbg/bg-mb.png'
 
 const EASE_CINEMATIC = [0.16, 1, 0.3, 1] as const

@@ -6,6 +6,10 @@
  * number) since no real price list exists yet — do not invent one.
  */
 
+export const eventsHero = {
+  tagline: 'A 200–250 guest hall for weddings, engagements, and celebrations.',
+}
+
 export type FeaturedEvent = {
   id: string
   title: string
