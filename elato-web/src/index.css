@@ -156,6 +156,24 @@
   }
 }
 
+/* Hero background: near-imperceptible cinematic drift (PRD hero motion note).
+   Transform-only (scale + translate3d) so it's GPU-accelerated and never
+   touches background-position/layout; base scale stays >1 so the drift never
+   reveals an edge. Frozen by the prefers-reduced-motion rule below. */
+@keyframes hero-ken-burns {
+  0% {
+    transform: scale(1.04) translate3d(0, 0, 0);
+  }
+  100% {
+    transform: scale(1.1) translate3d(-1.4%, -1%, 0);
+  }
+}
+
+.hero-bg-kenburns {
+  animation: hero-ken-burns 32s ease-in-out infinite alternate;
+  will-change: transform;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;

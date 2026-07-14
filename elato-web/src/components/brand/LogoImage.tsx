@@ -7,6 +7,6 @@ import elatoWordmark from '../../assets/logos/elato-wordmark.png'
  * single, reusable, non-hardcoded reference rather than an inline <img> path
  * repeated at each call site.
  */
-export function LogoImage({ className = '' }: { className?: string }) {
-  return <img src={elatoWordmark} alt="ELATŌ" className={`h-7 w-auto ${className}`} />
+export function LogoImage({ className = 'h-7' }: { className?: string }) {
+  return <img src={elatoWordmark} alt="ELATŌ" className={`w-auto ${className}`} />
 }
