@@ -122,40 +122,41 @@ function LogoMesh() {
   )
 
   useEffect(() => {
-    // Timing is ~30% slower than the previous pass, weighted non-uniformly:
-    // the reveal and the pauses around it get the most extra room to
-    // breathe; the landing highlight stays close to its original length
-    // since it's meant to read as a brief flash, not a lingering moment.
+    // Tightened timeline: reveal begins almost immediately (0.10s), and each
+    // later stage's duration is set so it ends exactly when the next one
+    // begins (macron fall -> highlight -> sweep -> idle), keeping the same
+    // "next stage starts right as the previous one resolves" chaining as
+    // before, just compressed into a snappier overall pace.
     const s = stage.current
     const controls = [
-      // A short pause on the background alone, then the logo reveal begins:
-      // fades in (opacity only, no color/brightness change) while settling
-      // in from ~14px left of its final position. No bounce.
+      // Logo reveal begins almost immediately: fades in (opacity only, no
+      // color/brightness change) while settling in from ~14px left of its
+      // final position. No bounce.
       animate(0, 1, {
-        delay: 0.65,
-        duration: 1.4,
+        delay: 0.1,
+        duration: 1.25,
         ease: EASE_LOGO,
         onUpdate: (v) => { s.bodyProgress = v },
       }),
       // Macron — falls gently once the logo reveal is almost complete.
       animate(MACRON_FALL_START, 0, {
-        delay: 1.7,
-        duration: 0.7,
+        delay: 1.0,
+        duration: 0.5,
         ease: EASE_LOGO,
         onUpdate: (v) => { s.macronFall = v },
       }),
       // One extremely soft highlight exactly as it lands, gone a fraction of
       // a second later.
       animate(0, 1, {
-        delay: 2.4,
-        duration: 0.3,
+        delay: 1.5,
+        duration: 0.4,
         ease: 'easeInOut',
         onUpdate: (v) => { s.macronHighlight = Math.sin(v * Math.PI) },
       }),
       // Stage 4 — a single soft light sweep once the macron has landed.
       animate(-0.5, 1.5, {
-        delay: 2.7,
-        duration: 1.2,
+        delay: 1.9,
+        duration: 0.6,
         ease: 'easeInOut',
         onUpdate: (v) => { s.sweep = v },
       }),
@@ -164,7 +165,7 @@ function LogoMesh() {
     // Idle begins only once every entrance stage has resolved.
     const idleTimer = window.setTimeout(() => {
       idleStart.current = performance.now()
-    }, 3900)
+    }, 2500)
 
     return () => {
       controls.forEach((c) => c.stop())

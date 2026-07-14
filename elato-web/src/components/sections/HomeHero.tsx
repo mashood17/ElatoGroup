@@ -25,11 +25,12 @@ const EASE_CINEMATIC = [0.16, 1, 0.3, 1] as const
  * is in scope.
  *
  * The logo owns its own cinematic entrance internally (see HeroLogo3D /
- * LogoScene) — a ~3.9s multi-stage reveal (short pause, body settle, macron
- * fall + landing highlight, one light sweep). The tagline and subheading
- * below are timed to start only once that full sequence — plus its own
- * short pause — has resolved, each with its own restrained reveal, staggered
- * after one another.
+ * LogoScene) — a ~2.5s multi-stage reveal (body settle, macron fall +
+ * landing highlight, one light sweep), starting almost immediately after
+ * mount rather than after a noticeable idle pause. The tagline and
+ * subheading below are timed to start only once that full sequence — plus
+ * its own short pause — has resolved, each with its own restrained reveal,
+ * staggered after one another.
  */
 export function HomeHero() {
   const reduceMotion = useReducedMotion()
@@ -41,8 +42,8 @@ export function HomeHero() {
       y: 0,
       filter: 'blur(0px)',
       transition: {
-        delay: reduceMotion ? 0 : 4.25,
-        duration: reduceMotion ? 0.4 : 1.0,
+        delay: reduceMotion ? 0 : 3.1,
+        duration: reduceMotion ? 0.4 : 0.8,
         ease: EASE_CINEMATIC,
       },
     },
@@ -54,8 +55,8 @@ export function HomeHero() {
       opacity: 1,
       y: 0,
       transition: {
-        delay: reduceMotion ? 0 : 4.85,
-        duration: reduceMotion ? 0.4 : 0.85,
+        delay: reduceMotion ? 0 : 3.5,
+        duration: reduceMotion ? 0.4 : 0.7,
         ease: EASE_CINEMATIC,
       },
     },
@@ -75,7 +76,7 @@ export function HomeHero() {
         />
       </picture>
 
-      <div className="container-elato relative flex flex-col items-center gap-4 pt-20 text-center [@media(max-height:500px)]:gap-3 [@media(max-height:500px)]:pt-10 sm:gap-5 md:gap-6 lg:gap-4">
+      <div className="container-elato relative flex -translate-y-[8vh] flex-col items-center gap-4 pt-20 text-center [@media(max-height:500px)]:gap-3 [@media(max-height:500px)]:pt-10 sm:gap-5 md:translate-y-0 md:gap-6 lg:gap-4">
         <HeroLogo3D className="h-[90px] sm:h-28 md:h-36 lg:h-48 xl:h-56 [@media(max-height:500px)]:h-16" />
 
         <div className="flex flex-col items-center gap-3 sm:gap-4">
