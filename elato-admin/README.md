@@ -30,3 +30,14 @@ If you are developing a production application, we recommend enabling type-aware
 ```
 
 See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+
+## Testing
+
+- `npm run test` — Vitest unit/component tests (`src/**/__tests__`, `src/test/`), jsdom + React Testing Library.
+- `npm run test:coverage` — same, with a coverage report.
+
+## Deployment (Vercel)
+
+`vercel.json` sets the framework preset, build/output config, SPA rewrites (react-router), and baseline security headers (`X-Frame-Options`, `X-Content-Type-Options`, `Referrer-Policy`, plus `X-Robots-Tag: noindex` since this is an internal admin panel, not public content).
+
+`Strict-Transport-Security` and `Content-Security-Policy` are intentionally **not** set yet — both need to be finalized against the real production domain once one exists, rather than guessed at now.
