@@ -75,14 +75,14 @@ export function HomeHero() {
         initial="hidden"
         animate="visible"
         variants={contentStagger}
-        className="container-elato relative flex flex-col items-center gap-6 pt-20 text-center [@media(max-height:500px)]:gap-4 [@media(max-height:500px)]:pt-10 sm:gap-7 md:gap-8 lg:gap-10"
+        className="container-elato relative flex flex-col items-center gap-4 pt-20 text-center [@media(max-height:500px)]:gap-3 [@media(max-height:500px)]:pt-10 sm:gap-5 md:gap-6 lg:gap-4"
       >
         <motion.div variants={logoReveal}>
-          <LogoImage className="h-20 sm:h-28 md:h-36 lg:h-48 xl:h-56 [@media(max-height:500px)]:h-16" />
+          <LogoImage className="h-[90px] sm:h-28 md:h-36 lg:h-48 xl:h-56 [@media(max-height:500px)]:h-16" />
         </motion.div>
 
         <motion.div variants={textReveal} className="flex flex-col items-center gap-3 sm:gap-4">
-          <h1 className="max-w-lg font-display text-[22px] font-normal italic leading-[1.2] text-secondary-900 sm:text-[26px] md:text-[30px] lg:text-[36px] xl:text-[40px]">
+          <h1 className="max-w-lg font-sans text-[22px] font-light leading-snug tracking-[0.04em] text-secondary-900 sm:text-[24px] md:text-[28px] lg:text-[32px] xl:text-[34px]">
             {heroContent.headline}
           </h1>
           <p className="text-[11px] uppercase tracking-[0.32em] text-ink-soft sm:text-[12px] md:text-[13px] lg:text-[14px]">
