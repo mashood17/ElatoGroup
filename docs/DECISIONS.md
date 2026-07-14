@@ -414,3 +414,50 @@ Each decision should include
 - Implementation Notes
 
 This document is the long-term architectural memory of the ELATŌ project.
+
+---
+
+## ADR-016
+
+### Home Hero Logo — Three.js / React Three Fiber Exception
+
+Status
+
+Accepted (client-directed, scoped to the Home Hero logo only)
+
+Reason
+
+The client directed a cinematic, PBR-lit presentation of the ELATŌ wordmark
+specifically, explicitly requesting React Three Fiber / Drei / Three.js.
+
+Consequences
+
+- Deviates from ADR-003 ("Framer Motion is the only animation library").
+  Framer Motion remains the only library used for easing/tweening (including
+  driving the 3D scene's own shader uniforms via its non-DOM `animate()`
+  API) — Three.js/R3F/Drei are additive, used only for WebGL rendering.
+- Deviates from the Brand Guidelines logo rule ("never add glow / shadows /
+  outlines"). Scoped narrowly per client direction: effects are restrained
+  (no bloom, no permanent glow/shadow), fire once on entrance plus an
+  imperceptible idle state, and the source artwork itself is never recolored,
+  cropped, or redrawn — the real `elato-wordmark.png` is rendered as-is; only
+  lighting/reveal/sweep is layered on top, mathematically returning to zero
+  once each stage's window ends so the resting frame matches the flat PNG.
+  This exception is intentionally scoped to the Home Hero logo — no other
+  logo usage (Navbar, Footer, 404, other Hero instances) is affected.
+
+Implementation Notes
+
+- `components/hero/HeroLogo3D.tsx` — public, reusable entry point. Gates on
+  `prefers-reduced-motion` and WebGL support, wraps the scene in a local
+  error boundary, and always falls back to the existing static `<LogoImage>`
+  (same asset) if motion is disabled, WebGL is unavailable, or the scene
+  throws at runtime.
+- `components/hero/LogoScene.tsx` — the actual Three.js/R3F/Drei scene.
+  Reached only via `React.lazy`, so it is code-split out of the main bundle
+  and never fetched by other pages. Adds a real, non-trivial chunk (~240KB
+  gzipped) to the Home page's own load — an accepted, explicitly-requested
+  tradeoff against the ADR-010 performance budget, not an oversight.
+- The macron's independent Stage-3 animation targets a UV rectangle measured
+  directly from the real artwork's pixel data (via `sharp`, already a
+  dependency), not a guessed region or a redrawn asset.

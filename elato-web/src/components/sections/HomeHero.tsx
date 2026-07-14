@@ -1,11 +1,10 @@
 import { motion, useReducedMotion, type Variants } from 'framer-motion'
-import { LogoImage } from '../brand/LogoImage'
+import { HeroLogo3D } from '../hero/HeroLogo3D'
 import { heroContent } from '../../content/siteContent'
 import heroBackground from '../../assets/newbg/bg.png'
 import heroBackgroundMobile from '../../assets/newbg/bg-mb.png'
 
 const EASE_CINEMATIC = [0.16, 1, 0.3, 1] as const
-const EASE_LOGO = [0.19, 1, 0.22, 1] as const
 
 /**
  * Home hero, rebuilt as a single deliberate first impression: full-bleed
@@ -24,36 +23,25 @@ const EASE_LOGO = [0.19, 1, 0.22, 1] as const
  * desktop artwork — the desktop `<img>` (src, object-fit, object-position)
  * is otherwise untouched. Background is locked; only the content layer below
  * is in scope.
+ *
+ * The logo owns its own cinematic entrance internally (see HeroLogo3D /
+ * LogoScene) — its ~2.95s multi-stage reveal replaces what used to be a
+ * simple Framer Motion fade/scale here. The tagline's own delay below is
+ * tuned to start once that reveal has visually settled.
  */
 export function HomeHero() {
   const reduceMotion = useReducedMotion()
-
-  const contentStagger: Variants = {
-    hidden: {},
-    visible: {
-      transition: {
-        staggerChildren: reduceMotion ? 0 : 0.95,
-        delayChildren: reduceMotion ? 0 : 0.3,
-      },
-    },
-  }
-
-  const logoReveal: Variants = {
-    hidden: { opacity: 0, y: reduceMotion ? 0 : 34, scale: reduceMotion ? 1 : 0.92 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      scale: 1,
-      transition: { duration: reduceMotion ? 0.4 : 1.4, ease: EASE_LOGO },
-    },
-  }
 
   const textReveal: Variants = {
     hidden: { opacity: 0, y: reduceMotion ? 0 : 12 },
     visible: {
       opacity: 1,
       y: 0,
-      transition: { duration: reduceMotion ? 0.4 : 0.8, ease: EASE_CINEMATIC },
+      transition: {
+        delay: reduceMotion ? 0 : 1.6,
+        duration: reduceMotion ? 0.4 : 0.8,
+        ease: EASE_CINEMATIC,
+      },
     },
   }
 
@@ -71,17 +59,15 @@ export function HomeHero() {
         />
       </picture>
 
-      <motion.div
-        initial="hidden"
-        animate="visible"
-        variants={contentStagger}
-        className="container-elato relative flex flex-col items-center gap-4 pt-20 text-center [@media(max-height:500px)]:gap-3 [@media(max-height:500px)]:pt-10 sm:gap-5 md:gap-6 lg:gap-4"
-      >
-        <motion.div variants={logoReveal}>
-          <LogoImage className="h-[90px] sm:h-28 md:h-36 lg:h-48 xl:h-56 [@media(max-height:500px)]:h-16" />
-        </motion.div>
+      <div className="container-elato relative flex flex-col items-center gap-4 pt-20 text-center [@media(max-height:500px)]:gap-3 [@media(max-height:500px)]:pt-10 sm:gap-5 md:gap-6 lg:gap-4">
+        <HeroLogo3D className="h-[90px] sm:h-28 md:h-36 lg:h-48 xl:h-56 [@media(max-height:500px)]:h-16" />
 
-        <motion.div variants={textReveal} className="flex flex-col items-center gap-3 sm:gap-4">
+        <motion.div
+          initial="hidden"
+          animate="visible"
+          variants={textReveal}
+          className="flex flex-col items-center gap-3 sm:gap-4"
+        >
           <h1 className="max-w-lg font-sans text-[22px] font-light leading-snug tracking-[0.04em] text-secondary-900 sm:text-[24px] md:text-[28px] lg:text-[32px] xl:text-[34px]">
             {heroContent.headline}
           </h1>
@@ -89,7 +75,7 @@ export function HomeHero() {
             {heroContent.subStatement}
           </p>
         </motion.div>
-      </motion.div>
+      </div>
     </section>
   )
 }
