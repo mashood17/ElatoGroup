@@ -89,7 +89,7 @@ export function PremiumHero({
   }
 
   return (
-    <section id={id} className="relative flex min-h-screen items-center overflow-hidden py-28 lg:py-24 [@media(max-height:600px)_and_(max-width:900px)]:py-16">
+    <section id={id} className="relative flex min-h-[87vh] items-center overflow-hidden pt-28 pb-16 sm:pb-28 lg:min-h-screen lg:py-24 [@media(max-height:600px)_and_(max-width:900px)]:py-16">
       <picture>
         <source media="(min-width: 768px)" srcSet={heroBackground} />
         <img
@@ -110,7 +110,7 @@ export function PremiumHero({
           puts the wrapper in the true vertical center, rather than relying on
           the grid centering a content-sized block.
         */}
-        <div className="flex flex-col items-start lg:h-full">
+        <div className="flex flex-col items-center lg:h-full lg:items-start">
           <div className="flex-1" aria-hidden="true" />
 
           {/*
@@ -118,12 +118,10 @@ export function PremiumHero({
             wordmark artwork itself, there's no separate text layer) and
             tagline as one grouped unit. The wrapper owns the width at every
             breakpoint; logo and tagline both fill it at `w-full` so the
-            tagline can never render wider than the logo above it. Left-aligned
-            at every breakpoint — not centered on mobile — so the logo and
-            tagline share one left edge instead of each re-centering on its
-            own axis.
+            tagline can never render wider than the logo above it. Centered
+            on mobile, left-aligned from `lg:` up.
           */}
-          <div className="flex w-[300px] flex-col items-start gap-4 text-left sm:w-[340px] md:w-[440px] lg:w-full [@media(max-height:600px)_and_(max-width:900px)]:w-[190px]">
+          <div className="flex w-[300px] flex-col items-center gap-3 text-center sm:w-[340px] sm:gap-4 md:w-[440px] lg:w-full lg:items-start lg:text-left [@media(max-height:600px)_and_(max-width:900px)]:w-[190px]">
             <PremiumHeroLogo3D
               src={logoSrc}
               alt={logoAlt}
@@ -136,7 +134,7 @@ export function PremiumHero({
               initial="hidden"
               animate="visible"
               variants={taglineReveal}
-              className="ml-[13.3%] w-[60%] font-sans text-[17px] font-medium leading-relaxed tracking-[0.03em] text-[#9e7641] sm:text-[18px] md:text-[20px] lg:text-[19px] xl:text-[21px]"
+              className="w-[73%] font-sans text-[17px] font-medium leading-relaxed tracking-[0.03em] text-[#9e7641] sm:w-[60%] sm:text-[18px] md:text-[20px] lg:ml-[13.3%] lg:text-[19px] xl:text-[21px]"
             >
               {tagline}
             </motion.p>
@@ -149,7 +147,7 @@ export function PremiumHero({
           initial="hidden"
           animate="visible"
           variants={imageCardReveal}
-          className="relative mx-auto w-full max-w-[360px] px-6 pt-8 pb-10 sm:max-w-[380px] lg:mx-0 lg:max-w-[400px] xl:max-w-[440px] lg:self-center"
+          className="relative mx-auto w-full max-w-[390px] px-6 pt-8 pb-10 sm:max-w-[380px] lg:mx-0 lg:max-w-[400px] xl:max-w-[440px] lg:self-center"
         >
           <HeroShowcaseCard
             src={imageSrc}
