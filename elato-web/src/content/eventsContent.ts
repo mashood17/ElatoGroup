@@ -7,7 +7,7 @@
  */
 
 export const eventsHero = {
-  tagline: 'A 200–250 guest hall for weddings, engagements, and celebrations.',
+  tagline: 'A 200–250 Guest Hall for Weddings, Engagements & Celebrations',
 }
 
 export type FeaturedEvent = {

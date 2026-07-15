@@ -1,5 +1,5 @@
-import { Suspense, lazy } from 'react'
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { Suspense, lazy, useEffect } from 'react'
+import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom'
 import { Navbar } from './components/layout/Navbar'
 import { Footer } from './components/layout/Footer'
 import { ErrorBoundary } from './components/ErrorBoundary'
@@ -15,10 +15,26 @@ function RouteFallback() {
   return <div className="min-h-screen bg-surface-base" aria-hidden="true" />
 }
 
+// react-router's BrowserRouter never resets scroll on navigation — without
+// this, going Home -> Stay/Célébré/Events lands mid-page at the old scroll
+// position, so every `whileInView` reveal already in the viewport fires at
+// once instead of staggering in as the user scrolls. That pile-up (plus the
+// new page's hero mounting off-screen) is what reads as navigation jank.
+function ScrollToTop() {
+  const { pathname } = useLocation()
+
+  useEffect(() => {
+    window.scrollTo(0, 0)
+  }, [pathname])
+
+  return null
+}
+
 function App() {
   return (
     <ErrorBoundary>
       <BrowserRouter>
+        <ScrollToTop />
         <Navbar />
         <Suspense fallback={<RouteFallback />}>
           <Routes>

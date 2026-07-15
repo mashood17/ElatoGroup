@@ -72,9 +72,10 @@ export function HomeHero() {
           aria-hidden="true"
           fetchPriority="high"
           decoding="async"
-          className="absolute inset-0 -z-10 h-full w-full object-cover object-center"
+          className="hero-bg-kenburns absolute inset-0 -z-10 h-full w-full object-cover object-center"
         />
       </picture>
+      <div className="hero-bg-light" aria-hidden="true" />
 
       <div className="container-elato relative flex -translate-y-[8vh] flex-col items-center gap-4 pt-20 text-center [@media(max-height:500px)]:gap-3 [@media(max-height:500px)]:pt-10 sm:gap-5 md:translate-y-0 md:gap-6 lg:gap-4">
         <HeroLogo3D className="h-[90px] sm:h-28 md:h-36 lg:h-48 xl:h-56 [@media(max-height:500px)]:h-16" />

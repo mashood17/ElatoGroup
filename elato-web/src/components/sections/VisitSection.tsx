@@ -116,7 +116,11 @@ export function VisitSection() {
           className="mt-12 grid grid-cols-1 gap-10 lg:mt-16 lg:grid-cols-2 lg:gap-14"
         >
           <motion.div variants={columnReveal} className="flex flex-col gap-6">
-            <div className="relative aspect-4/3 w-full overflow-hidden rounded-xl border border-[#E7CAA0]/40 bg-[#E7CAA0]/10 shadow-elato-md transition-shadow duration-300 ease-out hover:shadow-elato-lg">
+            <motion.div
+              whileHover={{ y: -6 }}
+              transition={{ duration: 0.3, ease: EASE_EDITORIAL }}
+              className="relative aspect-4/3 w-full overflow-hidden rounded-2xl border-2 border-[#9E7641]/40 bg-[#E7CAA0]/10 shadow-[0_8px_30px_rgba(158,118,65,0.12)] transition-[box-shadow,border-color] duration-300 ease-out hover:border-[#9E7641] hover:shadow-[0_20px_45px_rgba(158,118,65,0.25)]"
+            >
               {!mapActive ? (
                 <button
                   type="button"
@@ -139,9 +143,13 @@ export function VisitSection() {
                   referrerPolicy="no-referrer-when-downgrade"
                 />
               )}
-            </div>
+            </motion.div>
 
-            <div className="flex flex-col gap-3 rounded-xl bg-surface-elevated p-5 shadow-elato-sm">
+            <motion.div
+              whileHover={{ y: -6 }}
+              transition={{ duration: 0.3, ease: EASE_EDITORIAL }}
+              className="flex flex-col gap-3 rounded-2xl border-2 border-[#9E7641]/40 bg-surface-elevated p-5 shadow-[0_8px_30px_rgba(158,118,65,0.12)] transition-[box-shadow,border-color] duration-300 ease-out hover:border-[#9E7641] hover:shadow-[0_20px_45px_rgba(158,118,65,0.25)]"
+            >
               <div className="flex items-start gap-3">
                 <MapPin className="mt-0.5 h-5 w-5 shrink-0 text-[#9E7641]" aria-hidden="true" />
                 <p className="text-body text-secondary-900">{visitContact.address}</p>
@@ -169,7 +177,7 @@ export function VisitSection() {
                 Open in Maps
                 <ExternalLink className="h-3.5 w-3.5 transition-transform duration-300 ease-out group-hover/link:translate-x-0.5" />
               </a>
-            </div>
+            </motion.div>
 
             <div className="flex flex-wrap gap-4">
               <Button
@@ -198,7 +206,9 @@ export function VisitSection() {
 
           <motion.div
             variants={columnReveal}
-            className="flex flex-col rounded-xl bg-surface-elevated p-6 shadow-elato-md transition-shadow duration-300 ease-out hover:shadow-elato-lg lg:p-8"
+            whileHover={{ y: -6 }}
+            transition={{ duration: 0.3, ease: EASE_EDITORIAL }}
+            className="flex flex-col rounded-2xl border-2 border-[#9E7641]/40 bg-surface-elevated p-6 shadow-[0_8px_30px_rgba(158,118,65,0.12)] transition-[box-shadow,border-color] duration-300 ease-out hover:border-[#9E7641] hover:shadow-[0_20px_45px_rgba(158,118,65,0.25)] lg:p-8"
           >
             <h3 className="text-center text-[26px] font-bold tracking-tight text-[#9E7641] lg:text-[30px]">Get in Touch</h3>
 

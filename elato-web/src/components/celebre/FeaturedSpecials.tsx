@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { motion } from 'framer-motion'
 import { Card } from '../ui/Card'
 import { SkeletonCard } from '../ui/SkeletonCard'
@@ -21,13 +21,23 @@ const gradients = [
 export function FeaturedSpecials() {
   const [specials, setSpecials] = useState<Special[] | null>(null)
   const [loadError, setLoadError] = useState(false)
+  const requestId = useRef(0)
 
   const load = () => {
+    const id = ++requestId.current
     setLoadError(false)
     setSpecials(null)
     getSpecials()
-      .then(setSpecials)
-      .catch(() => setLoadError(true))
+      .then((data) => {
+        if (requestId.current === id) setSpecials(data)
+      })
+      .catch(() => {
+        // Ignore a stale request's rejection (e.g. React StrictMode's double
+        // effect invoke, or a fast retry) so it can never overwrite a newer,
+        // already-succeeded response — that race was what left this section
+        // stuck showing "Try Again" even after the data had loaded fine.
+        if (requestId.current === id) setLoadError(true)
+      })
   }
 
   useEffect(() => {

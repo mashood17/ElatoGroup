@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { motion } from 'framer-motion'
 import { MenuSearchBar } from './menu/MenuSearchBar'
 import { CategoryRow } from './menu/CategoryRow'
@@ -16,17 +16,27 @@ export function MenuSection() {
   const [searching, setSearching] = useState(false)
   const [openItemId, setOpenItemId] = useState<string | null>(null)
   const [loadError, setLoadError] = useState(false)
+  const requestId = useRef(0)
 
   const loadMenu = () => {
+    const id = ++requestId.current
     setLoadError(false)
     setCategories(null)
     setMenuItems(null)
     Promise.all([getCategories(), getMenuItems()])
       .then(([cats, items]) => {
+        if (requestId.current !== id) return
         setCategories(cats)
         setMenuItems(items)
       })
-      .catch(() => setLoadError(true))
+      .catch(() => {
+        // Same stale-request guard as FeaturedSpecials — without it, an
+        // older in-flight request (StrictMode's double effect invoke, or an
+        // overlapping "Try again" click) can reject after a newer one has
+        // already succeeded and permanently flip the section to the error
+        // state despite the menu having loaded correctly.
+        if (requestId.current === id) setLoadError(true)
+      })
   }
 
   useEffect(() => {

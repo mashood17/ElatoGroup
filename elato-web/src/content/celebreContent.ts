@@ -12,7 +12,7 @@
  */
 
 export const celebreHero = {
-  tagline: 'Handcrafted ice cream, artisan coffee, and signature desserts.',
+  tagline: 'Handcrafted Ice Cream, Artisan Coffee & Signature Desserts',
 }
 
 export type Category = {

@@ -79,9 +79,9 @@ const FRAGMENT_SHADER = /* glsl */ `
   }
 `
 
-type LogoMeshProps = { src: string; macronRect: THREE.Vector4 }
+type LogoMeshProps = { src: string; macronRect: THREE.Vector4; aspect: number }
 
-function LogoMesh({ src, macronRect }: LogoMeshProps) {
+function LogoMesh({ src, macronRect, aspect }: LogoMeshProps) {
   const texture = useTexture(src)
   const materialRef = useRef<THREE.ShaderMaterial>(null!)
   const meshRef = useRef<THREE.Mesh>(null!)
@@ -171,9 +171,24 @@ function LogoMesh({ src, macronRect }: LogoMeshProps) {
     u.uMacronHighlight.value = s.macronHighlight
     u.uSweep.value = s.sweep
 
-    // The container's own aspect ratio already matches the artwork, so
-    // filling the full viewport maps the texture 1:1 with zero distortion.
-    mesh.scale.set(state.viewport.width, state.viewport.height, 1)
+    // Contain-fit against the artwork's own aspect ratio rather than blindly
+    // filling the canvas viewport. The Stay/Célébré/Events wordmark art has
+    // zero margin around the letters (the "Ō" sits flush against the source
+    // PNG's own right/top edge) — unlike the Home Hero's wordmark, which has
+    // generous padding. That means this plane has no room to absorb even a
+    // sub-pixel gap between the container's CSS `aspect-ratio` and its
+    // measured canvas size; filling the viewport unconditionally would
+    // stretch the texture to match whatever shape the box actually ended up,
+    // cropping straight through the letters. Deriving the plane's size from
+    // the known-correct `aspect` prop instead guarantees the full artwork is
+    // always shown intact, letterboxed within the canvas if the box shape
+    // doesn't match exactly, never stretched or cropped.
+    const canvasAspect = state.viewport.width / state.viewport.height
+    if (canvasAspect > aspect) {
+      mesh.scale.set(state.viewport.height * aspect, state.viewport.height, 1)
+    } else {
+      mesh.scale.set(state.viewport.width, state.viewport.width / aspect, 1)
+    }
 
     // World units per CSS pixel, for the sub-16px entrance offset and the
     // 1-2px idle breathing below.
@@ -239,7 +254,7 @@ export default function PremiumLogoScene({ className, src, aspect, macronRect }:
           toneMapping: THREE.NoToneMapping,
         }}
       >
-        <LogoMesh src={src} macronRect={maskRect} />
+        <LogoMesh src={src} macronRect={maskRect} aspect={aspect} />
       </Canvas>
     </div>
   )

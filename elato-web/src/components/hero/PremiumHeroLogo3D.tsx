@@ -6,7 +6,14 @@ const PremiumLogoScene = lazy(() => import('./PremiumLogoScene'))
 function isWebglSupported(): boolean {
   try {
     const canvas = document.createElement('canvas')
-    return !!(canvas.getContext('webgl2') || canvas.getContext('webgl'))
+    const gl = canvas.getContext('webgl2') || canvas.getContext('webgl')
+    if (!gl) return false
+    // This probe context is thrown away immediately — explicitly lose it so
+    // the GPU driver reclaims it right away instead of waiting on GC, which
+    // otherwise accumulates one stale context per page navigation (each
+    // Stay/Célébré/Events hero mount runs this check again).
+    ;(gl as WebGLRenderingContext).getExtension('WEBGL_lose_context')?.loseContext()
+    return true
   } catch {
     return false
   }
@@ -51,7 +58,7 @@ export function PremiumHeroLogo3D({ className, src, aspect, macronRect, alt }: P
   const reduceMotion = useReducedMotion()
   const [webglOk] = useState(isWebglSupported)
 
-  const staticFallback = <img src={src} alt={alt} className={`w-auto ${className ?? ''}`} />
+  const staticFallback = <img src={src} alt={alt} className={`h-auto ${className ?? ''}`} />
 
   if (reduceMotion || !webglOk) {
     return staticFallback

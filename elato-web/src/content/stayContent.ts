@@ -5,7 +5,7 @@
  */
 
 export const stayHero = {
-  tagline: 'A spacious 2BHK premium serviced apartment for 6–8 guests.',
+  tagline: 'A Spacious 2BHK Premium Serviced Apartment for 6–8 Guests',
 }
 
 export const stayInfo = [

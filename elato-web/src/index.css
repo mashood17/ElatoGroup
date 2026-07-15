@@ -174,6 +174,27 @@
   will-change: transform;
 }
 
+/* Gentle floating light, drifting across the hero background at a different
+   speed/direction than the Ken Burns drift above — the two layers moving at
+   different rates reads as depth/parallax without any scroll or pointer
+   tracking. Blended with soft-light so it lands as ambient warmth over the
+   photo, not a visible gradient shape. */
+@keyframes hero-light-drift {
+  0%, 100% { transform: translate3d(-6%, -4%, 0) scale(1); opacity: 0.4; }
+  50% { transform: translate3d(5%, 6%, 0) scale(1.2); opacity: 0.6; }
+}
+
+.hero-bg-light {
+  position: absolute;
+  inset: -25%;
+  z-index: -5;
+  background: radial-gradient(circle at 50% 50%, rgba(255, 224, 178, 0.4), rgba(255, 224, 178, 0) 62%);
+  mix-blend-mode: soft-light;
+  animation: hero-light-drift 68s ease-in-out infinite;
+  will-change: transform, opacity;
+  pointer-events: none;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;

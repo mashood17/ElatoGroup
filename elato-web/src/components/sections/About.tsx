@@ -113,7 +113,7 @@ export function About() {
               style={{ y: parallaxY, scale: 1.12 }}
               src={aboutImage}
               alt="ELATŌ's handcrafted desserts and premium hospitality experience"
-              className="aspect-[4/5] w-full object-cover lg:aspect-[3/4]"
+              className="aspect-[4/5] w-full object-cover lg:aspect-[5/6]"
               loading="lazy"
             />
           </div>

@@ -9,8 +9,8 @@ import { NavPill, type ResolvedNavItem } from './NavPill'
 // `to` items are real routes; `hash` items are anchors on `basePath` (default home).
 const navItems = [
   { label: 'Home', to: '/' },
-  { label: 'Stay', to: '/elato-stay' },
   { label: 'Celebré', to: '/elato-celebre' },
+  { label: 'Stay', to: '/elato-stay' },
   { label: 'Events', to: '/elato-events' },
   { label: 'Instagram', hash: '#instagram' },
   { label: 'Visit', hash: '#visit' },
