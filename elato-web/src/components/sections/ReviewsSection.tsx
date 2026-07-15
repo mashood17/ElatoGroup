@@ -3,11 +3,13 @@ import { motion, useReducedMotion, type Variants } from 'framer-motion'
 import { ArrowLeft, ArrowRight, Quote, Star } from 'lucide-react'
 import { SkeletonCard } from '../ui/SkeletonCard'
 import { TestimonialCard, type TestimonialItem } from '../ui/TestimonialCard'
+import { SectionBackground } from '../ui/SectionBackground'
 import { businessInfo } from '../../content/siteContent'
 import { reviewsHeading, reviewsFallback } from '../../content/reviewsContent'
 import { getFeaturedReviews } from '../../lib/reviewsRepository'
 import { useAggregateRating } from '../../lib/useAggregateRating'
 import { viewportOnce } from '../../lib/motion'
+import sectionBackground from '../../assets/newbg/bg.jpg'
 
 const EASE_EDITORIAL = [0.16, 1, 0.3, 1] as const
 const CARD_GAP_PX = 24
@@ -98,18 +100,8 @@ export function ReviewsSection() {
   const fillPercent = Math.max(20, 100 / Math.max(items.length, 1))
 
   return (
-    <section id="reviews" className="relative overflow-hidden bg-sand-light py-16 font-sans lg:py-24">
-      {/* Divider ornament — the background tone change (surface-base above,
-          sand-light here) plus this hairline mark is what makes the handoff
-          from Instagram read as a deliberate new section, not a scroll-past. */}
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-x-0 top-0 flex items-center justify-center gap-3"
-      >
-        <span className="h-px w-14 bg-gradient-to-r from-transparent to-[#9E7641]/40 lg:w-24" />
-        <span className="h-1.5 w-1.5 rotate-45 border border-[#9E7641]/50" />
-        <span className="h-px w-14 bg-gradient-to-l from-transparent to-[#9E7641]/40 lg:w-24" />
-      </div>
+    <section id="reviews" className="relative py-16 font-sans lg:py-24">
+      <SectionBackground image={sectionBackground} />
 
       <div className="container-elato">
         <motion.div

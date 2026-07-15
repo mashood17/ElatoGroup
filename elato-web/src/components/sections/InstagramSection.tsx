@@ -3,11 +3,13 @@ import { motion, useReducedMotion, type Variants } from 'framer-motion'
 import { ArrowLeft, ArrowRight } from 'lucide-react'
 import { InstagramReelCard } from '../ui/InstagramReelCard'
 import { SkeletonCard } from '../ui/SkeletonCard'
+import { SectionBackground } from '../ui/SectionBackground'
 import { instagramHeading, instagramReels as placeholderReels, type InstagramReel } from '../../content/instagramContent'
 import { businessInfo } from '../../content/siteContent'
 import { getLatestInstagramPosts } from '../../lib/instagramRepository'
 import { cn } from '../../lib/cn'
 import { viewportOnce } from '../../lib/motion'
+import sectionBackground from '../../assets/newbg/bg2.png'
 
 const EASE_EDITORIAL = [0.16, 1, 0.3, 1] as const
 const CARD_GAP_PX = 24
@@ -116,7 +118,8 @@ export function InstagramSection() {
   }
 
   return (
-    <section id="instagram" className="bg-surface-base py-12 font-sans lg:py-24">
+    <section id="instagram" className="relative py-12 font-sans lg:py-24">
+      <SectionBackground image={sectionBackground} />
       <div className="container-elato">
         <motion.div
           initial="hidden"

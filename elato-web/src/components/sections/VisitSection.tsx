@@ -2,6 +2,7 @@ import { useState, type FormEvent } from 'react'
 import { AnimatePresence, motion, useReducedMotion, type Variants } from 'framer-motion'
 import { CheckCircle2, Clock, ExternalLink, Mail, MapPin, Phone } from 'lucide-react'
 import { Button } from '../ui/Button'
+import { SectionBackground } from '../ui/SectionBackground'
 import { businessInfo } from '../../content/siteContent'
 import { visitHeading, visitContact, visitMap } from '../../content/visitContent'
 import { buildWhatsAppLink } from '../../lib/whatsapp'
@@ -9,6 +10,7 @@ import { viewportOnce } from '../../lib/motion'
 import { validateName, validatePhone10, validateMessage } from '../../lib/validation'
 import { persistEnquiry } from '../../lib/enquiryRepository'
 import { trackEvent } from '../../lib/analytics'
+import sectionBackground from '../../assets/newbg/bg2.png'
 
 const purposes = ['Stay', 'Celebré', 'Events', 'General'] as const
 
@@ -86,18 +88,8 @@ export function VisitSection() {
     'h-12 rounded-lg border border-[#E7CAA0]/60 px-4 text-body transition-colors duration-200 ease-out focus-visible:border-[#9E7641] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#9E7641]/20'
 
   return (
-    <section id="visit" className="relative bg-surface-base pb-16 pt-8 font-sans lg:pb-24 lg:pt-12">
-      {/* Divider ornament — marks the handoff from Reviews' sand-light
-          background to this section's off-white one as a deliberate seam
-          rather than an accidental gap. */}
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-x-0 top-0 flex items-center justify-center gap-3"
-      >
-        <span className="h-px w-14 bg-gradient-to-r from-transparent to-[#9E7641]/40 lg:w-24" />
-        <span className="h-1.5 w-1.5 rotate-45 border border-[#9E7641]/50" />
-        <span className="h-px w-14 bg-gradient-to-l from-transparent to-[#9E7641]/40 lg:w-24" />
-      </div>
+    <section id="visit" className="relative pb-16 pt-8 font-sans lg:pb-24 lg:pt-12">
+      <SectionBackground image={sectionBackground} />
 
       <div className="container-elato">
         <motion.div

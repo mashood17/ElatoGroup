@@ -2,29 +2,13 @@ import { motion, useReducedMotion, useScroll, useTransform, type Variants } from
 import { Star } from 'lucide-react'
 import { useRef } from 'react'
 import aboutImage from '../../assets/about/about.png'
+import sectionBackground from '../../assets/newbg/bg.jpg'
+import { SectionBackground } from '../ui/SectionBackground'
 import { aboutContent, businessInfo } from '../../content/siteContent'
 import { viewportOnce, PARALLAX_MAX_PX } from '../../lib/motion'
 import { useAggregateRating } from '../../lib/useAggregateRating'
 
 const EASE_EDITORIAL = [0.16, 1, 0.3, 1] as const
-
-/**
- * Section divider ornament — a hairline-and-diamond mark reused at the top
- * and bottom edge to signal a deliberate surface change rather than an
- * abrupt cut, without introducing new colors or gradients.
- */
-function SectionDivider({ position }: { position: 'top' | 'bottom' }) {
-  return (
-    <div
-      aria-hidden="true"
-      className={`pointer-events-none absolute inset-x-0 ${position === 'top' ? 'top-0' : 'bottom-0'} flex items-center justify-center gap-3`}
-    >
-      <span className="h-px w-14 bg-gradient-to-r from-transparent to-[#9E7641]/40 lg:w-24" />
-      <span className="h-1.5 w-1.5 rotate-45 border border-[#9E7641]/50" />
-      <span className="h-px w-14 bg-gradient-to-l from-transparent to-[#9E7641]/40 lg:w-24" />
-    </div>
-  )
-}
 
 export function About() {
   const reduceMotion = useReducedMotion()
@@ -95,9 +79,8 @@ export function About() {
   }
 
   return (
-    <section id="about" className="relative overflow-hidden bg-sand-light py-20 font-sans lg:py-32">
-      <SectionDivider position="top" />
-      <SectionDivider position="bottom" />
+    <section id="about" className="relative py-20 font-sans lg:py-32">
+      <SectionBackground image={sectionBackground} />
 
       <motion.div
         initial="hidden"

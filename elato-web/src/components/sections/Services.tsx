@@ -1,7 +1,9 @@
 import { motion, useReducedMotion, type Variants } from 'framer-motion'
 import { ServiceCard } from '../ui/ServiceCard'
+import { SectionBackground } from '../ui/SectionBackground'
 import { servicesContent, servicesHeading } from '../../content/siteContent'
 import { serviceImages } from '../../content/serviceImages'
+import sectionBackground from '../../assets/newbg/bg2.png'
 import { viewportOnce } from '../../lib/motion'
 
 const routes: Record<string, string> = {
@@ -25,7 +27,9 @@ export function Services() {
   }
 
   return (
-    <section id="services" className="bg-surface-base py-8 font-sans lg:py-14">
+    <section id="services" className="relative py-8 font-sans lg:py-14">
+      <SectionBackground image={sectionBackground} />
+
       <div className="container-elato">
         <motion.div
           initial="hidden"
