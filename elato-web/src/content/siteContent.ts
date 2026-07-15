@@ -33,14 +33,14 @@ export const heroContent = {
 
 export const servicesContent = [
   {
-    id: 'stay',
-    title: 'Elato Stay',
-    descriptor: 'A spacious 2BHK premium serviced apartment for 6–8 guests.',
-  },
-  {
     id: 'celebre',
     title: 'Elato Celebré',
     descriptor: 'Handcrafted ice cream, artisan coffee, and signature desserts.',
+  },
+  {
+    id: 'stay',
+    title: 'Elato Stay',
+    descriptor: 'A spacious 2BHK premium serviced apartment for 6–8 guests.',
   },
   {
     id: 'events',
@@ -49,14 +49,23 @@ export const servicesContent = [
   },
 ] as const
 
+export const servicesHeading = {
+  overline: 'Signature Experiences',
+  title: 'Discover ELATŌ',
+  description:
+    'Three distinctive experiences brought together by one commitment to exceptional hospitality.',
+}
+
 export const aboutContent = {
-  overline: 'Our Story',
-  title: 'A destination built from 30+ years of craft',
+  overline: 'About ELATŌ',
+  title: 'Where Every Celebration Begins',
   paragraphs: [
-    'After decades of experience in the ice cream industry, our founder, Abdul Hakeem, envisioned something beyond a traditional ice cream parlour — a destination where people could celebrate every occasion under one roof. That vision became ELATŌ.',
-    'ELATŌ brings together handcrafted desserts, artisan beverages, elegant celebrations, and comfortable stays under one brand, combining traditional craftsmanship with modern hospitality.',
+    'ELATŌ was founded with one vision — to create a destination where families, friends, and guests can celebrate life’s special moments in a premium environment.',
+    'Backed by more than 30 years of expertise in the ice cream industry through founder Abdul Hakeem, ELATŌ combines traditional craftsmanship with modern hospitality.',
+    'From handcrafted ice creams and signature beverages to elegant event spaces and premium stays, every detail reflects our commitment to excellence.',
+    'Whether you’re here for dessert, a family gathering, a birthday celebration, or a weekend stay, ELATŌ offers experiences designed to create lasting memories.',
   ],
-  ctaLabel: 'Read our full story',
+  ctaLabel: 'Discover Our Story',
 }
 
 export const founder = {

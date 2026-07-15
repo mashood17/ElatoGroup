@@ -1,72 +1,81 @@
-import { motion } from 'framer-motion'
-import { Link } from 'react-router-dom'
-import { Card } from '../ui/Card'
-import { servicesContent } from '../../content/siteContent'
-import { sectionReveal, staggerContainer, viewportOnce } from '../../lib/motion'
+import { motion, useReducedMotion, type Variants } from 'framer-motion'
+import { ServiceCard } from '../ui/ServiceCard'
+import { servicesContent, servicesHeading } from '../../content/siteContent'
+import { serviceImages } from '../../content/serviceImages'
+import { viewportOnce } from '../../lib/motion'
 
-const gradients: Record<string, string> = {
-  stay: 'from-secondary-500 via-primary-100 to-primary-300',
-  celebre: 'from-primary-300 via-primary-100 to-secondary-500',
-  events: 'from-secondary-700 via-secondary-500 to-primary-300',
-}
-
-const routes: Partial<Record<string, string>> = {
+const routes: Record<string, string> = {
   stay: '/elato-stay',
   celebre: '/elato-celebre',
   events: '/elato-events',
 }
 
-const MotionLink = motion(Link)
+const EASE_EDITORIAL = [0.16, 1, 0.3, 1] as const
 
 export function Services() {
+  const reduceMotion = useReducedMotion()
+
+  const headingReveal: Variants = {
+    hidden: { opacity: 0, y: reduceMotion ? 0 : 20 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.7, ease: EASE_EDITORIAL },
+    },
+  }
+
+  const cardsContainer: Variants = {
+    hidden: {},
+    visible: {
+      transition: {
+        staggerChildren: reduceMotion ? 0 : 0.12,
+        delayChildren: reduceMotion ? 0 : 0.15,
+      },
+    },
+  }
+
+  const cardReveal: Variants = {
+    hidden: { opacity: 0, y: reduceMotion ? 0 : 28 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.6, ease: EASE_EDITORIAL },
+    },
+  }
+
   return (
-    <section id="services" className="bg-surface-base py-12 lg:py-24">
+    <section id="services" className="bg-surface-base py-8 font-sans lg:py-14">
       <div className="container-elato">
         <motion.div
           initial="hidden"
           whileInView="visible"
           viewport={viewportOnce}
-          variants={staggerContainer}
-          className="grid grid-cols-1 gap-8 md:grid-cols-3"
+          variants={headingReveal}
+          className="mx-auto max-w-xl text-center"
         >
-          {servicesContent.map((service) => {
-            const route = routes[service.id]
-            const cardBody = (
-              <Card className="overflow-hidden">
-                <div
-                  className={`aspect-3/4 w-full bg-gradient-to-br ${gradients[service.id]}`}
-                  aria-hidden="true"
-                />
-                <div className="p-6">
-                  <h3 className="text-h3 text-secondary-900">{service.title}</h3>
-                  <p className="text-body mt-2 text-neutral-warm-500">{service.descriptor}</p>
-                  <span className="text-caption mt-4 inline-flex items-center gap-1 text-secondary-500">
-                    Explore
-                    <span className="transition-transform duration-200 ease-out group-hover:translate-x-1">
-                      →
-                    </span>
-                  </span>
-                </div>
-              </Card>
-            )
+          <p className="text-caption text-[#9E7641]">{servicesHeading.overline}</p>
+          <span className="mx-auto mt-2 block h-px w-10 bg-[#E7CAA0]" aria-hidden="true" />
+          <h2 className="text-h2 font-sans text-[30px] font-bold mt-3 text-[#9E7641] lg:text-[42px]">{servicesHeading.title}</h2>
+          <p className="text-body mt-3 text-neutral-warm-500">{servicesHeading.description}</p>
+        </motion.div>
 
-            return route ? (
-              <MotionLink key={service.id} to={route} variants={sectionReveal} className="group block">
-                {cardBody}
-              </MotionLink>
-            ) : (
-              <motion.a
-                key={service.id}
-                href="#services"
-                onClick={(e) => e.preventDefault()}
-                aria-disabled="true"
-                variants={sectionReveal}
-                className="group block"
-              >
-                {cardBody}
-              </motion.a>
-            )
-          })}
+        <motion.div
+          initial="hidden"
+          whileInView="visible"
+          viewport={viewportOnce}
+          variants={cardsContainer}
+          className="mt-6 grid grid-cols-1 gap-6 lg:mt-8 lg:grid-cols-3 lg:gap-8"
+        >
+          {servicesContent.map((service) => (
+            <ServiceCard
+              key={service.id}
+              title={service.title}
+              description={service.descriptor}
+              imageSrc={serviceImages[service.id]}
+              href={routes[service.id]}
+              variants={cardReveal}
+            />
+          ))}
         </motion.div>
       </div>
     </section>
