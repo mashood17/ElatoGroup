@@ -3,6 +3,7 @@ import { Star } from 'lucide-react'
 import { useRef } from 'react'
 import aboutImage from '../../assets/about/about.png'
 import sectionBackground from '../../assets/newbg/bg.jpg'
+import sectionBackgroundMobile from '../../assets/newbg/bg-mb.png'
 import { SectionBackground } from '../ui/SectionBackground'
 import { aboutContent, businessInfo } from '../../content/siteContent'
 import { viewportOnce, PARALLAX_MAX_PX } from '../../lib/motion'
@@ -79,8 +80,8 @@ export function About() {
   }
 
   return (
-    <section id="about" className="relative py-20 font-sans lg:py-32">
-      <SectionBackground image={sectionBackground} />
+    <section id="about" className="relative z-0 pb-20 pt-14 font-sans lg:py-32">
+      <SectionBackground image={sectionBackground} mobileImage={sectionBackgroundMobile} />
 
       <motion.div
         initial="hidden"

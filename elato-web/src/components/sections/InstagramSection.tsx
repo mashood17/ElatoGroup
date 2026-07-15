@@ -10,6 +10,7 @@ import { getLatestInstagramPosts } from '../../lib/instagramRepository'
 import { cn } from '../../lib/cn'
 import { viewportOnce } from '../../lib/motion'
 import sectionBackground from '../../assets/newbg/bg2.png'
+import sectionBackgroundMobile from '../../assets/newbg/bg-mb2.png'
 
 const EASE_EDITORIAL = [0.16, 1, 0.3, 1] as const
 const CARD_GAP_PX = 24
@@ -119,7 +120,7 @@ export function InstagramSection() {
 
   return (
     <section id="instagram" className="relative py-12 font-sans lg:py-24">
-      <SectionBackground image={sectionBackground} />
+      <SectionBackground image={sectionBackground} mobileImage={sectionBackgroundMobile} />
       <div className="container-elato">
         <motion.div
           initial="hidden"

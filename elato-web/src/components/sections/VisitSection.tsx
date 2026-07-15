@@ -11,6 +11,7 @@ import { validateName, validatePhone10, validateMessage } from '../../lib/valida
 import { persistEnquiry } from '../../lib/enquiryRepository'
 import { trackEvent } from '../../lib/analytics'
 import sectionBackground from '../../assets/newbg/bg2.png'
+import sectionBackgroundMobile from '../../assets/newbg/bg-mb2.png'
 
 const purposes = ['Stay', 'Celebré', 'Events', 'General'] as const
 
@@ -89,7 +90,7 @@ export function VisitSection() {
 
   return (
     <section id="visit" className="relative pb-16 pt-8 font-sans lg:pb-24 lg:pt-12">
-      <SectionBackground image={sectionBackground} />
+      <SectionBackground image={sectionBackground} mobileImage={sectionBackgroundMobile} />
 
       <div className="container-elato">
         <motion.div

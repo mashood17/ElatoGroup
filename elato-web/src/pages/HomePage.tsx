@@ -1,7 +1,6 @@
 import { Seo } from '../components/Seo'
 import { localBusinessJsonLd, organizationJsonLd } from '../lib/jsonLd'
-import { HomeHero } from '../components/sections/HomeHero'
-import { Services } from '../components/sections/Services'
+import { HeroServicesReveal } from '../components/sections/HeroServicesReveal'
 import { About } from '../components/sections/About'
 import { InstagramSection } from '../components/sections/InstagramSection'
 import { ReviewsSection } from '../components/sections/ReviewsSection'
@@ -17,8 +16,7 @@ export function HomePage() {
         jsonLd={[localBusinessJsonLd(), organizationJsonLd()]}
       />
       <main>
-        <HomeHero />
-        <Services />
+        <HeroServicesReveal />
         <About />
         <InstagramSection />
         <ReviewsSection />

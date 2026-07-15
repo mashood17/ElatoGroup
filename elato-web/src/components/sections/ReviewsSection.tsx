@@ -10,6 +10,7 @@ import { getFeaturedReviews } from '../../lib/reviewsRepository'
 import { useAggregateRating } from '../../lib/useAggregateRating'
 import { viewportOnce } from '../../lib/motion'
 import sectionBackground from '../../assets/newbg/bg.jpg'
+import sectionBackgroundMobile from '../../assets/newbg/bg-mb.png'
 
 const EASE_EDITORIAL = [0.16, 1, 0.3, 1] as const
 const CARD_GAP_PX = 24
@@ -101,7 +102,7 @@ export function ReviewsSection() {
 
   return (
     <section id="reviews" className="relative py-16 font-sans lg:py-24">
-      <SectionBackground image={sectionBackground} />
+      <SectionBackground image={sectionBackground} mobileImage={sectionBackgroundMobile} />
 
       <div className="container-elato">
         <motion.div

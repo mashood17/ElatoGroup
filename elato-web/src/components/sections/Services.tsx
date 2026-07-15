@@ -1,9 +1,9 @@
 import { motion, useReducedMotion, type Variants } from 'framer-motion'
 import { ServiceCard } from '../ui/ServiceCard'
-import { SectionBackground } from '../ui/SectionBackground'
 import { servicesContent, servicesHeading } from '../../content/siteContent'
 import { serviceImages } from '../../content/serviceImages'
 import sectionBackground from '../../assets/newbg/bg2.png'
+import sectionBackgroundMobile from '../../assets/newbg/bg-mb2.png'
 import { viewportOnce } from '../../lib/motion'
 
 const routes: Record<string, string> = {
@@ -26,9 +26,26 @@ export function Services() {
     },
   }
 
+  // Rounded top corners + a soft ambient shadow give this its "premium
+  // sheet" look; the rise itself is driven from outside by
+  // HeroServicesReveal, which slides this whole section into place over
+  // the pinned hero, so no motion/positioning logic lives here.
   return (
-    <section id="services" className="relative py-8 font-sans lg:py-14">
-      <SectionBackground image={sectionBackground} />
+    <section
+      id="services"
+      className="relative z-0 overflow-hidden rounded-t-[28px] bg-surface-base py-8 font-sans shadow-[0_-10px_30px_rgba(23,15,10,0.06),0_30px_70px_rgba(23,15,10,0.16)] lg:rounded-t-[48px] lg:py-14"
+    >
+      <picture>
+        <source media="(min-width: 768px)" srcSet={sectionBackground} />
+        <img
+          src={sectionBackgroundMobile}
+          alt=""
+          aria-hidden="true"
+          loading="eager"
+          decoding="async"
+          className="absolute inset-0 -z-10 h-full w-full object-cover object-center"
+        />
+      </picture>
 
       <div className="container-elato">
         <motion.div
