@@ -18,6 +18,16 @@ export function validatePhone(phone: string): string | undefined {
     : 'Enter a valid +91 or +971 number, e.g. +91 98765 43210.'
 }
 
+// 10-digit Indian mobile number, no country code — used by forms that
+// intentionally omit the +91 prefix (e.g. the homepage Visit enquiry).
+export const PHONE_10_RE = /^[6-9]\d{9}$/
+
+export function validatePhone10(phone: string): string | undefined {
+  return PHONE_10_RE.test(phone.trim().replace(/[\s-]/g, ''))
+    ? undefined
+    : 'Enter a valid 10-digit mobile number.'
+}
+
 export function validateEmail(email: string): string | undefined {
   return EMAIL_RE.test(email.trim()) ? undefined : 'Enter a valid email address.'
 }

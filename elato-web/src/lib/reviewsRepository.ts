@@ -19,3 +19,12 @@ export async function getFeaturedReviews(): Promise<Review[]> {
     text: r.text ?? '',
   }))
 }
+
+export type AggregateRating = { rating: number; count: number }
+
+/** Business-wide Google rating/count, backed by `/api/v1/reviews/aggregate`.
+ * Kept current by the Places sync job — callers should fall back to the
+ * static `aggregateRating` in siteContent.ts on error, same as reviews. */
+export async function getAggregateRating(): Promise<AggregateRating> {
+  return apiGet<AggregateRating>('/api/v1/reviews/aggregate')
+}

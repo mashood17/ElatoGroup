@@ -24,25 +24,6 @@ export function Services() {
     },
   }
 
-  const cardsContainer: Variants = {
-    hidden: {},
-    visible: {
-      transition: {
-        staggerChildren: reduceMotion ? 0 : 0.12,
-        delayChildren: reduceMotion ? 0 : 0.15,
-      },
-    },
-  }
-
-  const cardReveal: Variants = {
-    hidden: { opacity: 0, y: reduceMotion ? 0 : 28 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: { duration: 0.6, ease: EASE_EDITORIAL },
-    },
-  }
-
   return (
     <section id="services" className="bg-surface-base py-8 font-sans lg:py-14">
       <div className="container-elato">
@@ -59,24 +40,18 @@ export function Services() {
           <p className="text-body mt-3 text-neutral-warm-500">{servicesHeading.description}</p>
         </motion.div>
 
-        <motion.div
-          initial="hidden"
-          whileInView="visible"
-          viewport={viewportOnce}
-          variants={cardsContainer}
-          className="mt-6 grid grid-cols-1 gap-6 lg:mt-8 lg:grid-cols-3 lg:gap-8"
-        >
-          {servicesContent.map((service) => (
+        <div className="mt-6 grid grid-cols-1 gap-6 lg:mt-8 lg:grid-cols-3 lg:gap-8">
+          {servicesContent.map((service, index) => (
             <ServiceCard
               key={service.id}
               title={service.title}
               description={service.descriptor}
               imageSrc={serviceImages[service.id]}
               href={routes[service.id]}
-              variants={cardReveal}
+              index={index}
             />
           ))}
-        </motion.div>
+        </div>
       </div>
     </section>
   )

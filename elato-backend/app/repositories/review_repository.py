@@ -1,8 +1,10 @@
 from typing import Any
 
 from app.repositories.base import client, unwrap_single
+from app.repositories import settings_repository
 
 TABLE = "reviews"
+AGGREGATE_SETTINGS_KEY = "reviews_aggregate"
 
 
 def list_featured() -> list[dict[str, Any]]:
@@ -32,3 +34,11 @@ def upsert_from_source(rows: list[dict[str, Any]]) -> None:
 def count_all() -> int:
     res = client().table(TABLE).select("id", count="exact").execute()
     return res.count or 0
+
+
+def get_aggregate() -> dict[str, Any]:
+    """Business-wide Google rating/count — seeded with real numbers by
+    migration 0006, kept current by the Places sync (reviews_service) once
+    GOOGLE_PLACES_API_KEY/GOOGLE_PLACE_ID are configured."""
+    row = settings_repository.get(AGGREGATE_SETTINGS_KEY)
+    return row["value"]

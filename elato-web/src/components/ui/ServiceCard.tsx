@@ -1,7 +1,9 @@
 import { ArrowRight } from 'lucide-react'
 import { Link } from 'react-router-dom'
-import { motion, type Variants } from 'framer-motion'
+import { motion, useReducedMotion } from 'framer-motion'
 import { cn } from '../../lib/cn'
+
+const EASE_EDITORIAL = [0.16, 1, 0.3, 1] as const
 
 /**
  * Fixed-height image card (not aspect-ratio-driven — that made cards balloon
@@ -10,21 +12,40 @@ import { cn } from '../../lib/cn'
  * a plain text link (no pill/border/blur chrome) — matches how Aman,
  * Rosewood and Four Seasons treat card CTAs, which read as editorial rather
  * than app UI. Strict two-tone brand palette (primary #9E7641, secondary
- * #E7CAA0) for text/CTA accents only. Entrance motion is driven by the
- * parent's stagger container via the `variants` prop.
+ * #E7CAA0) for text/CTA accents only.
+ *
+ * Entrance motion is self-contained (own whileInView) rather than driven by
+ * a shared parent stagger container — on a tall mobile single-column stack,
+ * a single parent trigger fires (and finishes) before the user has scrolled
+ * down to card 2/3, so they'd appear already fully visible with no visible
+ * animation. Each card watching its own viewport entry fixes that while the
+ * `index`-based delay still produces a stagger on desktop, where all three
+ * are in view together.
  */
 interface ServiceCardProps {
   title: string
   description: string
   imageSrc: string
   href: string
-  variants?: Variants
+  index: number
   className?: string
 }
 
-export function ServiceCard({ title, description, imageSrc, href, variants, className }: ServiceCardProps) {
+export function ServiceCard({ title, description, imageSrc, href, index, className }: ServiceCardProps) {
+  const reduceMotion = useReducedMotion()
+
   return (
-    <motion.div variants={variants} className={cn('group h-full', className)}>
+    <motion.div
+      initial={{ opacity: 0, y: reduceMotion ? 0 : 26, scale: reduceMotion ? 1 : 0.98 }}
+      whileInView={{ opacity: 1, y: 0, scale: 1 }}
+      viewport={{ once: true, amount: 0.35 }}
+      transition={{
+        duration: reduceMotion ? 0.3 : 0.6,
+        ease: EASE_EDITORIAL,
+        delay: reduceMotion ? 0 : index * 0.12,
+      }}
+      className={cn('group h-full', className)}
+    >
       <Link
         to={href}
         className="relative block h-[380px] w-full overflow-hidden rounded-md font-sans shadow-[0_4px_14px_-8px_rgba(58,46,30,0.3)] transition-shadow duration-500 ease-out hover:shadow-[0_10px_26px_-10px_rgba(58,46,30,0.35)] sm:h-[420px] lg:h-[460px]"

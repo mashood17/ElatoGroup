@@ -13,3 +13,8 @@ class ReviewOut(BaseModel):
     text: str | None = None
     is_featured: bool
     fetched_at: str
+
+
+class ReviewAggregateOut(BaseModel):
+    rating: float
+    count: int

@@ -4,7 +4,7 @@ only ever select active/public rows — mirrors the RLS policies in migration
 0001 so the backend and the database agree on what "public" means.
 """
 
-from fastapi import APIRouter, Query, Request
+from fastapi import APIRouter, Query, Request, Response
 
 from app.repositories import (
     category_repository,
@@ -26,7 +26,7 @@ from app.schemas.event_package import EventPackageOut
 from app.schemas.gallery import GalleryItemOut
 from app.schemas.instagram_post import InstagramPostOut
 from app.schemas.menu_item import MenuItemOut
-from app.schemas.review import ReviewOut
+from app.schemas.review import ReviewAggregateOut, ReviewOut
 from app.schemas.room import RoomOut
 from app.schemas.site_content import SiteContentOut
 from app.schemas.special import SpecialOut
@@ -79,8 +79,20 @@ def list_featured_reviews():
     return review_repository.list_featured()
 
 
+@router.get("/reviews/aggregate", response_model=ReviewAggregateOut)
+def get_reviews_aggregate(response: Response):
+    # Business-wide rating/count changes rarely — safe to cache briefly
+    # rather than hit Supabase on every homepage load.
+    response.headers["Cache-Control"] = "public, max-age=300"
+    return review_repository.get_aggregate()
+
+
 @router.get("/instagram/latest", response_model=list[InstagramPostOut])
-def list_latest_instagram():
+def list_latest_instagram(response: Response):
+    # instagram_posts is a synced cache (see instagram_service), not a live
+    # Instagram call — safe to let browsers/CDN cache the response briefly
+    # rather than hit Supabase on every homepage load.
+    response.headers["Cache-Control"] = "public, max-age=300"
     return instagram_repository.list_latest(cap=8)
 
 

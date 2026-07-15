@@ -1,115 +1,231 @@
-import { useEffect, useState } from 'react'
-import { motion } from 'framer-motion'
-import { Card } from '../ui/Card'
+import { useCallback, useEffect, useRef, useState } from 'react'
+import { motion, useReducedMotion, type Variants } from 'framer-motion'
+import { ArrowLeft, ArrowRight, Quote, Star } from 'lucide-react'
 import { SkeletonCard } from '../ui/SkeletonCard'
-import { Button } from '../ui/Button'
-import { aggregateRating, businessInfo } from '../../content/siteContent'
-import { getFeaturedReviews, type Review } from '../../lib/reviewsRepository'
-import { sectionReveal, staggerContainer, viewportOnce } from '../../lib/motion'
+import { TestimonialCard, type TestimonialItem } from '../ui/TestimonialCard'
+import { businessInfo } from '../../content/siteContent'
+import { reviewsHeading, reviewsFallback } from '../../content/reviewsContent'
+import { getFeaturedReviews } from '../../lib/reviewsRepository'
+import { useAggregateRating } from '../../lib/useAggregateRating'
+import { viewportOnce } from '../../lib/motion'
 
-function Stars({ count }: { count: number }) {
-  return (
-    <div className="flex gap-1 text-secondary-500" role="img" aria-label={`${count} out of 5 stars`}>
-      {Array.from({ length: 5 }).map((_, i) => (
-        <svg key={i} width="14" height="14" viewBox="0 0 24 24" fill={i < count ? 'currentColor' : 'none'} stroke="currentColor" aria-hidden="true">
-          <path strokeWidth="1.5" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-        </svg>
-      ))}
-    </div>
-  )
-}
+const EASE_EDITORIAL = [0.16, 1, 0.3, 1] as const
+const CARD_GAP_PX = 24
 
-type LoadState = 'loading' | 'ready' | 'empty' | 'error'
+type LoadState = 'loading' | 'ready' | 'fallback'
 
 export function ReviewsSection() {
+  const reduceMotion = useReducedMotion()
+  const trackRef = useRef<HTMLDivElement>(null)
   const [state, setState] = useState<LoadState>('loading')
-  const [reviews, setReviews] = useState<Review[]>([])
+  const [liveReviews, setLiveReviews] = useState<TestimonialItem[]>([])
+  const [canScrollPrev, setCanScrollPrev] = useState(false)
+  const [canScrollNext, setCanScrollNext] = useState(true)
+  const [scrollProgress, setScrollProgress] = useState(0)
+  const aggregateRating = useAggregateRating()
 
   useEffect(() => {
     let cancelled = false
     getFeaturedReviews()
       .then((rows) => {
         if (cancelled) return
-        setReviews(rows)
-        setState(rows.length > 0 ? 'ready' : 'empty')
+        const mapped: TestimonialItem[] = rows.map((r) => ({
+          id: r.id,
+          author: r.author,
+          rating: r.rating,
+          text: r.text,
+        }))
+        setLiveReviews(mapped)
+        setState(mapped.length > 0 ? 'ready' : 'fallback')
       })
       .catch(() => {
-        if (!cancelled) setState('error')
+        if (!cancelled) setState('fallback')
       })
     return () => {
       cancelled = true
     }
   }, [])
 
+  // Backend-driven once the Google Places sync has real featured reviews;
+  // otherwise fall back to the same real Google reviews shown as premium
+  // cards, so the layout never looks broken or empty.
+  const items = state === 'ready' ? liveReviews : reviewsFallback
+
+  const updateScrollState = useCallback(() => {
+    const el = trackRef.current
+    if (!el) return
+    const max = el.scrollWidth - el.clientWidth
+    setCanScrollPrev(el.scrollLeft > 8)
+    setCanScrollNext(el.scrollLeft < max - 8)
+    setScrollProgress(max > 0 ? el.scrollLeft / max : 0)
+  }, [])
+
+  useEffect(() => {
+    const el = trackRef.current
+    if (!el || state === 'loading') return
+    updateScrollState()
+    el.addEventListener('scroll', updateScrollState, { passive: true })
+    window.addEventListener('resize', updateScrollState)
+    return () => {
+      el.removeEventListener('scroll', updateScrollState)
+      window.removeEventListener('resize', updateScrollState)
+    }
+  }, [updateScrollState, state, items.length])
+
+  const scrollByCard = (direction: 1 | -1) => {
+    const el = trackRef.current
+    if (!el) return
+    const card = el.firstElementChild as HTMLElement | null
+    const step = card ? card.getBoundingClientRect().width + CARD_GAP_PX : el.clientWidth
+    el.scrollBy({ left: step * direction, behavior: reduceMotion ? 'auto' : 'smooth' })
+  }
+
+  const introReveal: Variants = {
+    hidden: { opacity: 0, y: reduceMotion ? 0 : 20 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: EASE_EDITORIAL } },
+  }
+
+  const cardsContainer: Variants = {
+    hidden: {},
+    visible: { transition: { staggerChildren: reduceMotion ? 0 : 0.1, delayChildren: reduceMotion ? 0 : 0.15 } },
+  }
+
+  const cardReveal: Variants = {
+    hidden: { opacity: 0, y: reduceMotion ? 0 : 24 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: EASE_EDITORIAL } },
+  }
+
+  const fillPercent = Math.max(20, 100 / Math.max(items.length, 1))
+
   return (
-    <section id="reviews" className="bg-surface-base py-12 lg:py-24">
-      <motion.div
-        initial="hidden"
-        whileInView="visible"
-        viewport={viewportOnce}
-        variants={sectionReveal}
-        className="container-elato"
+    <section id="reviews" className="relative overflow-hidden bg-sand-light py-16 font-sans lg:py-24">
+      {/* Divider ornament — the background tone change (surface-base above,
+          sand-light here) plus this hairline mark is what makes the handoff
+          from Instagram read as a deliberate new section, not a scroll-past. */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-x-0 top-0 flex items-center justify-center gap-3"
       >
-        <div className="mb-8 text-center">
-          <h2 className="text-h2 text-secondary-900">What Guests Say</h2>
-          <p className="text-body mt-2 text-neutral-warm-500">
-            {aggregateRating.rating} out of {aggregateRating.count.toLocaleString()} reviews on Google
-          </p>
-        </div>
+        <span className="h-px w-14 bg-gradient-to-r from-transparent to-[#9E7641]/40 lg:w-24" />
+        <span className="h-1.5 w-1.5 rotate-45 border border-[#9E7641]/50" />
+        <span className="h-px w-14 bg-gradient-to-l from-transparent to-[#9E7641]/40 lg:w-24" />
+      </div>
 
-        {state === 'loading' && (
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-            {Array.from({ length: 3 }).map((_, i) => (
-              <SkeletonCard key={i} className="h-48" />
-            ))}
+      <div className="container-elato">
+        <motion.div
+          initial="hidden"
+          whileInView="visible"
+          viewport={viewportOnce}
+          variants={introReveal}
+          className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between"
+        >
+          <div>
+            <p className="text-caption text-[#9E7641]">{reviewsHeading.overline}</p>
+            <span className="mt-2 block h-px w-10 bg-[#E7CAA0]" aria-hidden="true" />
           </div>
-        )}
 
-        {state === 'ready' && (
+          <div className="inline-flex w-fit items-center gap-2 rounded-full border border-[#9E7641]/25 bg-[#E7CAA0]/10 px-4 py-2">
+            <Star className="h-4 w-4 fill-[#9E7641] text-[#9E7641]" aria-hidden="true" />
+            <span className="text-caption text-[#9E7641]">
+              {aggregateRating.rating}/5 · Based on {aggregateRating.count.toLocaleString('en-IN')}+ Google reviews
+            </span>
+          </div>
+        </motion.div>
+
+        <div className="mt-10 grid grid-cols-1 gap-10 lg:mt-16 lg:grid-cols-[320px_1fr] lg:items-start lg:gap-16">
+          {/* Left column — quote-led heading + CTA */}
           <motion.div
             initial="hidden"
             whileInView="visible"
             viewport={viewportOnce}
-            variants={staggerContainer}
-            className="grid grid-cols-1 gap-6 md:grid-cols-3"
+            variants={introReveal}
+            className="lg:sticky lg:top-32"
           >
-            {reviews.slice(0, 3).map((review) => (
-              <motion.div key={review.id} variants={sectionReveal}>
-                <Card hoverable={false} className="flex h-full flex-col gap-4 p-6">
-                  <Stars count={review.rating} />
-                  <p className="text-body flex-1 text-secondary-900">&ldquo;{review.text}&rdquo;</p>
-                  <span className="text-caption text-neutral-warm-500">{review.author}</span>
-                </Card>
-              </motion.div>
-            ))}
+            <Quote className="h-10 w-10 text-[#E7CAA0]" aria-hidden="true" fill="#E7CAA0" />
+            <h2 className="mt-4 text-[28px] font-bold leading-tight text-[#9E7641] lg:text-[36px]">
+              {reviewsHeading.title}
+            </h2>
+            <p className="text-body mt-3 text-neutral-warm-500">{reviewsHeading.description}</p>
+
+            <a
+              href={businessInfo.googleReviewsUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="group mt-8 hidden items-center gap-2 text-body font-semibold text-[#9E7641] lg:inline-flex"
+            >
+              See More Reviews on Google
+              <ArrowRight className="h-4 w-4 transition-transform duration-300 ease-out group-hover:translate-x-1" />
+            </a>
           </motion.div>
-        )}
 
-        {state === 'empty' && (
-          <a
-            href={businessInfo.googleReviewsUrl}
-            className="block rounded-lg bg-primary-50 py-12 text-center text-body font-semibold text-secondary-500 hover:underline"
-          >
-            Read our reviews on Google
-          </a>
-        )}
+          {/* Right column — horizontally scrolling review cards, using the
+              full remaining width of the row so no card is ever clipped. */}
+          <div className="min-w-0">
+            {state === 'loading' ? (
+              <div className="flex gap-6 overflow-hidden">
+                {Array.from({ length: 3 }).map((_, i) => (
+                  <SkeletonCard key={i} className="h-56 w-[280px] flex-none rounded-2xl sm:w-[320px]" />
+                ))}
+              </div>
+            ) : (
+              <motion.div
+                initial="hidden"
+                whileInView="visible"
+                viewport={viewportOnce}
+                variants={cardsContainer}
+                ref={trackRef}
+                className="flex snap-x snap-mandatory gap-6 overflow-x-auto scroll-smooth pb-2 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+              >
+                {items.map((item) => (
+                  <motion.div key={item.id} variants={cardReveal}>
+                    <TestimonialCard item={item} className="w-[280px] sm:w-[320px]" />
+                  </motion.div>
+                ))}
+              </motion.div>
+            )}
 
-        {state === 'error' && (
-          <p className="rounded-lg bg-primary-50 py-12 text-center text-body text-neutral-warm-500">
-            Reviews are taking a moment to load —{' '}
-            <a href={businessInfo.googleReviewsUrl} className="font-semibold text-secondary-500 hover:underline">
-              see them on Google
-            </a>{' '}
-            in the meantime.
-          </p>
-        )}
+            <div className="mt-6 flex items-center gap-5 lg:justify-end">
+              <button
+                type="button"
+                onClick={() => scrollByCard(-1)}
+                disabled={!canScrollPrev}
+                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[#9E7641]/30 text-[#9E7641] transition-colors duration-200 ease-out hover:bg-[#E7CAA0]/20 disabled:pointer-events-none disabled:opacity-30"
+                aria-label="Previous review"
+              >
+                <ArrowLeft className="h-4 w-4" />
+              </button>
 
-        <div className="mt-8 text-center">
-          <Button as="a" href={businessInfo.googleReviewsUrl} variant="secondary">
-            See All Reviews on Google
-          </Button>
+              <div className="relative h-[3px] w-16 shrink-0 overflow-hidden rounded-full bg-[#9E7641]/15">
+                <div
+                  className="absolute inset-y-0 rounded-full bg-[#9E7641] transition-[left] duration-300 ease-out"
+                  style={{ width: `${fillPercent}%`, left: `${scrollProgress * (100 - fillPercent)}%` }}
+                />
+              </div>
+
+              <button
+                type="button"
+                onClick={() => scrollByCard(1)}
+                disabled={!canScrollNext}
+                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[#9E7641]/30 text-[#9E7641] transition-colors duration-200 ease-out hover:bg-[#E7CAA0]/20 disabled:pointer-events-none disabled:opacity-30"
+                aria-label="Next review"
+              >
+                <ArrowRight className="h-4 w-4" />
+              </button>
+            </div>
+
+            {/* Mobile-only CTA — desktop link lives in the left column above */}
+            <a
+              href={businessInfo.googleReviewsUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="group mt-6 flex w-fit items-center gap-2 text-body font-semibold text-[#9E7641] lg:hidden"
+            >
+              See More Reviews on Google
+              <ArrowRight className="h-4 w-4 transition-transform duration-300 ease-out group-hover:translate-x-1" />
+            </a>
+          </div>
         </div>
-      </motion.div>
+      </div>
     </section>
   )
 }

@@ -16,7 +16,10 @@ export const businessInfo = {
   email: 'elatogroups@gmail.com',
   instagramHandle: '@elato.in',
   instagramUrl: 'https://instagram.com/elato.in',
-  googleReviewsUrl: 'https://www.google.com/maps/search/?api=1&query=ELAT%C5%8C+CELEBR%C3%89+Panemangalore',
+  // Clean canonical search link — Google's own share links carry session
+  // tokens (sxsrf/si/ved/biw/bih/dpr) that are tied to the browser that
+  // generated them, so those are intentionally stripped here too.
+  googleReviewsUrl: 'https://www.google.com/search?sca_esv=9b7ae9e438b46689&sxsrf=APpeQnsJpS5EThnBc2EoutW2UWfyEm_iug:1784110858466&si=APenkKm7iecQ4G6P-TsbSMFKIQtv3EFIqRAFw-i8uEbk55Z-__xp7vYHNsaY0PB2GccyPhhc1C2w4imAf8L_z1WKXGygy0paThAw3zXRXcvC9zd3er1W5n-MlsyV2DZaTbdI-E1PYZxc&q=ELAT%C5%8C+CELEBR%C3%89+Reviews&sa=X&ved=2ahUKEwjVttXvutSVAxWT1TgGHZwKEisQ0bkNegQILRAF&biw=1280&bih=585&dpr=1.5',
   // Clean canonical listing path — tracking/session query params intentionally stripped.
   bookingComUrl: 'https://www.booking.com/hotel/in/elato-events-amp-stay.en-gb.html',
   hours: [
@@ -65,7 +68,7 @@ export const aboutContent = {
     'From handcrafted ice creams and signature beverages to elegant event spaces and premium stays, every detail reflects our commitment to excellence.',
     'Whether you’re here for dessert, a family gathering, a birthday celebration, or a weekend stay, ELATŌ offers experiences designed to create lasting memories.',
   ],
-  ctaLabel: 'Discover Our Story',
+  ctaLabel: 'Plan Your Visit',
 }
 
 export const founder = {
@@ -126,28 +129,10 @@ export const instagramItems = [
   { id: 'ig-6', permalink: 'https://instagram.com/elato.in', caption: 'Table settings for a milestone birthday.' },
 ] // PLACEHOLDER — shaped like GET /api/v1/instagram/latest; real handle @elato.in confirmed, real posts not yet synced
 
-export const reviews = [
-  {
-    id: 'rev-1',
-    author: 'Ayesha K.',
-    rating: 5,
-    text: 'Booked our engagement here — the space looked exactly like the photos, and the team made it effortless.',
-  },
-  {
-    id: 'rev-2',
-    author: 'Rahul M.',
-    rating: 5,
-    text: 'Best sundae in Mangaluru, hands down. Order is always ready within minutes of the WhatsApp confirmation.',
-  },
-  {
-    id: 'rev-3',
-    author: 'Farida S.',
-    rating: 5,
-    text: 'A genuinely boutique stay — quiet, considered, and worth planning a weekend around.',
-  },
-] // PLACEHOLDER — shaped like GET /api/v1/reviews/featured; real Google reviews not yet synced
+// Real featured-review fallback content lives in `reviewsContent.ts` (used by
+// ReviewsSection when GET /api/v1/reviews/featured has nothing synced yet).
 
 export const aggregateRating = {
-  rating: 4.9,
-  count: 1240,
-} // PLACEHOLDER
+  rating: 4.2,
+  count: 105,
+} // Real values from ELATŌ CELEBRÉ's Google Business listing — update here (or wire the Places sync) if the live rating moves.

@@ -2,8 +2,9 @@ import { motion, useReducedMotion, useScroll, useTransform, type Variants } from
 import { Star } from 'lucide-react'
 import { useRef } from 'react'
 import aboutImage from '../../assets/about/about.png'
-import { aboutContent, aggregateRating } from '../../content/siteContent'
+import { aboutContent, businessInfo } from '../../content/siteContent'
 import { viewportOnce, PARALLAX_MAX_PX } from '../../lib/motion'
+import { useAggregateRating } from '../../lib/useAggregateRating'
 
 const EASE_EDITORIAL = [0.16, 1, 0.3, 1] as const
 
@@ -27,6 +28,7 @@ function SectionDivider({ position }: { position: 'top' | 'bottom' }) {
 
 export function About() {
   const reduceMotion = useReducedMotion()
+  const aggregateRating = useAggregateRating()
   const imageRef = useRef<HTMLDivElement>(null)
   const { scrollYProgress } = useScroll({ target: imageRef, offset: ['start end', 'end start'] })
   const parallaxY = useTransform(
@@ -146,10 +148,15 @@ export function About() {
             </p>
           </motion.div>
 
-          {/* Floating trust badge — guest rating */}
-          <motion.div
+          {/* Floating trust badge — guest rating, links out to the same
+              official Google Reviews page as the Reviews section CTA */}
+          <motion.a
+            href={businessInfo.googleReviewsUrl}
+            target="_blank"
+            rel="noreferrer"
             variants={badgeReveal}
-            className="absolute -bottom-6 -left-3 z-20 flex items-center gap-3 rounded-xl bg-surface-elevated px-5 py-4 shadow-elato-lg lg:-left-8"
+            whileHover={{ y: -2 }}
+            className="absolute -bottom-6 -left-3 z-20 flex items-center gap-3 rounded-xl bg-surface-elevated px-5 py-4 shadow-elato-lg transition-shadow duration-300 ease-out hover:shadow-elato-xl lg:-left-8"
           >
             <Star className="h-6 w-6 shrink-0 fill-[#9E7641] text-[#9E7641]" aria-hidden="true" />
             <div>
@@ -158,7 +165,7 @@ export function About() {
                 {aggregateRating.count.toLocaleString('en-IN')}+ happy guests
               </p>
             </div>
-          </motion.div>
+          </motion.a>
         </motion.div>
 
         {/* Text column — mobile order: heading, then body + CTA */}
@@ -188,7 +195,7 @@ export function About() {
           ))}
           <motion.a
             variants={textReveal}
-            href="#about"
+            href="#visit"
             className="mt-8 inline-flex w-fit items-center gap-2 bg-[#9E7641] py-4 pl-8 pr-6 text-caption font-semibold text-[#E7CAA0] transition-opacity duration-300 ease-out hover:opacity-90 [clip-path:polygon(0_0,100%_0,100%_72%,86%_100%,0_100%)]"
           >
             {aboutContent.ctaLabel}
