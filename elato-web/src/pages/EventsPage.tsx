@@ -7,6 +7,7 @@ import { EventExperience } from '../components/events/EventExperience'
 import { EventsGallery } from '../components/events/EventsGallery'
 import { EventsQuote } from '../components/events/EventsQuote'
 import { EventsEnquiry } from '../components/events/EventsEnquiry'
+import { PinnedHeroReveal } from '../components/sections/PinnedHeroReveal'
 
 export function EventsPage() {
   return (
@@ -18,9 +19,8 @@ export function EventsPage() {
         jsonLd={eventVenueJsonLd()}
       />
       <main>
-        <EventsHero />
+        <PinnedHeroReveal hero={<EventsHero />} next={<FeaturedEvents />} />
         <EventsCapacity />
-        <FeaturedEvents />
         <EventExperience />
         <EventsGallery />
         <EventsQuote />
