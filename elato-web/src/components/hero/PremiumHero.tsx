@@ -103,31 +103,53 @@ export function PremiumHero({
       </picture>
       <div className="hero-bg-light" aria-hidden="true" />
 
-      <div className="container-elato relative grid w-full items-center gap-14 lg:grid-cols-[1.5fr_1fr] lg:gap-10 xl:gap-16">
-        <div className="flex flex-col items-center gap-3 text-center lg:items-start lg:gap-4 lg:text-left">
-          <PremiumHeroLogo3D
-            src={logoSrc}
-            alt={logoAlt}
-            aspect={logoAspect}
-            macronRect={macronRect}
-            className="w-[260px] sm:w-[340px] md:w-[440px] lg:w-full [@media(max-height:600px)_and_(max-width:900px)]:w-[190px]"
-          />
+      <div className="container-elato relative grid w-full items-center gap-14 lg:grid-cols-[1.5fr_1fr] lg:items-stretch lg:gap-10 xl:gap-16">
+        {/*
+          Left column is one flex container spanning the full row height, with
+          a flex-1 spacer above and below the branding wrapper — that's what
+          puts the wrapper in the true vertical center, rather than relying on
+          the grid centering a content-sized block.
+        */}
+        <div className="flex flex-col items-start lg:h-full">
+          <div className="flex-1" aria-hidden="true" />
 
-          <motion.p
-            initial="hidden"
-            animate="visible"
-            variants={taglineReveal}
-            className="max-w-lg font-sans text-[17px] font-medium leading-relaxed tracking-[0.03em] text-[#9e7641] sm:text-[18px] md:text-[20px] lg:max-w-md lg:text-[19px] xl:text-[21px]"
-          >
-            {tagline}
-          </motion.p>
+          {/*
+            Branding wrapper — logo (the section name is baked into the
+            wordmark artwork itself, there's no separate text layer) and
+            tagline as one grouped unit. The wrapper owns the width at every
+            breakpoint; logo and tagline both fill it at `w-full` so the
+            tagline can never render wider than the logo above it. Left-aligned
+            at every breakpoint — not centered on mobile — so the logo and
+            tagline share one left edge instead of each re-centering on its
+            own axis.
+          */}
+          <div className="flex w-[300px] flex-col items-start gap-4 text-left sm:w-[340px] md:w-[440px] lg:w-full [@media(max-height:600px)_and_(max-width:900px)]:w-[190px]">
+            <PremiumHeroLogo3D
+              src={logoSrc}
+              alt={logoAlt}
+              aspect={logoAspect}
+              macronRect={macronRect}
+              className="w-full"
+            />
+
+            <motion.p
+              initial="hidden"
+              animate="visible"
+              variants={taglineReveal}
+              className="ml-[13.3%] w-[60%] font-sans text-[17px] font-medium leading-relaxed tracking-[0.03em] text-[#9e7641] sm:text-[18px] md:text-[20px] lg:text-[19px] xl:text-[21px]"
+            >
+              {tagline}
+            </motion.p>
+          </div>
+
+          <div className="flex-1" aria-hidden="true" />
         </div>
 
         <motion.div
           initial="hidden"
           animate="visible"
           variants={imageCardReveal}
-          className="relative mx-auto w-full max-w-[330px] px-6 pt-8 pb-10 sm:max-w-[380px] lg:mx-0 lg:max-w-[400px] xl:max-w-[440px]"
+          className="relative mx-auto w-full max-w-[360px] px-6 pt-8 pb-10 sm:max-w-[380px] lg:mx-0 lg:max-w-[400px] xl:max-w-[440px] lg:self-center"
         >
           <HeroShowcaseCard
             src={imageSrc}
