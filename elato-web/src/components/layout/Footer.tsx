@@ -51,27 +51,6 @@ export function Footer() {
             <LogoImage />
           </Link>
           <p className="text-body text-primary-100">Where Every Celebration Begins</p>
-          <div className="mt-1 flex flex-wrap gap-5 text-body">
-            <a
-              href={businessInfo.instagramUrl}
-              target="_blank"
-              rel="noreferrer"
-              className={socialLinkClass}
-            >
-              <InstagramIcon className={socialIconClass} />
-              <span>{businessInfo.instagramHandle}</span>
-            </a>
-            <a
-              href={buildWhatsAppLink(businessInfo.whatsappNumber, 'Hi Elato!')}
-              target="_blank"
-              rel="noreferrer"
-              onClick={() => trackEvent('whatsapp_click', 'footer')}
-              className={socialLinkClass}
-            >
-              <WhatsAppIcon className={socialIconClass} />
-              <span>{businessInfo.phone}</span>
-            </a>
-          </div>
         </div>
 
         <div>
