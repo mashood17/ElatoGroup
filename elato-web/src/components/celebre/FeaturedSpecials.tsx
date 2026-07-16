@@ -6,6 +6,8 @@ import { SpecialDetailModal } from './SpecialDetailModal'
 import { getSpecials } from '../../lib/menuRepository'
 import type { Special } from '../../content/celebreContent'
 import { sectionReveal, viewportOnce } from '../../lib/motion'
+import bgDesktop from '../../assets/newbg/bg2.png'
+import bgMobile from '../../assets/newbg/bg-mb2.png'
 
 const gradients = [
   'from-primary-300 to-secondary-500',
@@ -47,7 +49,9 @@ export function FeaturedSpecials() {
   }, [])
 
   return (
-    <section className="bg-surface-base py-16 lg:py-32">
+    <section className="relative overflow-hidden py-16 lg:py-32">
+      <div className="absolute inset-0 -z-10 bg-cover bg-center sm:hidden" style={{ backgroundImage: `url(${bgMobile})` }} aria-hidden="true" />
+      <div className="absolute inset-0 -z-10 hidden bg-cover bg-center sm:block" style={{ backgroundImage: `url(${bgDesktop})` }} aria-hidden="true" />
       <div className="container-elato">
         <motion.div
           initial="hidden"
@@ -57,7 +61,7 @@ export function FeaturedSpecials() {
           className="mb-6 text-center sm:mb-6"
         >
           <p className="text-caption text-secondary-500">Signature Indulgences</p>
-          <h2 className="text-h2 mt-3 font-sans font-bold text-[#9e7641]">Handcrafted Creations, Curated to Delight</h2>
+          <h2 className="text-h2 mt-3 font-sans font-bold text-[#9e7641] lg:text-[44px] lg:leading-[1.1]">Handcrafted Creations, Curated to Delight</h2>
         </motion.div>
 
         {loadError ? (
