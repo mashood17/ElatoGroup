@@ -12,7 +12,7 @@ const navItems = [
   { label: 'Celebré', to: '/elato-celebre' },
   { label: 'Stay', to: '/elato-stay' },
   { label: 'Events', to: '/elato-events' },
-  { label: 'Instagram', hash: '#instagram' },
+  { label: 'About', hash: '#about' },
   { label: 'Visit', hash: '#visit' },
 ] as const
 
