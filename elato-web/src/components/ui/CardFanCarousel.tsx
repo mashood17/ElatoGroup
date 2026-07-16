@@ -32,7 +32,11 @@ const prefersReducedMotion = () =>
   typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
 function getRotationMultiplier(width: number) {
-  return width < 640 ? 0.45 : 1
+  return width < 640 ? 0.32 : 1
+}
+
+function getVisibleSlotCount(width: number) {
+  return width < 640 ? 5 : MAX_VISIBLE
 }
 
 function getResponsiveMultiplier(width: number) {
@@ -98,8 +102,10 @@ export default function CardFanCarousel({ cards }: CardFanCarouselProps) {
         cards.forEach((_, i) => map.set(i, i))
         return map
       }
-      for (let slot = 0; slot < MAX_VISIBLE; slot++) {
-        map.set((((center + slot - HALF) % totalCards) + totalCards) % totalCards, slot)
+      const visibleCount = getVisibleSlotCount(window.innerWidth)
+      const half = Math.floor(visibleCount / 2)
+      for (let slot = 0; slot < visibleCount; slot++) {
+        map.set((((center + slot - half) % totalCards) + totalCards) % totalCards, slot)
       }
       return map
     },
@@ -131,7 +137,7 @@ export default function CardFanCarousel({ cards }: CardFanCarouselProps) {
     const multiplier = getResponsiveMultiplier(window.innerWidth)
     const hMult = getHeightMultiplier(window.innerWidth)
     const rotMult = getRotationMultiplier(window.innerWidth)
-    const slotCount = needsPagination ? MAX_VISIBLE : totalCards
+    const slotCount = needsPagination ? getVisibleSlotCount(window.innerWidth) : totalCards
     const config = (slot: number) => getSlotConfig(slotCount, slot)
 
     if (isFirstMount) isAnimating.current = true

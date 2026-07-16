@@ -25,25 +25,6 @@ export const introduction = {
   highlights: ['Fully furnished', 'Spacious living area', 'Peaceful environment'],
 }
 
-export type Room = {
-  id: string
-  name: string
-  description: string
-  maxOccupancy: number
-  amenities: string[]
-}
-
-export const rooms: Room[] = [
-  {
-    id: 'elato-2bhk',
-    name: 'ELATŌ Stay — 2BHK Premium Apartment',
-    description:
-      'A fully furnished, spacious apartment near Panemangalore — two premium bedrooms, two modern bathrooms, a fully equipped kitchen, and a private terrace and balcony.',
-    maxOccupancy: 8,
-    amenities: ['2 Bedrooms', '2 Bathrooms', 'Free Wi-Fi', 'Air Conditioning', 'Kitchen', 'Balcony', 'Terrace', 'Parking'],
-  },
-]
-
 export const amenities = [
   'Fully Furnished',
   'Spacious Living Area',

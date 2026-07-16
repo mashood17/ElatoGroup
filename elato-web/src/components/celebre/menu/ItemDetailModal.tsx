@@ -94,7 +94,7 @@ export function ItemDetailModal({ itemId, onClose }: { itemId: string | null; on
                 />
                 <div className="p-6 lg:p-8">
                   <p className="text-caption text-secondary-500">{categoryName}</p>
-                  <h2 className="text-h2 mt-2 text-secondary-900">{item.name}</h2>
+                  <h2 className="text-h2 mt-2 font-sans text-secondary-900">{item.name}</h2>
                   <p className="text-body mt-3 text-neutral-warm-500">{item.description}</p>
                   <div className="mt-4 flex items-center justify-between">
                     <p className="text-h3 text-secondary-900">₹{item.price}</p>
