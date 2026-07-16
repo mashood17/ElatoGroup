@@ -1,5 +1,8 @@
 import { motion } from 'framer-motion'
 import { GalleryGrid } from './gallery/GalleryGrid'
+import sectionBackground from '../../assets/newbg/bg2.png'
+import sectionBackgroundMobile from '../../assets/newbg/bg-mb2.png'
+import { SectionBackground } from '../ui/SectionBackground'
 import { galleryItems } from '../../content/stayContent'
 import { sectionReveal, viewportOnce } from '../../lib/motion'
 
@@ -11,17 +14,19 @@ import { sectionReveal, viewportOnce } from '../../lib/motion'
  */
 export function StayGallery() {
   return (
-    <section className="bg-surface-base py-16 lg:py-32">
-      <div className="container-elato">
-        <motion.h2
+    <section className="relative overflow-hidden py-16 lg:py-32">
+      <SectionBackground image={sectionBackground} mobileImage={sectionBackgroundMobile} />
+      <div className="container-elato relative">
+        <motion.div
           initial="hidden"
           whileInView="visible"
           viewport={viewportOnce}
           variants={sectionReveal}
-          className="text-h2 mb-12 text-center text-secondary-900"
+          className="mb-12 text-center"
         >
-          A Feel For the Place
-        </motion.h2>
+          <p className="text-caption text-secondary-500">A Glimpse Inside</p>
+          <h2 className="text-h2 mt-3 font-sans font-bold text-[#9e7641]">Spaces Designed for Comfort and Calm</h2>
+        </motion.div>
         <GalleryGrid items={galleryItems} />
       </div>
     </section>

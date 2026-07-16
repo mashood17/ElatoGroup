@@ -56,8 +56,5 @@ export const galleryItems: GalleryItem[] = [
   { id: 'g-7', caption: 'Textures of the stay', span: 'wide' },
 ] // PLACEHOLDER — captions are real-scene descriptions; photography not yet supplied
 
-export const hospitalityPromise =
-  'We do not fill your stay with things to do. We simply make sure nothing is missing.'
-
 export const STAY_GUEST_MIN = 1
 export const STAY_GUEST_MAX = 8

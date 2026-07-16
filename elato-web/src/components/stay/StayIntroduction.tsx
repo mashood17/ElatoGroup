@@ -19,13 +19,19 @@ export function StayIntroduction() {
           transition={{ duration: 0.7, ease: 'easeOut' }}
           className="order-3 lg:order-1 lg:col-start-1 lg:row-span-2 lg:row-start-1"
         >
-          <div className="relative mx-auto aspect-4/5 w-full max-w-sm overflow-hidden rounded-[75px] shadow-elato-lg ring-1 ring-secondary-500/40 ring-offset-8 ring-offset-primary-50 lg:max-w-none lg:rounded-[106px]">
-            <img
-              src={stayImage}
-              alt="ELATŌ Stay — the premium 2BHK apartment"
-              loading="lazy"
-              className="h-full w-full object-cover"
+          <div className="relative mx-auto aspect-4/5 w-full max-w-sm lg:max-w-none">
+            <div
+              className="absolute -inset-3 rounded-[44px] rounded-bl-[130px] bg-primary-50/80"
+              aria-hidden="true"
             />
+            <div className="relative h-full w-full overflow-hidden rounded-[36px] rounded-bl-[110px] border-[10px] border-secondary-900 ring-4 ring-surface-elevated shadow-elato-lg lg:rounded-[48px] lg:rounded-bl-[150px] lg:border-[14px]">
+              <img
+                src={stayImage}
+                alt="ELATŌ Stay — the premium 2BHK apartment"
+                loading="lazy"
+                className="h-full w-full object-cover"
+              />
+            </div>
           </div>
         </motion.div>
 

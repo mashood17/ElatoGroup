@@ -4,7 +4,6 @@ import { StayHero } from '../components/stay/StayHero'
 import { StayIntroduction } from '../components/stay/StayIntroduction'
 import { Amenities } from '../components/stay/Amenities'
 import { StayGallery } from '../components/stay/StayGallery'
-import { HospitalityPromise } from '../components/stay/HospitalityPromise'
 import { BookingEnquiry } from '../components/stay/BookingEnquiry'
 import { StickyWhatsAppBar } from '../components/stay/StickyWhatsAppBar'
 
@@ -22,7 +21,6 @@ export function StayPage() {
         <StayIntroduction />
         <Amenities />
         <StayGallery />
-        <HospitalityPromise />
         <BookingEnquiry />
         <StickyWhatsAppBar />
       </main>
