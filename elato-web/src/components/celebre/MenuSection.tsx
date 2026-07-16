@@ -7,6 +7,8 @@ import { ItemDetailModal } from './menu/ItemDetailModal'
 import { getCategories, getMenuItems, searchMenuItems } from '../../lib/menuRepository'
 import type { Category, MenuItem } from '../../content/celebreContent'
 import { sectionReveal, viewportOnce } from '../../lib/motion'
+import bgDesktop from '../../assets/newbg/bg2.png'
+import bgMobile from '../../assets/newbg/bg-mb2.png'
 
 export function MenuSection() {
   const [categories, setCategories] = useState<Category[] | null>(null)
@@ -67,7 +69,19 @@ export function MenuSection() {
   }, [menuItems])
 
   return (
-    <section id="menu" className="bg-surface-base">
+    <section id="menu" className="relative overflow-hidden">
+      <div className="absolute inset-0 -z-10 bg-cover bg-center sm:hidden" style={{ backgroundImage: `url(${bgMobile})` }} aria-hidden="true" />
+      <div className="absolute inset-0 -z-10 hidden bg-cover bg-center sm:block" style={{ backgroundImage: `url(${bgDesktop})` }} aria-hidden="true" />
+
+      <div className="container-elato pb-4 pt-16 text-center lg:pb-6 lg:pt-32">
+        <motion.div initial="hidden" whileInView="visible" viewport={viewportOnce} variants={sectionReveal}>
+          <p className="text-caption text-secondary-500">Curated Menu</p>
+          <h2 className="text-h2 mt-3 font-sans font-bold text-[#9e7641] lg:text-[44px] lg:leading-[1.1]">
+            Explore the Complete ELATŌ Collection
+          </h2>
+        </motion.div>
+      </div>
+
       <MenuSearchBar onQueryChange={setQuery} />
 
       <div className="container-elato">

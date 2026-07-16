@@ -36,10 +36,10 @@ export function MenuItemRow({ item, onOpen }: { item: MenuItem; onOpen: (id: str
       <span className="flex items-center gap-3">
         <span className="text-body text-neutral-warm-500">₹{item.price}</span>
         <span
-          className="flex h-6 w-6 items-center justify-center text-secondary-500 transition-transform duration-200 ease-out group-hover:rotate-45"
+          className="flex h-6 w-6 items-center justify-center text-lg text-secondary-500 transition-transform duration-200 ease-out group-hover:translate-x-0.5"
           aria-hidden="true"
         >
-          +
+          ›
         </span>
       </span>
     </button>

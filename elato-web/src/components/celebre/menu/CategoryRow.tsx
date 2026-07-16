@@ -46,7 +46,7 @@ export function CategoryRow({
       </div>
 
       <div
-        className={`aspect-4/5 w-full overflow-hidden rounded-lg shadow-elato-lg bg-gradient-to-br ${gradients[index % gradients.length]}`}
+        className={`hidden aspect-4/5 w-full overflow-hidden rounded-lg shadow-elato-lg bg-gradient-to-br lg:block ${gradients[index % gradients.length]}`}
         aria-hidden="true"
       />
     </motion.div>
