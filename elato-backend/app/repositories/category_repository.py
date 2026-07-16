@@ -1,12 +1,17 @@
 from typing import Any
 
-from app.repositories.base import client, unwrap_single
+from postgrest.exceptions import APIError
+
+from app.repositories.base import client, raise_for_postgrest, unwrap_single
 
 TABLE = "categories"
 
 
 def list_public() -> list[dict[str, Any]]:
-    res = client().table(TABLE).select("*").eq("is_active", True).order("display_order").execute()
+    try:
+        res = client().table(TABLE).select("*").eq("is_active", True).order("display_order").execute()
+    except APIError as exc:
+        raise_for_postgrest(exc)
     return res.data
 
 

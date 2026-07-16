@@ -9,7 +9,6 @@ import { StayGallery } from '../components/stay/StayGallery'
 import { HospitalityPromise } from '../components/stay/HospitalityPromise'
 import { BookingEnquiry } from '../components/stay/BookingEnquiry'
 import { StickyWhatsAppBar } from '../components/stay/StickyWhatsAppBar'
-import { PinnedHeroReveal } from '../components/sections/PinnedHeroReveal'
 
 export function StayPage() {
   return (
@@ -21,7 +20,8 @@ export function StayPage() {
         jsonLd={lodgingJsonLd()}
       />
       <main>
-        <PinnedHeroReveal hero={<StayHero />} next={<StayInfoStrip />} />
+        <StayHero />
+        <StayInfoStrip />
         <StayIntroduction />
         <RoomDetails />
         <Amenities />

@@ -4,7 +4,7 @@ import { sectionReveal, staggerContainer, viewportOnce } from '../../lib/motion'
 
 export function StayInfoStrip() {
   return (
-    <section className="relative z-0 overflow-hidden rounded-t-[28px] border-b border-primary-100 bg-surface-base py-10 shadow-[0_-10px_30px_rgba(23,15,10,0.06),0_30px_70px_rgba(23,15,10,0.16)] lg:rounded-t-[48px]">
+    <section className="border-y border-primary-100 bg-surface-base py-10">
       <motion.div
         initial="hidden"
         whileInView="visible"

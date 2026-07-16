@@ -56,11 +56,16 @@ def list_specials():
 
 @router.get("/gallery", response_model=list[GalleryItemOut])
 def list_gallery(category: str | None = None):
+    from app.db import get_supabase
+
     rows = gallery_repository.list_public(category)
     out = []
     for row in rows:
         media = row.pop("media", None) or {}
-        out.append(GalleryItemOut(**row, media_url=media.get("storage_path")))
+        storage_path = media.get("storage_path")
+        bucket = media.get("bucket")
+        media_url = get_supabase().storage.from_(bucket).get_public_url(storage_path) if storage_path and bucket else None
+        out.append(GalleryItemOut(**row, media_url=media_url))
     return out
 
 

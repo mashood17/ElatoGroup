@@ -8,7 +8,7 @@ import io
 import uuid
 from dataclasses import dataclass
 
-from PIL import Image
+from PIL import Image, ImageOps
 from fastapi import UploadFile
 
 import pillow_avif  # noqa: F401  registers the AVIF codec with Pillow on import
@@ -25,6 +25,8 @@ _MAGIC_BYTES: dict[bytes, str] = {
 }
 
 _BREAKPOINTS = {"thumbnail": 320, "sm": 640, "lg": 1280}
+_ENCODE_QUALITY = 82  # 80-85% per the media-pipeline spec — visually lossless, meaningfully smaller
+_MAX_PIXELS = 40_000_000  # ~40MP guard against decompression-bomb uploads, independent of the byte-size cap
 # Must match the buckets that actually exist in the live Supabase project —
 # migration 0001's `insert into storage.buckets` used different names
 # (menu-images/hero-assets/rooms/avatars) that were never applied; the
@@ -63,7 +65,7 @@ def _sniff_image_type(raw: bytes) -> str:
 
 def _encode(img: Image.Image, fmt: str) -> bytes:
     buf = io.BytesIO()
-    save_kwargs = {"quality": 82} if fmt in ("WEBP", "AVIF") else {}
+    save_kwargs = {"quality": _ENCODE_QUALITY} if fmt in ("WEBP", "AVIF") else {}
     img.convert("RGB" if fmt in ("JPEG", "AVIF") else "RGBA" if img.mode == "RGBA" else "RGB").save(
         buf, format=fmt, **save_kwargs
     )
@@ -90,6 +92,15 @@ async def process_and_store(
         source.load()
     except Exception as exc:
         raise AppError(code="invalid_file", message="Could not decode image.", status_code=422) from exc
+
+    if source.width * source.height > _MAX_PIXELS:
+        raise AppError(code="file_too_large", message="Image dimensions are too large to process.", status_code=422)
+
+    # Bakes the EXIF orientation tag into the pixel data itself (and strips
+    # the tag) — without this, photos taken in portrait on a phone decode
+    # sideways/upside-down everywhere downstream, since none of the resize/
+    # encode steps below consult EXIF.
+    source = ImageOps.exif_transpose(source)
 
     supabase = get_supabase()
     stem = uuid.uuid4().hex

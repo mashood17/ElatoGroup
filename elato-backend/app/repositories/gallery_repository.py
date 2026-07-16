@@ -1,6 +1,8 @@
 from typing import Any
 
-from app.repositories.base import client, unwrap_single
+from postgrest.exceptions import APIError
+
+from app.repositories.base import client, raise_for_postgrest, unwrap_single
 
 TABLE = "gallery"
 
@@ -9,7 +11,10 @@ def list_public(category: str | None) -> list[dict[str, Any]]:
     query = client().table(TABLE).select("*, media(storage_path, bucket)")
     if category:
         query = query.eq("category", category)
-    res = query.order("display_order").execute()
+    try:
+        res = query.order("display_order").execute()
+    except APIError as exc:
+        raise_for_postgrest(exc)
     return res.data
 
 

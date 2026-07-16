@@ -1,6 +1,8 @@
 from typing import Any
 
-from app.repositories.base import client, unwrap_single
+from postgrest.exceptions import APIError
+
+from app.repositories.base import client, raise_for_postgrest, unwrap_single
 
 TABLE = "menu_items"
 
@@ -10,7 +12,10 @@ def list_public(category_id: str | None, is_available: bool | None) -> list[dict
     if category_id:
         query = query.eq("category_id", category_id)
     query = query.eq("is_available", is_available if is_available is not None else True)
-    res = query.order("display_order").execute()
+    try:
+        res = query.order("display_order").execute()
+    except APIError as exc:
+        raise_for_postgrest(exc)
     return res.data
 
 

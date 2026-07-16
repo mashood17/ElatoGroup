@@ -8,6 +8,7 @@ class SpecialBase(BaseModel):
     description: str | None = None
     price: float | None = Field(default=None, ge=0)
     image_id: str | None = None
+    menu_item_id: str | None = None
     active_from: date | None = None
     active_to: date | None = None
     is_active: bool = True
@@ -22,6 +23,7 @@ class SpecialUpdate(BaseModel):
     description: str | None = None
     price: float | None = Field(default=None, ge=0)
     image_id: str | None = None
+    menu_item_id: str | None = None
     active_from: date | None = None
     active_to: date | None = None
     is_active: bool | None = None

@@ -1,14 +1,19 @@
 from datetime import date
 from typing import Any
 
-from app.repositories.base import client, unwrap_single
+from postgrest.exceptions import APIError
+
+from app.repositories.base import client, raise_for_postgrest, unwrap_single
 
 TABLE = "specials"
 
 
 def list_public() -> list[dict[str, Any]]:
     today = date.today().isoformat()
-    res = client().table(TABLE).select("*").eq("is_active", True).execute()
+    try:
+        res = client().table(TABLE).select("*").eq("is_active", True).execute()
+    except APIError as exc:
+        raise_for_postgrest(exc)
     # active_from/active_to windows are nullable — filter in Python since
     # PostgREST "or" with null-or-lte across two columns is awkward to compose safely.
     items = [

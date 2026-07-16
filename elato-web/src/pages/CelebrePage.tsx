@@ -7,7 +7,6 @@ import { Craftsmanship } from '../components/celebre/Craftsmanship'
 import { PartyFacilities } from '../components/celebre/PartyFacilities'
 import { MenuSection } from '../components/celebre/MenuSection'
 import { DeliveryBasket } from '../components/celebre/DeliveryBasket'
-import { PinnedHeroReveal } from '../components/sections/PinnedHeroReveal'
 
 export function CelebrePage() {
   return (
@@ -19,7 +18,8 @@ export function CelebrePage() {
         jsonLd={restaurantJsonLd()}
       />
       <main>
-        <PinnedHeroReveal hero={<CelebreHero />} next={<FeaturedSpecials />} />
+        <CelebreHero />
+        <FeaturedSpecials />
         <Craftsmanship />
         <PartyFacilities />
         <MenuSection />

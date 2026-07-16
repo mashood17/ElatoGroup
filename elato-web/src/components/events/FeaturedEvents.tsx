@@ -37,7 +37,7 @@ export function FeaturedEvents() {
   }, [])
 
   return (
-    <section className="relative z-0 overflow-hidden rounded-t-[28px] bg-surface-base py-16 shadow-[0_-10px_30px_rgba(23,15,10,0.06),0_30px_70px_rgba(23,15,10,0.16)] lg:rounded-t-[48px] lg:py-32">
+    <section className="bg-surface-base py-16 lg:py-32">
       <div className="container-elato">
         <motion.h2
           initial="hidden"

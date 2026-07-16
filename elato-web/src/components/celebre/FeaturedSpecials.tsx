@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState } from 'react'
 import { motion } from 'framer-motion'
-import { Card } from '../ui/Card'
 import { SkeletonCard } from '../ui/SkeletonCard'
+import CardFanCarousel from '../ui/CardFanCarousel'
+import { SpecialDetailModal } from './SpecialDetailModal'
 import { getSpecials } from '../../lib/menuRepository'
 import type { Special } from '../../content/celebreContent'
-import { sectionReveal, staggerContainer, viewportOnce } from '../../lib/motion'
+import { sectionReveal, viewportOnce } from '../../lib/motion'
 
 const gradients = [
   'from-primary-300 to-secondary-500',
@@ -21,6 +22,7 @@ const gradients = [
 export function FeaturedSpecials() {
   const [specials, setSpecials] = useState<Special[] | null>(null)
   const [loadError, setLoadError] = useState(false)
+  const [activeSpecial, setActiveSpecial] = useState<Special | null>(null)
   const requestId = useRef(0)
 
   const load = () => {
@@ -45,17 +47,18 @@ export function FeaturedSpecials() {
   }, [])
 
   return (
-    <section className="relative z-0 overflow-hidden rounded-t-[28px] bg-surface-base py-16 shadow-[0_-10px_30px_rgba(23,15,10,0.06),0_30px_70px_rgba(23,15,10,0.16)] lg:rounded-t-[48px] lg:py-32">
+    <section className="bg-surface-base py-16 lg:py-32">
       <div className="container-elato">
-        <motion.h2
+        <motion.div
           initial="hidden"
           whileInView="visible"
           viewport={viewportOnce}
           variants={sectionReveal}
-          className="text-h2 mb-12 text-center text-secondary-900"
+          className="mb-6 text-center sm:mb-6"
         >
-          Featured Specials
-        </motion.h2>
+          <p className="text-caption text-secondary-500">Signature Indulgences</p>
+          <h2 className="text-h2 mt-3 font-sans font-bold text-[#9e7641]">Handcrafted Creations, Curated to Delight</h2>
+        </motion.div>
 
         {loadError ? (
           <div className="py-12 text-center">
@@ -65,41 +68,34 @@ export function FeaturedSpecials() {
             </button>
           </div>
         ) : !specials ? (
-          <div className="flex gap-6 overflow-hidden">
+          <div className="flex justify-center gap-6 overflow-hidden">
             {Array.from({ length: 4 }).map((_, i) => (
-              <SkeletonCard key={i} className="aspect-3/4 w-64 flex-none" />
+              <SkeletonCard key={i} className="aspect-3/4 w-40 flex-none sm:w-48" />
             ))}
           </div>
         ) : specials.length === 0 ? (
           <p className="rounded-lg bg-primary-50 py-12 text-center text-body text-neutral-warm-500">
             No specials are running right now — check back soon.
           </p>
-        ) : (
-          <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={viewportOnce}
-            variants={staggerContainer}
-            className="flex snap-x snap-mandatory gap-6 overflow-x-auto pb-4"
-          >
-            {specials.map((special, i) => (
-              <motion.div key={special.id} variants={sectionReveal} className="w-64 flex-none snap-start">
-                <Card className="flex h-full flex-col overflow-hidden">
-                  <div
-                    className={`aspect-square w-full bg-gradient-to-br ${gradients[i % gradients.length]}`}
-                    aria-hidden="true"
-                  />
-                  <div className="flex flex-1 flex-col p-5">
-                    <h3 className="text-h3 text-secondary-900">{special.name}</h3>
-                    <p className="text-body mt-2 flex-1 text-neutral-warm-500">{special.description}</p>
-                    <p className="text-body mt-3 font-semibold text-secondary-500">₹{special.price}</p>
-                  </div>
-                </Card>
-              </motion.div>
-            ))}
-          </motion.div>
-        )}
+        ) : null}
       </div>
+
+      {specials && specials.length > 0 && (
+        <motion.div initial="hidden" whileInView="visible" viewport={viewportOnce} variants={sectionReveal}>
+          <CardFanCarousel
+            cards={specials.map((special, i) => ({
+              id: special.id,
+              name: special.name,
+              description: special.description,
+              price: special.price,
+              gradientClass: gradients[i % gradients.length],
+              onClick: () => setActiveSpecial(special),
+            }))}
+          />
+        </motion.div>
+      )}
+
+      <SpecialDetailModal special={activeSpecial} onClose={() => setActiveSpecial(null)} />
     </section>
   )
 }
