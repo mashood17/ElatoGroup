@@ -1,56 +1,32 @@
-import { useMemo, useState } from 'react'
+import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { EventsGalleryGrid } from './gallery/EventsGalleryGrid'
 import { EventsLightbox } from './gallery/EventsLightbox'
 import { eventGalleryItems, type EventGalleryItem } from '../../content/eventsContent'
 import { sectionReveal, viewportOnce } from '../../lib/motion'
-
-const CATEGORIES = ['All', ...Array.from(new Set(eventGalleryItems.map((i) => i.category)))]
+import bgDesktop from '../../assets/newbg/bg.jpg'
+import bgMobile from '../../assets/newbg/bg-mb.png'
 
 export function EventsGallery() {
-  const [activeCategory, setActiveCategory] = useState('All')
   const [openItem, setOpenItem] = useState<EventGalleryItem | null>(null)
 
-  const filteredItems = useMemo(
-    () => (activeCategory === 'All' ? eventGalleryItems : eventGalleryItems.filter((i) => i.category === activeCategory)),
-    [activeCategory],
-  )
-
   return (
-    <section className="bg-surface-base py-16 lg:py-32">
+    <section className="relative overflow-hidden py-16 lg:py-32">
+      <div className="absolute inset-0 -z-10 bg-cover bg-center sm:hidden" style={{ backgroundImage: `url(${bgMobile})` }} aria-hidden="true" />
+      <div className="absolute inset-0 -z-10 hidden bg-cover bg-center sm:block" style={{ backgroundImage: `url(${bgDesktop})` }} aria-hidden="true" />
       <div className="container-elato">
-        <motion.h2
+        <motion.div
           initial="hidden"
           whileInView="visible"
           viewport={viewportOnce}
           variants={sectionReveal}
-          className="text-h2 mb-4 text-center text-secondary-900"
+          className="mb-10 text-center"
         >
-          From Recent Celebrations
-        </motion.h2>
-        <p className="text-body mx-auto mb-10 max-w-xl text-center text-neutral-warm-500">
-          A glimpse of the hall, dressed for the occasions we host most.
-        </p>
+          <p className="text-caption text-secondary-500">Captured Moments</p>
+          <h2 className="text-h2 mt-3 font-sans font-bold text-[#9e7641]">Celebrations That Tell Their Own Story</h2>
+        </motion.div>
 
-        <div className="mb-10 flex flex-wrap justify-center gap-2" role="group" aria-label="Filter gallery by event type">
-          {CATEGORIES.map((category) => (
-            <button
-              key={category}
-              type="button"
-              onClick={() => setActiveCategory(category)}
-              aria-pressed={activeCategory === category}
-              className={`rounded-full border px-4 py-2 text-caption transition-colors duration-200 ease-out ${
-                activeCategory === category
-                  ? 'border-secondary-500 bg-secondary-500 text-white'
-                  : 'border-primary-100 text-neutral-warm-500 hover:border-secondary-500 hover:text-secondary-500'
-              }`}
-            >
-              {category}
-            </button>
-          ))}
-        </div>
-
-        <EventsGalleryGrid items={filteredItems} onOpen={setOpenItem} />
+        <EventsGalleryGrid items={eventGalleryItems} onOpen={setOpenItem} />
       </div>
 
       <EventsLightbox item={openItem} onClose={() => setOpenItem(null)} />

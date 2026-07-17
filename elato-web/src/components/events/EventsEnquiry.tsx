@@ -1,12 +1,17 @@
 import { useState, type FormEvent } from 'react'
 import { motion } from 'framer-motion'
+import { User, Phone, Mail, PartyPopper, CalendarDays, Users, MessageSquare, MessageCircle, type LucideIcon } from 'lucide-react'
 import { Button } from '../ui/Button'
+import eventsImage from '../../assets/stay/enquiry.png'
+import sectionBackground from '../../assets/newbg/bg2.png'
+import sectionBackgroundMobile from '../../assets/newbg/bg-mb2.png'
+import { SectionBackground } from '../ui/SectionBackground'
 import { businessInfo } from '../../content/siteContent'
 import { buildWhatsAppLink } from '../../lib/whatsapp'
 import { sectionReveal, viewportOnce } from '../../lib/motion'
 import {
   validateName,
-  validatePhone,
+  validatePhone10,
   validateEmail,
   validateMessage,
   validateFutureDate,
@@ -47,7 +52,7 @@ export function EventsEnquiry() {
 
   const validate = (): Errors => ({
     name: validateName(name),
-    phone: validatePhone(phone),
+    phone: validatePhone10(phone),
     email: validateEmail(email),
     date: validateFutureDate(date),
     guests: validateGuests(guests, GUEST_MIN, GUEST_MAX),
@@ -83,133 +88,201 @@ export function EventsEnquiry() {
   }
 
   return (
-    <section id="events-enquiry" className="bg-surface-base py-16 lg:py-32">
+    <section id="events-enquiry" className="relative overflow-hidden py-16 lg:py-32">
+      <SectionBackground image={sectionBackground} mobileImage={sectionBackgroundMobile} />
       <motion.div
         initial="hidden"
         whileInView="visible"
         viewport={viewportOnce}
         variants={sectionReveal}
-        className="container-elato mx-auto max-w-2xl"
+        className="container-elato relative mx-auto max-w-2xl lg:max-w-6xl"
       >
         <div className="mb-10 text-center">
           <p className="text-caption text-secondary-500">Plan Your Celebration</p>
-          <h2 className="text-h2 mt-2 text-secondary-900">Enquire Directly</h2>
+          <h2 className="text-h2 mt-2 font-sans font-bold text-[#9e7641]">Let&rsquo;s Create Something Memorable</h2>
         </div>
 
-        <div className="rounded-lg bg-surface-elevated p-6 shadow-elato-md lg:p-10">
+        <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] lg:items-stretch lg:gap-10">
+        <div className="relative">
+          <div className="absolute -inset-3 rounded-[44px] bg-primary-50/80" aria-hidden="true" />
+          <div className="relative overflow-hidden rounded-[36px] border-[10px] border-secondary-900 ring-4 ring-surface-elevated bg-surface-elevated/95 p-6 shadow-elato-lg backdrop-blur-sm lg:rounded-[48px] lg:border-[14px] lg:p-10">
           {submitted ? (
             <p className="text-body text-success" role="status">
               Thank you — your enquiry has been sent, and WhatsApp should have opened with the details pre-filled.
             </p>
           ) : (
-            <form className="flex flex-col gap-5" onSubmit={onSubmit} noValidate>
-              <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
-                <Field
-                  id="events-name"
-                  label="Full Name"
-                  type="text"
-                  value={name}
-                  onChange={setName}
-                  onBlur={() => setErrors((prev) => ({ ...prev, name: validate().name }))}
-                  error={errors.name}
-                />
-                <Field
-                  id="events-phone"
-                  label="Phone Number"
-                  type="tel"
-                  value={phone}
-                  onChange={setPhone}
-                  onBlur={() => setErrors((prev) => ({ ...prev, phone: validate().phone }))}
-                  error={errors.phone}
-                  placeholder="+91 98765 43210"
-                />
+            <>
+              <div className="mb-6 border-b border-[#9e7641]/15 pb-5">
+                <p className="text-caption text-[#9e7641]">Enquiry Form</p>
+                <p className="text-body mt-1 text-neutral-warm-500">
+                  Share a few details and we'll help you plan the celebration on WhatsApp.
+                </p>
               </div>
 
-              <Field
-                id="events-email"
-                label="Email"
-                type="email"
-                value={email}
-                onChange={setEmail}
-                onBlur={() => setErrors((prev) => ({ ...prev, email: validate().email }))}
-                error={errors.email}
-              />
-
-              <div className="flex flex-col gap-1.5">
-                <label htmlFor="events-type" className="text-caption text-neutral-warm-500">
-                  Event Type
-                </label>
-                <select
-                  id="events-type"
-                  value={eventType}
-                  onChange={(e) => setEventType(e.target.value as (typeof EVENT_TYPES)[number])}
-                  className="h-12 rounded-md border border-primary-100 px-4 text-body focus-visible:border-secondary-500"
-                >
-                  {EVENT_TYPES.map((t) => (
-                    <option key={t} value={t}>{t}</option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
-                <Field
-                  id="events-date"
-                  label="Preferred Date"
-                  type="date"
-                  value={date}
-                  onChange={setDate}
-                  onBlur={() => setErrors((prev) => ({ ...prev, date: validate().date }))}
-                  error={errors.date}
-                />
-                <div className="flex flex-col gap-1.5">
-                  <label htmlFor="events-guests" className="text-caption text-neutral-warm-500">
-                    Number of Guests
-                  </label>
-                  <input
-                    id="events-guests"
-                    type="number"
-                    min={GUEST_MIN}
-                    max={GUEST_MAX}
-                    value={guests}
-                    onChange={(e) => setGuests(Number(e.target.value))}
-                    onBlur={() => setErrors((prev) => ({ ...prev, guests: validate().guests }))}
-                    aria-describedby={errors.guests ? 'events-guests-error' : undefined}
-                    className="h-12 rounded-md border border-primary-100 px-4 text-body focus-visible:border-secondary-500"
+              <form className="flex flex-col gap-5" onSubmit={onSubmit} noValidate>
+                <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+                  <Field
+                    id="events-name"
+                    label="Full Name"
+                    type="text"
+                    icon={User}
+                    value={name}
+                    onChange={setName}
+                    onBlur={() => setErrors((prev) => ({ ...prev, name: validate().name }))}
+                    error={errors.name}
                   />
-                  {errors.guests && (
-                    <p id="events-guests-error" className="text-caption text-danger" aria-live="polite">
-                      {errors.guests}
+                  <Field
+                    id="events-phone"
+                    label="Phone Number"
+                    type="tel"
+                    icon={Phone}
+                    value={phone}
+                    onChange={setPhone}
+                    onBlur={() => setErrors((prev) => ({ ...prev, phone: validate().phone }))}
+                    error={errors.phone}
+                    placeholder="98765 43210"
+                  />
+                </div>
+
+                <Field
+                  id="events-email"
+                  label="Email"
+                  type="email"
+                  icon={Mail}
+                  value={email}
+                  onChange={setEmail}
+                  onBlur={() => setErrors((prev) => ({ ...prev, email: validate().email }))}
+                  error={errors.email}
+                />
+
+                <div className="flex flex-col gap-1.5">
+                  <label htmlFor="events-type" className="text-caption text-neutral-warm-500">
+                    Event Type
+                  </label>
+                  <div className="relative">
+                    <PartyPopper
+                      className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[#9e7641]/60"
+                      aria-hidden="true"
+                    />
+                    <select
+                      id="events-type"
+                      value={eventType}
+                      onChange={(e) => setEventType(e.target.value as (typeof EVENT_TYPES)[number])}
+                      className="h-12 w-full rounded-xl border border-[#9e7641]/25 bg-surface-base/60 pl-10 pr-4 text-body transition-colors focus-visible:border-[#9e7641] focus-visible:bg-surface-base"
+                    >
+                      {EVENT_TYPES.map((t) => (
+                        <option key={t} value={t}>{t}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+                  <Field
+                    id="events-date"
+                    label="Preferred Date"
+                    type="date"
+                    icon={CalendarDays}
+                    value={date}
+                    onChange={setDate}
+                    onBlur={() => setErrors((prev) => ({ ...prev, date: validate().date }))}
+                    error={errors.date}
+                  />
+                  <div className="flex flex-col gap-1.5">
+                    <label htmlFor="events-guests" className="text-caption text-neutral-warm-500">
+                      Number of Guests
+                    </label>
+                    <div className="relative">
+                      <Users
+                        className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[#9e7641]/60"
+                        aria-hidden="true"
+                      />
+                      <input
+                        id="events-guests"
+                        type="number"
+                        min={GUEST_MIN}
+                        max={GUEST_MAX}
+                        value={guests}
+                        onChange={(e) => setGuests(Number(e.target.value))}
+                        onBlur={() => setErrors((prev) => ({ ...prev, guests: validate().guests }))}
+                        aria-describedby={errors.guests ? 'events-guests-error' : undefined}
+                        className="h-12 w-full rounded-xl border border-[#9e7641]/25 bg-surface-base/60 pl-10 pr-4 text-body transition-colors focus-visible:border-[#9e7641] focus-visible:bg-surface-base"
+                      />
+                    </div>
+                    {errors.guests && (
+                      <p id="events-guests-error" className="text-caption text-danger" aria-live="polite">
+                        {errors.guests}
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                <div className="flex flex-col gap-1.5">
+                  <label htmlFor="events-message" className="text-caption text-neutral-warm-500">
+                    Message
+                  </label>
+                  <div className="relative">
+                    <MessageSquare
+                      className="pointer-events-none absolute left-3.5 top-4 h-4 w-4 text-[#9e7641]/60"
+                      aria-hidden="true"
+                    />
+                    <textarea
+                      id="events-message"
+                      value={message}
+                      onChange={(e) => setMessage(e.target.value)}
+                      onBlur={() => setErrors((prev) => ({ ...prev, message: validate().message }))}
+                      rows={4}
+                      maxLength={500}
+                      aria-describedby={errors.message ? 'events-message-error' : undefined}
+                      className="w-full rounded-xl border border-[#9e7641]/25 bg-surface-base/60 py-3 pl-10 pr-4 text-body transition-colors focus-visible:border-[#9e7641] focus-visible:bg-surface-base"
+                    />
+                  </div>
+                  {errors.message && (
+                    <p id="events-message-error" className="text-caption text-danger" aria-live="polite">
+                      {errors.message}
                     </p>
                   )}
                 </div>
-              </div>
 
-              <div className="flex flex-col gap-1.5">
-                <label htmlFor="events-message" className="text-caption text-neutral-warm-500">
-                  Message
-                </label>
-                <textarea
-                  id="events-message"
-                  value={message}
-                  onChange={(e) => setMessage(e.target.value)}
-                  onBlur={() => setErrors((prev) => ({ ...prev, message: validate().message }))}
-                  rows={4}
-                  maxLength={500}
-                  aria-describedby={errors.message ? 'events-message-error' : undefined}
-                  className="rounded-md border border-primary-100 px-4 py-3 text-body focus-visible:border-secondary-500"
-                />
-                {errors.message && (
-                  <p id="events-message-error" className="text-caption text-danger" aria-live="polite">
-                    {errors.message}
-                  </p>
-                )}
-              </div>
-
-              <Button type="submit" variant="whatsapp" disabled={submitting}>
-                {submitting ? 'Sending…' : 'Enquire on WhatsApp'}
-              </Button>
-            </form>
+                <Button
+                  type="submit"
+                  variant="whatsapp"
+                  icon={<MessageCircle className="h-4 w-4" />}
+                  disabled={submitting}
+                  className="w-full !rounded-xl !bg-[#9e7641] tracking-wide hover:!bg-[#8a6636]"
+                >
+                  {submitting ? 'Sending…' : 'Enquire on WhatsApp'}
+                </Button>
+              </form>
+            </>
           )}
+          </div>
+        </div>
+
+        <div className="relative hidden lg:block">
+          <div
+            className="absolute -inset-3 rounded-[44px] rounded-br-[130px] bg-primary-50/80"
+            aria-hidden="true"
+          />
+          <div className="relative h-full w-full overflow-hidden rounded-[36px] rounded-br-[110px] border-[10px] border-secondary-900 ring-4 ring-surface-elevated shadow-elato-lg lg:rounded-[48px] lg:rounded-br-[150px] lg:border-[14px]">
+            <img
+              src={eventsImage}
+              alt="An event hosted at ELATŌ"
+              loading="lazy"
+              className="h-full w-full object-cover"
+            />
+            <div
+              className="absolute inset-0 bg-gradient-to-t from-secondary-900/90 via-secondary-900/25 to-transparent"
+              aria-hidden="true"
+            />
+            <div className="absolute inset-x-0 bottom-16 p-8">
+              <p className="text-caption font-bold text-primary-100/80">ELATŌ Events</p>
+              <p className="text-h3 mt-2 font-sans font-normal text-[#e7caa0]">
+                A hall dressed for the celebration you're planning
+              </p>
+            </div>
+          </div>
+        </div>
         </div>
       </motion.div>
     </section>
@@ -220,6 +293,7 @@ function Field({
   id,
   label,
   type,
+  icon: Icon,
   value,
   onChange,
   onBlur,
@@ -229,6 +303,7 @@ function Field({
   id: string
   label: string
   type: string
+  icon?: LucideIcon
   value: string
   onChange: (v: string) => void
   onBlur: () => void
@@ -240,16 +315,24 @@ function Field({
       <label htmlFor={id} className="text-caption text-neutral-warm-500">
         {label}
       </label>
-      <input
-        id={id}
-        type={type}
-        value={value}
-        placeholder={placeholder}
-        onChange={(e) => onChange(e.target.value)}
-        onBlur={onBlur}
-        aria-describedby={error ? `${id}-error` : undefined}
-        className="h-12 rounded-md border border-primary-100 px-4 text-body focus-visible:border-secondary-500"
-      />
+      <div className="relative">
+        {Icon && (
+          <Icon
+            className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[#9e7641]/60"
+            aria-hidden="true"
+          />
+        )}
+        <input
+          id={id}
+          type={type}
+          value={value}
+          placeholder={placeholder}
+          onChange={(e) => onChange(e.target.value)}
+          onBlur={onBlur}
+          aria-describedby={error ? `${id}-error` : undefined}
+          className={`h-12 w-full rounded-xl border border-[#9e7641]/25 bg-surface-base/60 pr-4 text-body transition-colors focus-visible:border-[#9e7641] focus-visible:bg-surface-base ${Icon ? 'pl-10' : 'pl-4'}`}
+        />
+      </div>
       {error && (
         <p id={`${id}-error`} className="text-caption text-danger" aria-live="polite">
           {error}
