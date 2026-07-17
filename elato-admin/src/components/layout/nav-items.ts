@@ -7,11 +7,9 @@ import {
   Sparkles,
   PartyPopper,
   BedDouble,
-  Images,
   FileText,
   Settings as SettingsIcon,
   Users,
-  Library,
 } from "lucide-react";
 import type { AdminRole } from "../../types/api";
 
@@ -33,8 +31,6 @@ export const NAV_ITEMS: NavItem[] = [
   { to: "/menu", label: "Menu", icon: UtensilsCrossed, section: "Content" },
   { to: "/stay", label: "Stay", icon: BedDouble, section: "Content" },
   { to: "/events", label: "Events", icon: PartyPopper, section: "Content" },
-  { to: "/gallery", label: "Gallery", icon: Images, section: "Content" },
-  { to: "/media", label: "Media Library", icon: Library, section: "Content" },
 
   { to: "/settings", label: "Settings", icon: SettingsIcon, roles: ["owner", "admin"], section: "Administration" },
   { to: "/users", label: "Users", icon: Users, roles: ["owner", "admin"], section: "Administration" },

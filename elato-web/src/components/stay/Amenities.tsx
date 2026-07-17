@@ -7,6 +7,7 @@ import sectionBackgroundMobile from '../../assets/newbg/bg-mb.png'
 import { SectionBackground } from '../ui/SectionBackground'
 import Stack from '../ui/Stack'
 import { amenities } from '../../content/stayContent'
+import { useStayGallery } from '../../lib/useStayGallery'
 import { sectionReveal, staggerContainer, viewportOnce } from '../../lib/motion'
 
 const amenityIcons: Record<string, LucideIcon> = {
@@ -20,7 +21,9 @@ const amenityIcons: Record<string, LucideIcon> = {
   'Free Wi-Fi': Wifi,
 }
 
-const stackCards = [
+// Static fallback shown while the admin-managed gallery loads or if no photos
+// have been added yet — keeps the stacked-cards visual intact.
+const fallbackStackCards = [
   <img
     key="1"
     src={stayHeroImage}
@@ -42,6 +45,22 @@ const stackCards = [
 ]
 
 export function Amenities() {
+  const { status, images } = useStayGallery()
+
+  // Same admin-managed Stay gallery as "A Glimpse Inside" — rendered here as
+  // the stacked cards. Falls back to the static images until photos load.
+  const stackCards =
+    status === 'ready'
+      ? images.map((img) => (
+          <img
+            key={img.id}
+            src={img.url}
+            alt={img.caption || 'ELATŌ Stay'}
+            className="box-border h-full w-full border-[6px] border-[#9e7641] object-cover"
+          />
+        ))
+      : fallbackStackCards
+
   return (
     <section className="relative overflow-hidden py-16 lg:py-32">
       <SectionBackground image={sectionBackground} mobileImage={sectionBackgroundMobile} />

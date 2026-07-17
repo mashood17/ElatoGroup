@@ -1,9 +1,8 @@
 import { motion } from 'framer-motion'
-import { GalleryItem } from './GalleryItem'
-import type { GalleryItem as GalleryItemType } from '../../../content/stayContent'
+import { GalleryItem, type StayGalleryTile } from './GalleryItem'
 import { staggerContainer, viewportOnce } from '../../../lib/motion'
 
-export function GalleryGrid({ items }: { items: GalleryItemType[] }) {
+export function GalleryGrid({ items }: { items: StayGalleryTile[] }) {
   return (
     <motion.div
       initial="hidden"

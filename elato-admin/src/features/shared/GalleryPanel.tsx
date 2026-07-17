@@ -27,8 +27,7 @@ const GALLERY_QUERY_KEY = ["gallery-items"];
  * `category` is fixed (Stay's "stay" / Events' "events"), the panel only
  * shows and creates items tagged with that category and the form's category
  * field is hidden — used to give Stay/Events their own curated gallery
- * without a schema change. GalleryPage itself uses this with `category`
- * left undefined for the original free-tag, show-everything behavior.
+ * without a schema change.
  */
 export function GalleryPanel({
   category,

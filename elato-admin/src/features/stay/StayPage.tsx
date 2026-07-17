@@ -37,7 +37,7 @@ export function StayPage() {
           onSave={(image) => saveSectionImage.mutate({ key: HERO_IMAGE_KEY, value: image })}
           isSaving={saveSectionImage.isPending && saveSectionImage.variables?.key === HERO_IMAGE_KEY}
         />
-        <GalleryPanel category="stay" title="Boutique Retreat Gallery" />
+        <GalleryPanel category="stay" title="Boutique Retreat & Gallery Images" />
         <SectionImageCard
           label="Reserve Your Stay"
           description="Image for the booking call-to-action."
