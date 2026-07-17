@@ -170,7 +170,7 @@
 }
 
 .hero-bg-kenburns {
-  animation: hero-ken-burns 32s ease-in-out infinite alternate;
+  animation: hero-ken-burns 18s ease-in-out infinite alternate;
   will-change: transform;
 }
 

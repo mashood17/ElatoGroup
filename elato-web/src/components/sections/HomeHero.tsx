@@ -90,7 +90,7 @@ export function HomeHero() {
             initial="hidden"
             animate="visible"
             variants={taglineReveal}
-            className="max-w-lg font-sans text-[22px] font-bold leading-snug tracking-[0.04em] text-[#9E7641] sm:text-[24px] md:text-[28px] lg:text-[32px] xl:text-[34px]"
+            className="max-w-lg font-sans text-[22px] font-semibold leading-snug tracking-[0.04em] text-[#B08F63] sm:text-[24px] md:text-[28px] lg:text-[32px] xl:text-[34px]"
           >
             {heroContent.headline}
           </motion.h1>
