@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom'
 import { Navbar } from './components/layout/Navbar'
 import { Footer } from './components/layout/Footer'
 import { ErrorBoundary } from './components/ErrorBoundary'
+import { ScrollToTopButton } from './components/ui/ScrollToTopButton'
 
 // Route-based code splitting (PRD Ch. 46.2) — each page ships as its own chunk.
 const HomePage = lazy(() => import('./pages/HomePage').then((m) => ({ default: m.HomePage })))
@@ -46,6 +47,7 @@ function App() {
           </Routes>
         </Suspense>
         <Footer />
+        <ScrollToTopButton />
       </BrowserRouter>
     </ErrorBoundary>
   )

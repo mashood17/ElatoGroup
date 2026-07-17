@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from 'react'
 import { AnimatePresence, motion, useReducedMotion, type Variants } from 'framer-motion'
-import { CheckCircle2, Clock, ExternalLink, Mail, MapPin, Phone } from 'lucide-react'
+import { CheckCircle2, Clock, ExternalLink, Mail, MapPin, MessageCircle, MessageSquare, Phone, Tag, User } from 'lucide-react'
 import { Button } from '../ui/Button'
 import { SectionBackground } from '../ui/SectionBackground'
 import { businessInfo } from '../../content/siteContent'
@@ -86,7 +86,8 @@ export function VisitSection() {
   }
 
   const inputClasses =
-    'h-12 rounded-lg border border-[#E7CAA0]/60 px-4 text-body transition-colors duration-200 ease-out focus-visible:border-[#9E7641] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#9E7641]/20'
+    'h-12 w-full rounded-xl border border-[#9e7641]/25 bg-surface-base/60 pl-10 pr-4 text-body transition-colors focus-visible:border-[#9e7641] focus-visible:bg-surface-base'
+  const iconClasses = 'pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[#9e7641]/60'
 
   return (
     <section id="visit" className="relative pb-16 pt-8 font-sans lg:pb-24 lg:pt-12">
@@ -117,66 +118,76 @@ export function VisitSection() {
         >
           <motion.div variants={columnReveal} className="flex flex-col gap-6">
             <motion.div
-              whileHover={{ y: -6 }}
-              transition={{ duration: 0.3, ease: EASE_EDITORIAL }}
-              className="relative aspect-4/3 w-full overflow-hidden rounded-2xl border-2 border-[#9E7641]/40 bg-[#E7CAA0]/10 shadow-[0_8px_30px_rgba(158,118,65,0.12)] transition-[box-shadow,border-color] duration-300 ease-out hover:border-[#9E7641] hover:shadow-[0_20px_45px_rgba(158,118,65,0.25)]"
+              initial={{ opacity: 0, scale: 0.98 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={viewportOnce}
+              transition={{ duration: 0.7, ease: 'easeOut' }}
+              className="relative aspect-4/3 w-full"
             >
-              {!mapActive ? (
-                <button
-                  type="button"
-                  onClick={() => setMapActive(true)}
-                  aria-label="Load an interactive map of ELATŌ CELEBRÉ, Panemangalore"
-                  className="flex h-full w-full flex-col items-center justify-center gap-3 transition-colors duration-300 ease-out hover:bg-[#E7CAA0]/15"
-                >
-                  <MapPin className="h-8 w-8 text-[#9E7641]" aria-hidden="true" />
-                  <span className="text-body font-semibold text-[#9E7641]">Tap to view interactive map</span>
-                </button>
-              ) : (
-                // No-API-key embed — swap for the Places API "Embed" variant
-                // (adds a key param) once one is provisioned; query and ftid
-                // pin the exact place with no tracking/session data.
-                <iframe
-                  title="ELATŌ CELEBRÉ, Panemangalore — map location"
-                  src={visitMap.embedSrc}
-                  className="h-full w-full border-0"
-                  loading="lazy"
-                  referrerPolicy="no-referrer-when-downgrade"
-                />
-              )}
+              <div className="absolute -inset-3 rounded-[44px] bg-primary-50/80" aria-hidden="true" />
+              <div className="relative h-full w-full overflow-hidden rounded-[36px] border-[10px] border-secondary-900 ring-4 ring-surface-elevated bg-[#E7CAA0]/10 shadow-elato-lg backdrop-blur-sm lg:rounded-[48px] lg:border-[14px]">
+                {!mapActive ? (
+                  <button
+                    type="button"
+                    onClick={() => setMapActive(true)}
+                    aria-label="Load an interactive map of ELATŌ CELEBRÉ, Panemangalore"
+                    className="flex h-full w-full flex-col items-center justify-center gap-3 transition-colors duration-300 ease-out hover:bg-[#E7CAA0]/15"
+                  >
+                    <MapPin className="h-8 w-8 text-[#9E7641]" aria-hidden="true" />
+                    <span className="text-body font-semibold text-[#9E7641]">Tap to view interactive map</span>
+                  </button>
+                ) : (
+                  // No-API-key embed — swap for the Places API "Embed" variant
+                  // (adds a key param) once one is provisioned; query and ftid
+                  // pin the exact place with no tracking/session data.
+                  <iframe
+                    title="ELATŌ CELEBRÉ, Panemangalore — map location"
+                    src={visitMap.embedSrc}
+                    className="h-full w-full border-0"
+                    loading="lazy"
+                    referrerPolicy="no-referrer-when-downgrade"
+                  />
+                )}
+              </div>
             </motion.div>
 
             <motion.div
-              whileHover={{ y: -6 }}
-              transition={{ duration: 0.3, ease: EASE_EDITORIAL }}
-              className="flex flex-col gap-3 rounded-2xl border-2 border-[#9E7641]/40 bg-surface-elevated p-5 shadow-[0_8px_30px_rgba(158,118,65,0.12)] transition-[box-shadow,border-color] duration-300 ease-out hover:border-[#9E7641] hover:shadow-[0_20px_45px_rgba(158,118,65,0.25)]"
+              initial={{ opacity: 0, scale: 0.98 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={viewportOnce}
+              transition={{ duration: 0.7, ease: 'easeOut' }}
+              className="relative"
             >
-              <div className="flex items-start gap-3">
-                <MapPin className="mt-0.5 h-5 w-5 shrink-0 text-[#9E7641]" aria-hidden="true" />
-                <p className="text-body text-secondary-900">{visitContact.address}</p>
+              <div className="absolute -inset-3 rounded-[44px] bg-primary-50/80" aria-hidden="true" />
+              <div className="relative flex flex-col gap-3 overflow-hidden rounded-[36px] border-[10px] border-secondary-900 ring-4 ring-surface-elevated bg-surface-elevated/95 p-5 shadow-elato-lg backdrop-blur-sm lg:rounded-[48px] lg:border-[14px]">
+                <div className="flex items-start gap-3">
+                  <MapPin className="mt-0.5 h-5 w-5 shrink-0 text-[#9E7641]" aria-hidden="true" />
+                  <p className="text-body text-secondary-900">{visitContact.address}</p>
+                </div>
+                <div className="flex items-start gap-3">
+                  <Clock className="mt-0.5 h-5 w-5 shrink-0 text-[#9E7641]" aria-hidden="true" />
+                  <p className="text-body text-secondary-900">
+                    {visitContact.hours.day} · {visitContact.hours.time}
+                  </p>
+                </div>
+                <div className="flex items-start gap-3">
+                  <Phone className="mt-0.5 h-5 w-5 shrink-0 text-[#9E7641]" aria-hidden="true" />
+                  <p className="text-body text-secondary-900">{visitContact.phoneDisplay}</p>
+                </div>
+                <div className="flex items-start gap-3">
+                  <Mail className="mt-0.5 h-5 w-5 shrink-0 text-[#9E7641]" aria-hidden="true" />
+                  <p className="text-body text-secondary-900">{businessInfo.email}</p>
+                </div>
+                <a
+                  href={visitMap.openUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="group/link mt-1 inline-flex w-fit items-center gap-1.5 text-caption font-semibold text-[#9E7641]"
+                >
+                  Open in Maps
+                  <ExternalLink className="h-3.5 w-3.5 transition-transform duration-300 ease-out group-hover/link:translate-x-0.5" />
+                </a>
               </div>
-              <div className="flex items-start gap-3">
-                <Clock className="mt-0.5 h-5 w-5 shrink-0 text-[#9E7641]" aria-hidden="true" />
-                <p className="text-body text-secondary-900">
-                  {visitContact.hours.day} · {visitContact.hours.time}
-                </p>
-              </div>
-              <div className="flex items-start gap-3">
-                <Phone className="mt-0.5 h-5 w-5 shrink-0 text-[#9E7641]" aria-hidden="true" />
-                <p className="text-body text-secondary-900">{visitContact.phoneDisplay}</p>
-              </div>
-              <div className="flex items-start gap-3">
-                <Mail className="mt-0.5 h-5 w-5 shrink-0 text-[#9E7641]" aria-hidden="true" />
-                <p className="text-body text-secondary-900">{businessInfo.email}</p>
-              </div>
-              <a
-                href={visitMap.openUrl}
-                target="_blank"
-                rel="noreferrer"
-                className="group/link mt-1 inline-flex w-fit items-center gap-1.5 text-caption font-semibold text-[#9E7641]"
-              >
-                Open in Maps
-                <ExternalLink className="h-3.5 w-3.5 transition-transform duration-300 ease-out group-hover/link:translate-x-0.5" />
-              </a>
             </motion.div>
 
             <div className="flex flex-wrap gap-4">
@@ -205,11 +216,14 @@ export function VisitSection() {
           </motion.div>
 
           <motion.div
-            variants={columnReveal}
-            whileHover={{ y: -6 }}
-            transition={{ duration: 0.3, ease: EASE_EDITORIAL }}
-            className="flex flex-col rounded-2xl border-2 border-[#9E7641]/40 bg-surface-elevated p-6 shadow-[0_8px_30px_rgba(158,118,65,0.12)] transition-[box-shadow,border-color] duration-300 ease-out hover:border-[#9E7641] hover:shadow-[0_20px_45px_rgba(158,118,65,0.25)] lg:p-8"
+            initial={{ opacity: 0, scale: 0.98 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={viewportOnce}
+            transition={{ duration: 0.7, ease: 'easeOut' }}
+            className="relative h-full"
           >
+          <div className="absolute -inset-3 rounded-[44px] bg-primary-50/80" aria-hidden="true" />
+          <div className="relative flex h-full flex-col overflow-hidden rounded-[36px] border-[10px] border-secondary-900 ring-4 ring-surface-elevated bg-surface-elevated/95 p-6 shadow-elato-lg backdrop-blur-sm lg:rounded-[48px] lg:border-[14px] lg:p-8">
             <h3 className="text-center text-[26px] font-bold tracking-tight text-[#9E7641] lg:text-[30px]">Get in Touch</h3>
 
             <AnimatePresence mode="wait" initial={false}>
@@ -248,15 +262,18 @@ export function VisitSection() {
                 className="mt-6 flex flex-1 flex-col gap-5" onSubmit={onSubmit} noValidate>
                 <div className="flex flex-col gap-1.5">
                   <label htmlFor="visit-name" className="text-caption text-neutral-warm-500">Name</label>
-                  <input
-                    id="visit-name"
-                    type="text"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    onBlur={() => setErrors((prev) => ({ ...prev, name: validate().name }))}
-                    aria-describedby={errors.name ? 'visit-name-error' : undefined}
-                    className={inputClasses}
-                  />
+                  <div className="relative">
+                    <User className={iconClasses} aria-hidden="true" />
+                    <input
+                      id="visit-name"
+                      type="text"
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      onBlur={() => setErrors((prev) => ({ ...prev, name: validate().name }))}
+                      aria-describedby={errors.name ? 'visit-name-error' : undefined}
+                      className={inputClasses}
+                    />
+                  </div>
                   {errors.name && (
                     <p id="visit-name-error" className="text-caption text-danger" aria-live="polite">
                       {errors.name}
@@ -266,19 +283,22 @@ export function VisitSection() {
 
                 <div className="flex flex-col gap-1.5">
                   <label htmlFor="visit-phone" className="text-caption text-neutral-warm-500">Phone</label>
-                  <input
-                    id="visit-phone"
-                    type="tel"
-                    inputMode="numeric"
-                    autoComplete="tel-national"
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
-                    onBlur={() => setErrors((prev) => ({ ...prev, phone: validate().phone }))}
-                    placeholder="98765 43210"
-                    maxLength={10}
-                    aria-describedby={errors.phone ? 'visit-phone-error' : undefined}
-                    className={inputClasses}
-                  />
+                  <div className="relative">
+                    <Phone className={iconClasses} aria-hidden="true" />
+                    <input
+                      id="visit-phone"
+                      type="tel"
+                      inputMode="numeric"
+                      autoComplete="tel-national"
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
+                      onBlur={() => setErrors((prev) => ({ ...prev, phone: validate().phone }))}
+                      placeholder="98765 43210"
+                      maxLength={10}
+                      aria-describedby={errors.phone ? 'visit-phone-error' : undefined}
+                      className={inputClasses}
+                    />
+                  </div>
                   {errors.phone && (
                     <p id="visit-phone-error" className="text-caption text-danger" aria-live="polite">
                       {errors.phone}
@@ -288,30 +308,36 @@ export function VisitSection() {
 
                 <div className="flex flex-col gap-1.5">
                   <label htmlFor="visit-purpose" className="text-caption text-neutral-warm-500">Purpose</label>
-                  <select
-                    id="visit-purpose"
-                    value={purpose}
-                    onChange={(e) => setPurpose(e.target.value as (typeof purposes)[number])}
-                    className={inputClasses}
-                  >
-                    {purposes.map((p) => (
-                      <option key={p} value={p}>{p}</option>
-                    ))}
-                  </select>
+                  <div className="relative">
+                    <Tag className={iconClasses} aria-hidden="true" />
+                    <select
+                      id="visit-purpose"
+                      value={purpose}
+                      onChange={(e) => setPurpose(e.target.value as (typeof purposes)[number])}
+                      className={inputClasses}
+                    >
+                      {purposes.map((p) => (
+                        <option key={p} value={p}>{p}</option>
+                      ))}
+                    </select>
+                  </div>
                 </div>
 
                 <div className="flex flex-1 flex-col gap-1.5">
                   <label htmlFor="visit-message" className="text-caption text-neutral-warm-500">Message</label>
-                  <textarea
-                    id="visit-message"
-                    value={message}
-                    onChange={(e) => setMessage(e.target.value)}
-                    onBlur={() => setErrors((prev) => ({ ...prev, message: validate().message }))}
-                    rows={4}
-                    maxLength={500}
-                    aria-describedby={errors.message ? 'visit-message-error' : undefined}
-                    className="flex-1 min-h-[100px] resize-none rounded-lg border border-[#E7CAA0]/60 px-4 py-3 text-body transition-colors duration-200 ease-out focus-visible:border-[#9E7641] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#9E7641]/20"
-                  />
+                  <div className="relative flex-1">
+                    <MessageSquare className="pointer-events-none absolute left-3.5 top-4 h-4 w-4 text-[#9e7641]/60" aria-hidden="true" />
+                    <textarea
+                      id="visit-message"
+                      value={message}
+                      onChange={(e) => setMessage(e.target.value)}
+                      onBlur={() => setErrors((prev) => ({ ...prev, message: validate().message }))}
+                      rows={4}
+                      maxLength={500}
+                      aria-describedby={errors.message ? 'visit-message-error' : undefined}
+                      className="h-full min-h-[100px] w-full resize-none rounded-xl border border-[#9e7641]/25 bg-surface-base/60 py-3 pl-10 pr-4 text-body transition-colors focus-visible:border-[#9e7641] focus-visible:bg-surface-base"
+                    />
+                  </div>
                   {errors.message && (
                     <p id="visit-message-error" className="text-caption text-danger" aria-live="polite">
                       {errors.message}
@@ -322,14 +348,16 @@ export function VisitSection() {
                 <Button
                   type="submit"
                   variant="primary"
+                  icon={<MessageCircle className="h-4 w-4" />}
                   disabled={submitting}
-                  className="transition-transform duration-200 ease-out hover:-translate-y-0.5"
+                  className="w-full !rounded-xl !bg-[#9e7641] tracking-wide hover:!bg-[#8a6636]"
                 >
                   {submitting ? 'Sending…' : 'Send Enquiry'}
                 </Button>
               </motion.form>
             )}
             </AnimatePresence>
+          </div>
           </motion.div>
         </motion.div>
       </div>
