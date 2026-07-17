@@ -1,9 +1,8 @@
 import { useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Plus, Pencil, Trash2, Sparkles } from "lucide-react";
-import { specialsApi } from "../../api/resources";
+import { Plus, Pencil, Trash2, Sparkles, ImageOff } from "lucide-react";
+import { mediaApi, specialsApi } from "../../api/resources";
 import {
-  Badge,
   Button,
   Card,
   CardHeader,
@@ -13,51 +12,47 @@ import {
   Input,
   Modal,
   PageHeader,
-  Pagination,
-  Switch,
-  Table,
-  Tbody,
-  Td,
-  Th,
   TableSkeleton,
-  Thead,
   Textarea,
-  Tr,
 } from "../../components/ui";
+import { SortableList } from "../../components/ui/SortableList";
 import { ImagePickerField } from "../media/ImagePickerField";
+import { mediaQueryKey } from "../media/media-query-key";
 import { useAuth } from "../../context/AuthContext";
 import { useToast } from "../../context/ToastContext";
 import { errorMessage } from "../../lib/query-client";
-import { formatDate } from "../../lib/utils";
+import { formatCurrency } from "../../lib/utils";
 import type { SpecialOut } from "../../types/api";
 
-const LIMIT = 50;
-
-function specialStatus(special: SpecialOut): { label: string; tone: "success" | "neutral" | "warning" } {
-  if (!special.is_active) return { label: "Inactive", tone: "neutral" };
-  const today = new Date().toISOString().slice(0, 10);
-  if (special.active_from && special.active_from > today) return { label: "Scheduled", tone: "warning" };
-  if (special.active_to && special.active_to < today) return { label: "Expired", tone: "neutral" };
-  return { label: "Active", tone: "success" };
-}
+const QUERY_KEY = ["specials"];
 
 export function SpecialsPage() {
   const { hasRole } = useAuth();
   const canDelete = hasRole("owner", "admin");
   const queryClient = useQueryClient();
   const { showToast } = useToast();
-  const [offset, setOffset] = useState(0);
 
   const { data, isLoading, isError, error, refetch } = useQuery({
-    queryKey: ["specials", offset],
-    queryFn: () => specialsApi.list({ limit: LIMIT, offset }),
+    queryKey: QUERY_KEY,
+    queryFn: () => specialsApi.list({ limit: 100, offset: 0 }),
   });
+
+  const { data: specialImages } = useQuery({
+    queryKey: mediaQueryKey("menu"),
+    queryFn: () => mediaApi.list({ bucket: "menu", limit: 100 }),
+  });
+  const imageById = new Map((specialImages?.items ?? []).map((m) => [m.id, m.url]));
+
+  const [orderedItems, setOrderedItems] = useState<SpecialOut[]>([]);
+  useEffect(() => {
+    if (data) setOrderedItems([...data.items].sort((a, b) => a.display_order - b.display_order));
+  }, [data]);
 
   const [formOpen, setFormOpen] = useState(false);
   const [editing, setEditing] = useState<SpecialOut | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<SpecialOut | null>(null);
 
-  const invalidate = () => queryClient.invalidateQueries({ queryKey: ["specials"] });
+  const invalidate = () => queryClient.invalidateQueries({ queryKey: QUERY_KEY });
 
   const deleteMutation = useMutation({
     mutationFn: (id: string) => specialsApi.remove(id),
@@ -69,11 +64,28 @@ export function SpecialsPage() {
     onError: (err) => showToast({ title: "Couldn't delete special", description: errorMessage(err), variant: "error" }),
   });
 
+  const reorderMutation = useMutation({
+    mutationFn: async (items: SpecialOut[]) => {
+      const changed = items.map((item, index) => ({ item, index })).filter(({ item, index }) => item.display_order !== index);
+      await Promise.all(changed.map(({ item, index }) => specialsApi.update(item.id, { display_order: index })));
+    },
+    onSuccess: () => void invalidate(),
+    onError: (err) => {
+      showToast({ title: "Couldn't save new order", description: errorMessage(err), variant: "error" });
+      void invalidate();
+    },
+  });
+
+  function handleReorder(next: SpecialOut[]) {
+    setOrderedItems(next);
+    reorderMutation.mutate(next);
+  }
+
   return (
     <div>
       <PageHeader
         title="Specials"
-        description="Time-boxed promotions shown on the public site."
+        description="Time-boxed promotions shown on the public site. Drag to reorder."
         actions={
           <Button
             size="sm"
@@ -93,7 +105,7 @@ export function SpecialsPage() {
           <TableSkeleton rows={5} cols={4} />
         ) : isError ? (
           <ErrorState description={errorMessage(error)} onRetry={() => void refetch()} />
-        ) : !data || data.items.length === 0 ? (
+        ) : orderedItems.length === 0 ? (
           <EmptyState
             icon={Sparkles}
             title="No specials yet"
@@ -105,60 +117,60 @@ export function SpecialsPage() {
             }
           />
         ) : (
-          <Table>
-            <Thead>
-              <Tr>
-                <Th>Title</Th>
-                <Th>Active window</Th>
-                <Th>Status</Th>
-                <Th className="text-right">Actions</Th>
-              </Tr>
-            </Thead>
-            <Tbody>
-              {data.items.map((special) => {
-                const status = specialStatus(special);
-                return (
-                  <Tr key={special.id}>
-                    <Td className="font-medium text-neutral-800">{special.title}</Td>
-                    <Td className="text-xs text-neutral-500">
-                      {special.active_from || special.active_to
-                        ? `${formatDate(special.active_from)} – ${formatDate(special.active_to)}`
-                        : "Always on"}
-                    </Td>
-                    <Td>
-                      <Badge tone={status.tone}>{status.label}</Badge>
-                    </Td>
-                    <Td className="text-right">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        aria-label={`Edit ${special.title}`}
-                        onClick={() => {
-                          setEditing(special);
-                          setFormOpen(true);
-                        }}
-                      >
-                        <Pencil className="h-3.5 w-3.5" />
+          <>
+            <div className="hidden items-center gap-3 border-b border-neutral-100 px-5 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-neutral-500 sm:flex">
+              <span className="w-9" />
+              <span className="w-12">Image</span>
+              <span className="flex-1">Title</span>
+              <span className="w-24">Price</span>
+              <span className="w-[72px]">Actions</span>
+            </div>
+            <SortableList
+              items={orderedItems}
+              getId={(s) => s.id}
+              onReorder={handleReorder}
+              className="divide-y divide-neutral-100 px-2 py-1"
+              renderItem={(special) => (
+                <div className="flex flex-1 items-center gap-3 py-2.5 pr-3">
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-neutral-200 bg-neutral-50">
+                    {special.image_id && imageById.get(special.image_id) ? (
+                      <img src={imageById.get(special.image_id)} alt="" className="h-full w-full object-cover" />
+                    ) : (
+                      <ImageOff className="h-4 w-4 text-neutral-300" />
+                    )}
+                  </div>
+                  <p className="min-w-0 flex-1 truncate text-sm font-medium text-neutral-800">{special.title}</p>
+                  <p className="w-24 shrink-0 text-sm text-neutral-600">{formatCurrency(special.price)}</p>
+                  <div className="flex shrink-0 items-center gap-2">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      aria-label={`Edit ${special.title}`}
+                      onClick={() => {
+                        setEditing(special);
+                        setFormOpen(true);
+                      }}
+                    >
+                      <Pencil className="h-3.5 w-3.5" />
+                    </Button>
+                    {canDelete && (
+                      <Button variant="ghost" size="icon" aria-label={`Delete ${special.title}`} onClick={() => setDeleteTarget(special)}>
+                        <Trash2 className="h-3.5 w-3.5 text-red-500" />
                       </Button>
-                      {canDelete && (
-                        <Button variant="ghost" size="icon" aria-label={`Delete ${special.title}`} onClick={() => setDeleteTarget(special)}>
-                          <Trash2 className="h-3.5 w-3.5 text-red-500" />
-                        </Button>
-                      )}
-                    </Td>
-                  </Tr>
-                );
-              })}
-            </Tbody>
-          </Table>
+                    )}
+                  </div>
+                </div>
+              )}
+            />
+          </>
         )}
-        {data && <Pagination total={data.total} limit={LIMIT} offset={offset} onOffsetChange={setOffset} />}
       </Card>
 
       <SpecialFormModal
         open={formOpen}
         onClose={() => setFormOpen(false)}
         special={editing}
+        nextDisplayOrder={orderedItems.length}
         onSaved={() => {
           setFormOpen(false);
           void invalidate();
@@ -180,29 +192,27 @@ function SpecialFormModal({
   open,
   onClose,
   special,
+  nextDisplayOrder,
   onSaved,
 }: {
   open: boolean;
   onClose: () => void;
   special: SpecialOut | null;
+  nextDisplayOrder: number;
   onSaved: () => void;
 }) {
   const { showToast } = useToast();
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
+  const [price, setPrice] = useState("");
   const [imageId, setImageId] = useState<string | null>(null);
-  const [activeFrom, setActiveFrom] = useState("");
-  const [activeTo, setActiveTo] = useState("");
-  const [isActive, setIsActive] = useState(true);
 
   useEffect(() => {
     if (open) {
       setTitle(special?.title ?? "");
       setDescription(special?.description ?? "");
+      setPrice(special?.price != null ? String(special.price) : "");
       setImageId(special?.image_id ?? null);
-      setActiveFrom(special?.active_from ?? "");
-      setActiveTo(special?.active_to ?? "");
-      setIsActive(special?.is_active ?? true);
     }
   }, [open, special]);
 
@@ -211,12 +221,12 @@ function SpecialFormModal({
       const payload = {
         title,
         description: description || null,
+        price: price ? Number(price) : null,
         image_id: imageId,
-        active_from: activeFrom || null,
-        active_to: activeTo || null,
-        is_active: isActive,
       };
-      return special ? specialsApi.update(special.id, payload) : specialsApi.create(payload);
+      return special
+        ? specialsApi.update(special.id, payload)
+        : specialsApi.create({ ...payload, display_order: nextDisplayOrder });
     },
     onSuccess: () => {
       showToast({ title: special ? "Special updated" : "Special created", variant: "success" });
@@ -251,12 +261,15 @@ function SpecialFormModal({
       >
         <Input label="Title" required value={title} onChange={(e) => setTitle(e.target.value)} />
         <Textarea label="Description" value={description} onChange={(e) => setDescription(e.target.value)} />
-        <div className="grid grid-cols-2 gap-4">
-          <Input label="Active from" type="date" value={activeFrom} onChange={(e) => setActiveFrom(e.target.value)} />
-          <Input label="Active to" type="date" value={activeTo} onChange={(e) => setActiveTo(e.target.value)} />
-        </div>
+        <Input
+          label="Price (INR)"
+          type="number"
+          min={0}
+          step="0.01"
+          value={price}
+          onChange={(e) => setPrice(e.target.value)}
+        />
         <ImagePickerField label="Image" bucket="menu" imageId={imageId} onChange={setImageId} />
-        <Switch checked={isActive} onChange={setIsActive} label="Active" />
       </form>
     </Modal>
   );

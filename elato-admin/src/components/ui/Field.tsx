@@ -34,7 +34,7 @@ export function FieldShell({
 }
 
 const baseControlClasses =
-  "w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900 placeholder:text-neutral-400 transition-colors focus:border-accent-500 disabled:cursor-not-allowed disabled:bg-neutral-100 disabled:text-neutral-500";
+  "w-full rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm text-neutral-900 placeholder:text-neutral-400 shadow-elevation-sm transition-all focus:border-accent-500 focus:outline focus:outline-2 focus:-outline-offset-1 focus:outline-accent-500/25 disabled:cursor-not-allowed disabled:bg-neutral-50 disabled:text-neutral-400 disabled:shadow-none";
 
 interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   label?: string;
@@ -152,13 +152,13 @@ export function Switch({
         disabled={disabled}
         onClick={() => onChange(!checked)}
         className={cn(
-          "relative inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-colors",
+          "relative inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-colors duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-500",
           checked ? "bg-accent-600" : "bg-neutral-300",
         )}
       >
         <span
           className={cn(
-            "inline-block h-3.5 w-3.5 transform rounded-full bg-white shadow transition-transform",
+            "inline-block h-3.5 w-3.5 transform rounded-full bg-white shadow-elevation-sm transition-transform duration-150",
             checked ? "translate-x-[18px]" : "translate-x-1",
           )}
         />

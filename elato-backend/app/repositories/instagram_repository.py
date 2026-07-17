@@ -1,10 +1,13 @@
-"""Instagram Reels cache — synced from the Graph API on a schedule (see
-app/services/instagram_service.py). The public API only ever reads this
-table; nothing here talks to Instagram directly."""
+"""Instagram Reels cache — historically synced from the Graph API on a
+schedule (see app/services/instagram_service.py). The admin panel now manages
+rows manually instead (paste a Reel URL, upload a cover image) — the sync
+functions below (`upsert_many`/`prune_missing`) are left in place but are no
+longer wired to any admin route; the `list_admin`/`create`/`update`/`delete`
+functions are the ones the manual-entry admin UI actually uses."""
 
 from typing import Any
 
-from app.repositories.base import client
+from app.repositories.base import client, unwrap_single
 
 TABLE = "instagram_posts"
 
@@ -41,3 +44,39 @@ def prune_missing(active_media_ids: list[str]) -> None:
         c.table(TABLE).delete().neq("id", "00000000-0000-0000-0000-000000000000").execute()
         return
     c.table(TABLE).delete().not_.in_("instagram_media_id", active_media_ids).execute()
+
+
+def list_admin(limit: int, offset: int) -> tuple[list[dict[str, Any]], int]:
+    res = (
+        client()
+        .table(TABLE)
+        .select("*", count="exact")
+        .order("posted_at", desc=True)
+        .range(offset, offset + limit - 1)
+        .execute()
+    )
+    return res.data, res.count or 0
+
+
+def get(post_id: str) -> dict[str, Any]:
+    res = client().table(TABLE).select("*").eq("id", post_id).limit(1).execute()
+    return unwrap_single(res.data, "Instagram post not found")
+
+
+def create(fields: dict[str, Any]) -> dict[str, Any]:
+    res = client().table(TABLE).insert(fields).execute()
+    return unwrap_single(res.data, "Instagram post not created")
+
+
+def update(post_id: str, fields: dict[str, Any]) -> dict[str, Any]:
+    res = client().table(TABLE).update(fields).eq("id", post_id).execute()
+    return unwrap_single(res.data, "Instagram post not found")
+
+
+def delete(post_id: str) -> None:
+    client().table(TABLE).delete().eq("id", post_id).execute()
+
+
+def count_all() -> int:
+    res = client().table(TABLE).select("id", count="exact").execute()
+    return res.count or 0

@@ -11,7 +11,7 @@ TABLE = "specials"
 def list_public() -> list[dict[str, Any]]:
     today = date.today().isoformat()
     try:
-        res = client().table(TABLE).select("*").eq("is_active", True).execute()
+        res = client().table(TABLE).select("*").eq("is_active", True).order("display_order").execute()
     except APIError as exc:
         raise_for_postgrest(exc)
     # active_from/active_to windows are nullable — filter in Python since
@@ -26,7 +26,7 @@ def list_public() -> list[dict[str, Any]]:
 
 
 def list_admin(limit: int, offset: int) -> tuple[list[dict[str, Any]], int]:
-    res = client().table(TABLE).select("*", count="exact").order("created_at", desc=True).range(
+    res = client().table(TABLE).select("*", count="exact").order("display_order").range(
         offset, offset + limit - 1
     ).execute()
     return res.data, res.count or 0

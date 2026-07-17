@@ -14,12 +14,12 @@ export function AppShell() {
           <button
             type="button"
             onClick={() => setMobileOpen(true)}
-            className="rounded p-1.5 text-neutral-600 hover:bg-neutral-100"
+            className="rounded-md p-1.5 text-neutral-600 hover:bg-neutral-100"
             aria-label="Open menu"
           >
             <Menu className="h-5 w-5" />
           </button>
-          <p className="text-sm font-semibold tracking-[0.2em]">ELATŌ</p>
+          <p className="font-display text-sm font-semibold tracking-[0.2em]">ELATŌ</p>
         </header>
         <main className="flex-1 px-4 py-6 sm:px-6 lg:px-8">
           <Outlet />

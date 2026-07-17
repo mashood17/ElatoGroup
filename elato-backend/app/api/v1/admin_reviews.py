@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends
 from app.core.dependencies import CurrentAdmin, get_current_admin, require_role
 from app.repositories import review_repository
 from app.schemas.common import Page, PaginationParams
-from app.schemas.review import ReviewOut, ReviewUpdate
+from app.schemas.review import ReviewCreate, ReviewOut, ReviewUpdate
 
 router = APIRouter(prefix="/admin/reviews", tags=["admin-reviews"])
 
@@ -14,8 +14,20 @@ def list_reviews(pagination: PaginationParams = Depends(), admin: CurrentAdmin =
     return Page(items=items, total=total, limit=pagination.limit, offset=pagination.offset)
 
 
+@router.post("", response_model=ReviewOut, status_code=201)
+def create_review(
+    payload: ReviewCreate, admin: CurrentAdmin = Depends(require_role("owner", "admin", "editor"))
+):
+    return review_repository.create(payload.model_dump())
+
+
 @router.patch("/{review_id}", response_model=ReviewOut)
 def curate_review(
     review_id: str, payload: ReviewUpdate, admin: CurrentAdmin = Depends(require_role("owner", "admin", "editor"))
 ):
     return review_repository.update(review_id, payload.model_dump(exclude_none=True))
+
+
+@router.delete("/{review_id}", status_code=204)
+def delete_review(review_id: str, admin: CurrentAdmin = Depends(require_role("owner", "admin"))):
+    review_repository.delete(review_id)

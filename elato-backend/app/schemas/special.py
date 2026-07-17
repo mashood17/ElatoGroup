@@ -12,6 +12,7 @@ class SpecialBase(BaseModel):
     active_from: date | None = None
     active_to: date | None = None
     is_active: bool = True
+    display_order: int = 0
 
 
 class SpecialCreate(SpecialBase):
@@ -27,6 +28,7 @@ class SpecialUpdate(BaseModel):
     active_from: date | None = None
     active_to: date | None = None
     is_active: bool | None = None
+    display_order: int | None = None
 
 
 class SpecialOut(SpecialBase):

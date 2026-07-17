@@ -44,3 +44,8 @@ def update(category_id: str, fields: dict[str, Any]) -> dict[str, Any]:
 
 def delete(category_id: str) -> None:
     client().table(TABLE).delete().eq("id", category_id).execute()
+
+
+def count_all() -> int:
+    res = client().table(TABLE).select("id", count="exact").execute()
+    return res.count or 0

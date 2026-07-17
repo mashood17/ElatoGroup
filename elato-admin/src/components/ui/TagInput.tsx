@@ -38,7 +38,7 @@ export function TagInput({
 
   return (
     <FieldShell label={label} hint={hint}>
-      <div className="flex flex-wrap items-center gap-1.5 rounded-md border border-neutral-300 bg-white px-2 py-1.5 focus-within:border-accent-500">
+      <div className="flex flex-wrap items-center gap-1.5 rounded-lg border border-neutral-200 bg-white px-2 py-1.5 shadow-elevation-sm transition-all focus-within:border-accent-500 focus-within:outline focus-within:outline-2 focus-within:-outline-offset-1 focus-within:outline-accent-500/25">
         {value.map((tag) => (
           <span
             key={tag}

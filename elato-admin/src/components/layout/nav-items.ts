@@ -8,12 +8,9 @@ import {
   PartyPopper,
   BedDouble,
   Images,
-  Star,
-  Camera,
   FileText,
   Settings as SettingsIcon,
   Users,
-  Inbox,
   Library,
 } from "lucide-react";
 import type { AdminRole } from "../../types/api";
@@ -23,22 +20,22 @@ export interface NavItem {
   label: string;
   icon: ComponentType<{ className?: string }>;
   roles?: AdminRole[];
+  section: string;
 }
 
 export const NAV_ITEMS: NavItem[] = [
-  { to: "/", label: "Dashboard", icon: LayoutDashboard },
-  { to: "/analytics", label: "Analytics", icon: BarChart3 },
-  { to: "/enquiries", label: "Enquiries", icon: Inbox },
-  { to: "/categories", label: "Categories", icon: FolderTree },
-  { to: "/menu", label: "Menu", icon: UtensilsCrossed },
-  { to: "/specials", label: "Specials", icon: Sparkles },
-  { to: "/events", label: "Events", icon: PartyPopper },
-  { to: "/stay", label: "Stay", icon: BedDouble },
-  { to: "/gallery", label: "Gallery", icon: Images },
-  { to: "/reviews", label: "Reviews", icon: Star },
-  { to: "/instagram", label: "Instagram", icon: Camera },
-  { to: "/homepage", label: "Homepage", icon: FileText },
-  { to: "/media", label: "Media Library", icon: Library },
-  { to: "/settings", label: "Settings", icon: SettingsIcon, roles: ["owner", "admin"] },
-  { to: "/users", label: "Users", icon: Users, roles: ["owner", "admin"] },
+  { to: "/", label: "Dashboard", icon: LayoutDashboard, section: "Overview" },
+  { to: "/analytics", label: "Analytics", icon: BarChart3, section: "Overview" },
+
+  { to: "/homepage", label: "Homepage", icon: FileText, section: "Content" },
+  { to: "/specials", label: "Specials", icon: Sparkles, section: "Content" },
+  { to: "/categories", label: "Categories", icon: FolderTree, section: "Content" },
+  { to: "/menu", label: "Menu", icon: UtensilsCrossed, section: "Content" },
+  { to: "/stay", label: "Stay", icon: BedDouble, section: "Content" },
+  { to: "/events", label: "Events", icon: PartyPopper, section: "Content" },
+  { to: "/gallery", label: "Gallery", icon: Images, section: "Content" },
+  { to: "/media", label: "Media Library", icon: Library, section: "Content" },
+
+  { to: "/settings", label: "Settings", icon: SettingsIcon, roles: ["owner", "admin"], section: "Administration" },
+  { to: "/users", label: "Users", icon: Users, roles: ["owner", "admin"], section: "Administration" },
 ];

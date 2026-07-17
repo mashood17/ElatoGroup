@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
+import type { ReactNode } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Plus, Pencil, Trash2, UtensilsCrossed } from "lucide-react";
-import { categoriesApi, menuItemsApi } from "../../api/resources";
+import { Plus, Pencil, Trash2, UtensilsCrossed, ImageOff } from "lucide-react";
+import { categoriesApi, mediaApi, menuItemsApi } from "../../api/resources";
 import {
   Button,
   Card,
@@ -20,10 +21,11 @@ import {
 } from "../../components/ui";
 import { SortableList } from "../../components/ui/SortableList";
 import { ImagePickerField } from "../media/ImagePickerField";
+import { mediaQueryKey } from "../media/media-query-key";
 import { useAuth } from "../../context/AuthContext";
 import { useToast } from "../../context/ToastContext";
 import { errorMessage } from "../../lib/query-client";
-import { formatCurrency } from "../../lib/utils";
+import { cn, formatCurrency } from "../../lib/utils";
 import type { MenuItemOut } from "../../types/api";
 
 const LIMIT = 50;
@@ -39,6 +41,11 @@ export function MenuPage() {
   useEffect(() => setOffset(0), [categoryFilter]);
 
   const categoriesQuery = useQuery({ queryKey: ["categories"], queryFn: () => categoriesApi.list({ limit: 100 }) });
+  const menuImagesQuery = useQuery({
+    queryKey: mediaQueryKey("menu"),
+    queryFn: () => mediaApi.list({ bucket: "menu", limit: 100 }),
+  });
+  const imageById = new Map((menuImagesQuery.data?.items ?? []).map((m) => [m.id, m.url]));
   const queryKey = ["menu-items", categoryFilter, offset];
   const { data, isLoading, isError, error, refetch } = useQuery({
     queryKey,
@@ -106,25 +113,21 @@ export function MenuPage() {
         }
       />
 
+      <div className="mb-4 -mx-1 flex flex-wrap gap-2 overflow-x-auto px-1 pb-1" role="group" aria-label="Filter by category">
+        <FilterChip active={categoryFilter === ""} onClick={() => setCategoryFilter("")}>
+          All
+        </FilterChip>
+        {categoriesQuery.data?.items.map((c) => (
+          <FilterChip key={c.id} active={categoryFilter === c.id} onClick={() => setCategoryFilter(c.id)}>
+            {c.name}
+          </FilterChip>
+        ))}
+      </div>
+
       <Card>
         <CardHeader
           title={`${data?.total ?? "…"} items`}
           description={canReorder ? "Drag to reorder within this category." : "Filter by a category to reorder items."}
-          actions={
-            <Select
-              value={categoryFilter}
-              onChange={(e) => setCategoryFilter(e.target.value)}
-              className="w-48"
-              aria-label="Filter by category"
-            >
-              <option value="">All categories</option>
-              {categoriesQuery.data?.items.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.name}
-                </option>
-              ))}
-            </Select>
-          }
         />
         {isLoading ? (
           <TableSkeleton rows={6} cols={5} />
@@ -154,6 +157,7 @@ export function MenuPage() {
               <MenuItemRow
                 item={item}
                 categoryName={categoryName(item.category_id)}
+                imageUrl={item.image_id ? imageById.get(item.image_id) : undefined}
                 canDelete={canDelete}
                 onEdit={() => {
                   setEditing(item);
@@ -171,6 +175,7 @@ export function MenuPage() {
                 <MenuItemRow
                   item={item}
                   categoryName={categoryName(item.category_id)}
+                  imageUrl={item.image_id ? imageById.get(item.image_id) : undefined}
                   canDelete={canDelete}
                   onEdit={() => {
                     setEditing(item);
@@ -210,9 +215,36 @@ export function MenuPage() {
   );
 }
 
+function FilterChip({
+  active,
+  onClick,
+  children,
+}: {
+  active: boolean;
+  onClick: () => void;
+  children: ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-pressed={active}
+      className={cn(
+        "shrink-0 rounded-full border px-4 py-2 text-sm font-medium transition-colors",
+        active
+          ? "border-accent-600 bg-accent-600 text-white shadow-elevation-sm"
+          : "border-neutral-200 bg-white text-accent-800 hover:border-accent-300 hover:bg-accent-50",
+      )}
+    >
+      {children}
+    </button>
+  );
+}
+
 function MenuItemRow({
   item,
   categoryName,
+  imageUrl,
   canDelete,
   onEdit,
   onDelete,
@@ -220,6 +252,7 @@ function MenuItemRow({
 }: {
   item: MenuItemOut;
   categoryName: string;
+  imageUrl?: string;
   canDelete: boolean;
   onEdit: () => void;
   onDelete: () => void;
@@ -227,11 +260,20 @@ function MenuItemRow({
 }) {
   return (
     <div className="flex items-center justify-between gap-3 py-2.5">
-      <div className="min-w-0 flex-1">
-        <p className="truncate text-sm font-medium text-neutral-800">{item.name}</p>
-        <p className="truncate text-xs text-neutral-400">
-          {categoryName} · {formatCurrency(item.price)}
-        </p>
+      <div className="flex min-w-0 flex-1 items-center gap-3">
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-neutral-200 bg-neutral-50">
+          {imageUrl ? (
+            <img src={imageUrl} alt="" className="h-full w-full object-cover" />
+          ) : (
+            <ImageOff className="h-3.5 w-3.5 text-neutral-300" />
+          )}
+        </div>
+        <div className="min-w-0">
+          <p className="truncate text-sm font-medium text-neutral-800">{item.name}</p>
+          <p className="truncate text-xs text-neutral-400">
+            {categoryName} · {formatCurrency(item.price)}
+          </p>
+        </div>
       </div>
       <div className="flex shrink-0 items-center gap-3">
         <Switch checked={item.is_available} onChange={onToggleAvailable} label="Available" />

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Plus, Pencil, Trash2, PartyPopper } from "lucide-react";
-import { eventPackagesApi } from "../../api/resources";
+import { eventPackagesApi, siteContentApi } from "../../api/resources";
 import {
   Badge,
   Button,
@@ -25,12 +25,16 @@ import {
   Tr,
 } from "../../components/ui";
 import { ImagePickerField } from "../media/ImagePickerField";
+import { GalleryPanel } from "../shared/GalleryPanel";
+import { SectionImageCard } from "../shared/SectionImageCard";
 import { useAuth } from "../../context/AuthContext";
 import { useToast } from "../../context/ToastContext";
 import { errorMessage } from "../../lib/query-client";
 import type { EventPackageOut } from "../../types/api";
 
 const LIMIT = 50;
+const HERO_IMAGE_KEY = "events_hero_image";
+const PLAN_IMAGE_KEY = "events_plan_image";
 
 export function EventsPage() {
   const { hasRole } = useAuth();
@@ -42,6 +46,17 @@ export function EventsPage() {
   const { data, isLoading, isError, error, refetch } = useQuery({
     queryKey: ["event-packages", offset],
     queryFn: () => eventPackagesApi.list({ limit: LIMIT, offset }),
+  });
+
+  const siteContentQuery = useQuery({ queryKey: ["site-content"], queryFn: siteContentApi.list });
+  const siteContentByKey = new Map((siteContentQuery.data ?? []).map((c) => [c.key, c.value]));
+  const saveSectionImage = useMutation({
+    mutationFn: ({ key, value }: { key: string; value: unknown }) => siteContentApi.upsert(key, value),
+    onSuccess: () => {
+      showToast({ title: "Saved", variant: "success" });
+      void queryClient.invalidateQueries({ queryKey: ["site-content"] });
+    },
+    onError: (err) => showToast({ title: "Couldn't save", description: errorMessage(err), variant: "error" }),
   });
 
   const [formOpen, setFormOpen] = useState(false);
@@ -78,6 +93,27 @@ export function EventsPage() {
         }
       />
 
+      <div className="mb-6 flex flex-col gap-4">
+        <SectionImageCard
+          label="The Experience"
+          description="Hero image for the Events page."
+          bucket="events"
+          value={siteContentByKey.get(HERO_IMAGE_KEY)}
+          onSave={(image) => saveSectionImage.mutate({ key: HERO_IMAGE_KEY, value: image })}
+          isSaving={saveSectionImage.isPending && saveSectionImage.variables?.key === HERO_IMAGE_KEY}
+        />
+        <GalleryPanel category="events" title="Events Gallery" />
+        <SectionImageCard
+          label="Plan Your Celebration"
+          description="Image for the enquiry call-to-action."
+          bucket="events"
+          value={siteContentByKey.get(PLAN_IMAGE_KEY)}
+          onSave={(image) => saveSectionImage.mutate({ key: PLAN_IMAGE_KEY, value: image })}
+          isSaving={saveSectionImage.isPending && saveSectionImage.variables?.key === PLAN_IMAGE_KEY}
+        />
+      </div>
+
+      <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-neutral-400">Event Packages</p>
       <Card>
         <CardHeader title={`${data?.total ?? "…"} packages`} />
         {isLoading ? (

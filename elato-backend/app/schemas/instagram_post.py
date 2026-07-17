@@ -1,4 +1,19 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
+
+
+class InstagramPostCreate(BaseModel):
+    """Manual entry: an admin pastes the Reel URL and uploads a cover image
+    themselves — nothing here is auto-fetched from Instagram."""
+
+    permalink: str = Field(min_length=1, max_length=500)
+    media_id: str
+    caption: str | None = None
+
+
+class InstagramPostUpdate(BaseModel):
+    permalink: str | None = Field(default=None, min_length=1, max_length=500)
+    media_id: str | None = None
+    caption: str | None = None
 
 
 class InstagramPostOut(BaseModel):

@@ -35,14 +35,22 @@ export function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-neutral-50 px-4">
-      <div className="w-full max-w-sm">
-        <div className="mb-8 text-center">
-          <p className="text-lg font-semibold tracking-[0.3em] text-neutral-900">ELATŌ</p>
-          <p className="mt-1 text-sm text-neutral-500">Sign in to the admin panel</p>
+    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-neutral-50 px-4">
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,var(--color-accent-100),transparent_55%)]"
+      />
+
+      <div className="relative w-full max-w-sm">
+        <div className="mb-9 text-center">
+          <p className="font-display text-3xl font-semibold tracking-[0.25em] text-neutral-900">ELATŌ</p>
+          <p className="mt-2 text-sm text-neutral-500">Sign in to the admin panel</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="rounded-lg border border-neutral-200 bg-white p-6 shadow-sm">
+        <form
+          onSubmit={handleSubmit}
+          className="rounded-2xl border border-neutral-200/80 bg-white p-7 shadow-elevation-lg"
+        >
           <div className="flex flex-col gap-4">
             <Input
               label="Email"
@@ -66,19 +74,19 @@ export function LoginPage() {
             />
 
             {error && (
-              <div className="flex items-start gap-2 rounded-md bg-red-50 px-3 py-2 text-xs text-red-700">
+              <div className="flex items-start gap-2 rounded-lg bg-red-50 px-3.5 py-2.5 text-xs text-red-700">
                 <AlertCircle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
                 <span>{error}</span>
               </div>
             )}
 
-            <Button type="submit" isLoading={isSubmitting} className="mt-1 w-full">
+            <Button type="submit" isLoading={isSubmitting} className="mt-2 w-full">
               Sign in
             </Button>
           </div>
         </form>
 
-        <p className="mt-6 text-center text-xs text-neutral-400">
+        <p className="mt-7 text-center text-xs text-neutral-400">
           Trouble signing in? Contact whoever manages ELATŌ's admin accounts.
         </p>
       </div>

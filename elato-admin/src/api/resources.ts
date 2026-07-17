@@ -13,23 +13,21 @@ import type {
   EventPackageCreate,
   EventPackageOut,
   EventPackageUpdate,
-  RoomCreate,
-  RoomOut,
-  RoomUpdate,
   GalleryItemCreate,
   GalleryItemOut,
   GalleryItemUpdate,
+  ReviewCreate,
   ReviewOut,
   ReviewUpdate,
   Page,
   SiteContentOut,
   SettingOut,
-  EnquiryOut,
-  EnquiryUpdate,
   DashboardStats,
   MediaOut,
   MediaUploadResponse,
+  InstagramPostCreate,
   InstagramPostOut,
+  InstagramPostUpdate,
   AdminOut,
   AdminCreateRequest,
   AdminUpdateRequest,
@@ -45,13 +43,13 @@ export const specialsApi = createCrudApi<SpecialOut, SpecialCreate, SpecialUpdat
 export const eventPackagesApi = createCrudApi<EventPackageOut, EventPackageCreate, EventPackageUpdate>(
   "/admin/event-packages",
 );
-export const roomsApi = createCrudApi<RoomOut, RoomCreate, RoomUpdate>("/admin/rooms");
 export const galleryApi = createCrudApi<GalleryItemOut, GalleryItemCreate, GalleryItemUpdate>("/admin/gallery");
 
-// Reviews: list + patch is_featured only (no create/delete — Google-synced).
 export const reviewsApi = {
   list: (params?: ListParamsShape) => apiGet<Page<ReviewOut>>("/admin/reviews", { params }),
+  create: (payload: ReviewCreate) => apiPost<ReviewOut>("/admin/reviews", payload),
   update: (id: string, payload: ReviewUpdate) => apiPatch<ReviewOut>(`/admin/reviews/${id}`, payload),
+  remove: (id: string) => apiDelete<void>(`/admin/reviews/${id}`),
 };
 
 // Site content (Homepage CMS): list all keys, get/put by key.
@@ -65,14 +63,6 @@ export const siteContentApi = {
 export const settingsApi = {
   list: () => apiGet<SettingOut[]>("/admin/settings"),
   upsert: (key: string, value: unknown) => apiPut<SettingOut>(`/admin/settings/${key}`, { value }),
-};
-
-// Enquiries: list (filterable by status) + patch status only.
-export const enquiriesApi = {
-  list: (params?: { status?: string; limit?: number; offset?: number }) =>
-    apiGet<Page<EnquiryOut>>("/admin/enquiries", { params }),
-  updateStatus: (id: string, status: EnquiryOut["status"]) =>
-    apiPatch<EnquiryOut>(`/admin/enquiries/${id}`, { status } satisfies EnquiryUpdate),
 };
 
 export const dashboardApi = {
@@ -97,10 +87,11 @@ export const mediaApi = {
   remove: (id: string) => apiDelete<void>(`/admin/media/${id}`),
 };
 
-// Instagram: public, unauthenticated cache read (no admin list endpoint exists).
-export const instagramApi = {
-  latest: () => apiGet<InstagramPostOut[]>("/instagram/latest"),
-};
+// Instagram: manual reel entries (paste a URL, upload a cover image) —
+// admin CRUD only, no auto-fetch from Instagram anywhere in this app.
+export const instagramApi = createCrudApi<InstagramPostOut, InstagramPostCreate, InstagramPostUpdate>(
+  "/admin/instagram-posts",
+);
 
 export const usersApi = {
   list: () => apiGet<AdminOut[]>("/admin/users"),

@@ -112,7 +112,7 @@ function SortableItem({
         type="button"
         {...attributes}
         {...listeners}
-        className="cursor-grab touch-none rounded p-1 text-neutral-300 hover:text-neutral-500 active:cursor-grabbing"
+        className="cursor-grab touch-none rounded-md p-1.5 text-neutral-300 transition-colors hover:bg-neutral-100 hover:text-neutral-500 active:cursor-grabbing"
         aria-label="Drag to reorder"
       >
         <GripVertical className="h-4 w-4" />

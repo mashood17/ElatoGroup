@@ -81,6 +81,7 @@ export interface CategoryOut {
   name: string;
   slug: string;
   description: string | null;
+  image_id: string | null;
   display_order: number;
   is_active: boolean;
   created_at: string;
@@ -90,6 +91,7 @@ export interface CategoryCreate {
   name: string;
   slug: string;
   description?: string | null;
+  image_id?: string | null;
   display_order?: number;
   is_active?: boolean;
 }
@@ -98,6 +100,7 @@ export interface CategoryUpdate {
   name?: string;
   slug?: string;
   description?: string | null;
+  image_id?: string | null;
   display_order?: number;
   is_active?: boolean;
 }
@@ -138,20 +141,24 @@ export interface SpecialOut {
   id: string;
   title: string;
   description: string | null;
+  price: number | null;
   image_id: string | null;
   active_from: string | null;
   active_to: string | null;
   is_active: boolean;
+  display_order: number;
   created_at: string;
 }
 
 export interface SpecialCreate {
   title: string;
   description?: string | null;
+  price?: number | null;
   image_id?: string | null;
   active_from?: string | null;
   active_to?: string | null;
   is_active?: boolean;
+  display_order?: number;
 }
 
 export type SpecialUpdate = Partial<SpecialCreate>;
@@ -207,31 +214,6 @@ export interface EventPackageCreate {
 export type EventPackageUpdate = Partial<EventPackageCreate>;
 
 // ---------------------------------------------------------------------------
-// room.py
-// ---------------------------------------------------------------------------
-
-export interface RoomOut {
-  id: string;
-  name: string;
-  description: string | null;
-  capacity: number | null;
-  amenities: string[];
-  image_ids: string[];
-  is_active: boolean;
-}
-
-export interface RoomCreate {
-  name: string;
-  description?: string | null;
-  capacity?: number | null;
-  amenities?: string[];
-  image_ids?: string[];
-  is_active?: boolean;
-}
-
-export type RoomUpdate = Partial<RoomCreate>;
-
-// ---------------------------------------------------------------------------
 // review.py
 // ---------------------------------------------------------------------------
 
@@ -245,7 +227,18 @@ export interface ReviewOut {
   fetched_at: string;
 }
 
+export interface ReviewCreate {
+  author_name?: string | null;
+  rating?: number | null;
+  text?: string | null;
+  is_featured?: boolean;
+  source?: string;
+}
+
 export interface ReviewUpdate {
+  author_name?: string | null;
+  rating?: number | null;
+  text?: string | null;
   is_featured?: boolean;
 }
 
@@ -274,41 +267,22 @@ export interface SettingUpsert {
 }
 
 // ---------------------------------------------------------------------------
-// enquiry.py
-// ---------------------------------------------------------------------------
-
-export type EnquiryStatus = "new" | "contacted" | "closed";
-export type EnquirySourcePage = "home" | "stay" | "events" | "celebre";
-
-export interface EnquiryOut {
-  id: string;
-  source_page: EnquirySourcePage | string;
-  name: string;
-  phone: string;
-  email: string | null;
-  message: string | null;
-  guests: number | null;
-  preferred_date: string | null;
-  status: EnquiryStatus;
-  created_at: string;
-}
-
-export interface EnquiryUpdate {
-  status: EnquiryStatus;
-}
-
-// ---------------------------------------------------------------------------
 // dashboard.py
 // ---------------------------------------------------------------------------
 
+export interface RecentEventGroup {
+  event_name: string;
+  count: number;
+  last_seen: string;
+}
+
 export interface DashboardStats {
-  total_enquiries: number;
-  new_enquiries: number;
+  total_categories: number;
   total_menu_items: number;
-  total_gallery_items: number;
+  total_instagram_reels: number;
   total_reviews: number;
-  recent_enquiries: EnquiryOut[];
   analytics_last_30_days: Record<string, number>;
+  recent_events: RecentEventGroup[];
 }
 
 // ---------------------------------------------------------------------------
@@ -358,11 +332,27 @@ export interface MediaUploadResponse {
 
 export interface InstagramPostOut {
   id: string;
+  media_type: string | null;
+  is_reel: boolean;
+  thumbnail_url: string | null;
   media_url: string;
   permalink: string | null;
   caption: string | null;
   posted_at: string | null;
-  fetched_at: string;
+}
+
+/** Manual entry only — an admin pastes the Reel URL and uploads a cover
+ * image themselves, nothing here is auto-fetched from Instagram. */
+export interface InstagramPostCreate {
+  permalink: string;
+  media_id: string;
+  caption?: string | null;
+}
+
+export interface InstagramPostUpdate {
+  permalink?: string;
+  media_id?: string;
+  caption?: string | null;
 }
 
 // ---------------------------------------------------------------------------

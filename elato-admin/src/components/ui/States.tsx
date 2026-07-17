@@ -27,7 +27,7 @@ export function CardGridSkeleton({ count = 8 }: { count?: number }) {
   return (
     <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
       {Array.from({ length: count }).map((_, i) => (
-        <div key={i} className="aspect-square animate-skeleton rounded-lg bg-neutral-200" />
+        <div key={i} className="aspect-square animate-skeleton rounded-xl bg-neutral-200" />
       ))}
     </div>
   );
@@ -35,7 +35,7 @@ export function CardGridSkeleton({ count = 8 }: { count?: number }) {
 
 export function StatCardSkeleton() {
   return (
-    <div className="rounded-lg border border-neutral-200 bg-white p-5">
+    <div className="rounded-xl border border-neutral-200/80 bg-white p-5 shadow-elevation-sm">
       <div className="h-3 w-24 animate-skeleton rounded bg-neutral-200" />
       <div className="mt-3 h-7 w-16 animate-skeleton rounded bg-neutral-200" />
     </div>
@@ -54,11 +54,15 @@ export function EmptyState({
   action?: ReactNode;
 }) {
   return (
-    <div className="flex flex-col items-center justify-center gap-2 px-6 py-16 text-center">
-      <Icon className="h-8 w-8 text-neutral-300" aria-hidden="true" />
-      <p className="text-sm font-medium text-neutral-700">{title}</p>
-      {description && <p className="max-w-sm text-xs text-neutral-500">{description}</p>}
-      {action && <div className="mt-3">{action}</div>}
+    <div className="flex flex-col items-center justify-center gap-3 px-6 py-16 text-center">
+      <div className="flex h-12 w-12 items-center justify-center rounded-full bg-neutral-100">
+        <Icon className="h-5 w-5 text-neutral-400" aria-hidden="true" />
+      </div>
+      <div className="space-y-1">
+        <p className="text-sm font-medium text-neutral-700">{title}</p>
+        {description && <p className="max-w-sm text-xs text-neutral-500">{description}</p>}
+      </div>
+      {action && <div className="mt-1">{action}</div>}
     </div>
   );
 }

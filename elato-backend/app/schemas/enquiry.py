@@ -56,10 +56,6 @@ class EnquiryCreate(BaseModel):
         return v.strip()
 
 
-class EnquiryUpdate(BaseModel):
-    status: str = Field(pattern="^(new|contacted|closed)$")
-
-
 class EnquiryOut(BaseModel):
     id: str
     source_page: str

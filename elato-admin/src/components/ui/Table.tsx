@@ -17,7 +17,7 @@ export function Th({ className, children, ...props }: ThHTMLAttributes<HTMLTable
   return (
     <th
       scope="col"
-      className={cn("px-5 py-2.5 text-left text-xs font-medium uppercase tracking-wide text-neutral-500", className)}
+      className={cn("px-5 py-3 text-left text-[11px] font-semibold uppercase tracking-wider text-neutral-500", className)}
       {...props}
     >
       {children}
@@ -31,7 +31,7 @@ export function Tbody({ children }: { children: ReactNode }) {
 
 export function Tr({ className, children, ...props }: HTMLAttributes<HTMLTableRowElement>) {
   return (
-    <tr className={cn("transition-colors hover:bg-neutral-50/80", className)} {...props}>
+    <tr className={cn("transition-colors hover:bg-accent-50/40", className)} {...props}>
       {children}
     </tr>
   );

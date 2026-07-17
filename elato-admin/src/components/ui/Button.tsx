@@ -13,11 +13,12 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const VARIANT_CLASSES: Record<ButtonVariant, string> = {
-  primary: "bg-accent-600 text-white hover:bg-accent-700 active:bg-accent-800 disabled:bg-accent-300",
-  secondary: "bg-neutral-900 text-white hover:bg-neutral-800 active:bg-neutral-950 disabled:bg-neutral-400",
-  outline: "border border-neutral-300 bg-white text-neutral-800 hover:bg-neutral-50 active:bg-neutral-100",
-  ghost: "text-neutral-700 hover:bg-neutral-100 active:bg-neutral-200",
-  danger: "bg-red-600 text-white hover:bg-red-700 active:bg-red-800 disabled:bg-red-300",
+  primary:
+    "bg-accent-600 text-white shadow-elevation-sm hover:bg-accent-700 active:bg-accent-800 disabled:bg-accent-300 disabled:shadow-none",
+  secondary: "bg-neutral-900 text-white shadow-elevation-sm hover:bg-neutral-800 active:bg-neutral-950 disabled:bg-neutral-400",
+  outline: "border border-neutral-200 bg-white text-neutral-800 hover:border-neutral-300 hover:bg-neutral-50 active:bg-neutral-100",
+  ghost: "text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900 active:bg-neutral-200",
+  danger: "bg-red-600 text-white shadow-elevation-sm hover:bg-red-700 active:bg-red-800 disabled:bg-red-300 disabled:shadow-none",
 };
 
 const SIZE_CLASSES: Record<ButtonSize, string> = {
@@ -34,7 +35,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
     <button
       ref={ref}
       className={cn(
-        "inline-flex items-center justify-center rounded-md font-medium transition-colors duration-150 disabled:cursor-not-allowed disabled:opacity-60",
+        "inline-flex items-center justify-center rounded-lg font-medium transition-all duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-500 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 disabled:active:scale-100",
         VARIANT_CLASSES[variant],
         SIZE_CLASSES[size],
         className,

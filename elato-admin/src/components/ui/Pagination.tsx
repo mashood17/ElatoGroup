@@ -20,7 +20,7 @@ export function Pagination({
   const rangeEnd = Math.min(offset + limit, total);
 
   return (
-    <div className="flex items-center justify-between border-t border-neutral-100 px-5 py-3">
+    <div className="flex flex-wrap items-center justify-between gap-3 border-t border-neutral-100 px-5 py-3.5">
       <p className="text-xs text-neutral-500">
         Showing <span className="font-medium text-neutral-700">{rangeStart}–{rangeEnd}</span> of{" "}
         <span className="font-medium text-neutral-700">{total}</span>

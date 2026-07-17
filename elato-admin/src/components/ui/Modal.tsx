@@ -62,20 +62,24 @@ export function Modal({ open, onClose, title, description, children, footer, siz
 
   return createPortal(
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-neutral-900/40 motion-safe:animate-[toast-in_0.15s_ease-out]" onClick={onClose} aria-hidden="true" />
+      <div
+        className="absolute inset-0 bg-neutral-900/50 backdrop-blur-[2px] motion-safe:animate-fade-in"
+        onClick={onClose}
+        aria-hidden="true"
+      />
       <div
         ref={panelRef}
         role="dialog"
         aria-modal="true"
         aria-labelledby="modal-title"
         className={cn(
-          "relative z-10 flex max-h-[90vh] w-full flex-col rounded-lg bg-white shadow-xl motion-safe:animate-[toast-in_0.15s_ease-out]",
+          "relative z-10 flex max-h-[90vh] w-full flex-col rounded-2xl bg-white shadow-elevation-lg motion-safe:animate-[toast-in_0.15s_ease-out]",
           SIZE_CLASSES[size],
         )}
       >
-        <div className="flex items-start justify-between gap-4 border-b border-neutral-100 px-5 py-4">
+        <div className="flex items-start justify-between gap-4 border-b border-neutral-100 px-6 py-5">
           <div>
-            <h2 id="modal-title" className="text-sm font-semibold text-neutral-900">
+            <h2 id="modal-title" className="text-base font-semibold tracking-tight text-neutral-900">
               {title}
             </h2>
             {description && <p className="mt-0.5 text-xs text-neutral-500">{description}</p>}
@@ -84,13 +88,13 @@ export function Modal({ open, onClose, title, description, children, footer, siz
             type="button"
             onClick={onClose}
             aria-label="Close dialog"
-            className="rounded p-1 text-neutral-400 hover:bg-neutral-100 hover:text-neutral-700"
+            className="rounded-full p-1.5 text-neutral-400 transition-colors hover:bg-neutral-100 hover:text-neutral-700"
           >
             <X className="h-4 w-4" />
           </button>
         </div>
-        <div className="flex-1 overflow-y-auto px-5 py-4">{children}</div>
-        {footer && <div className="flex items-center justify-end gap-2 border-t border-neutral-100 px-5 py-3.5">{footer}</div>}
+        <div className="flex-1 overflow-y-auto px-6 py-5">{children}</div>
+        {footer && <div className="flex items-center justify-end gap-2 border-t border-neutral-100 px-6 py-4">{footer}</div>}
       </div>
     </div>,
     document.body,

@@ -19,9 +19,18 @@ def list_admin(limit: int, offset: int) -> tuple[list[dict[str, Any]], int]:
     return res.data, res.count or 0
 
 
+def create(fields: dict[str, Any]) -> dict[str, Any]:
+    res = client().table(TABLE).insert(fields).execute()
+    return unwrap_single(res.data, "Review not created")
+
+
 def update(review_id: str, fields: dict[str, Any]) -> dict[str, Any]:
     res = client().table(TABLE).update(fields).eq("id", review_id).execute()
     return unwrap_single(res.data, "Review not found")
+
+
+def delete(review_id: str) -> None:
+    client().table(TABLE).delete().eq("id", review_id).execute()
 
 
 def upsert_from_source(rows: list[dict[str, Any]]) -> None:

@@ -58,8 +58,8 @@ export function SettingsPage() {
     <div>
       <PageHeader title="Settings" description="Site-wide configuration used by the public site." />
 
-      <div className="mb-4 flex items-start gap-2 rounded-md border border-neutral-200 bg-white px-4 py-3 text-xs text-neutral-600">
-        <Info className="mt-0.5 h-3.5 w-3.5 shrink-0 text-neutral-400" />
+      <div className="mb-5 flex items-start gap-2.5 rounded-xl border border-neutral-200/80 bg-white px-4 py-3.5 text-xs text-neutral-600 shadow-elevation-sm">
+        <Info className="mt-0.5 h-3.5 w-3.5 shrink-0 text-accent-500" />
         <p>Owner and admin accounts only. Changes here take effect on the public site immediately.</p>
       </div>
 

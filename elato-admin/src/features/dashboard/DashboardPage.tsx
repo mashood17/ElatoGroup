@@ -1,11 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
-import { Inbox, UtensilsCrossed, Images, Star, ArrowUpRight } from "lucide-react";
+import { FolderTree, UtensilsCrossed, Camera, Star, ArrowUpRight, Activity } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import { dashboardApi } from "../../api/resources";
-import { Badge, Card, CardBody, CardHeader, ErrorState, PageHeader, StatCardSkeleton } from "../../components/ui";
-import { formatDateTime } from "../../lib/utils";
+import { Card, CardBody, CardHeader, ErrorState, PageHeader, StatCardSkeleton } from "../../components/ui";
 import { errorMessage } from "../../lib/query-client";
-import { STATUS_TONE } from "../enquiries/status";
+import { formatDateTime } from "../../lib/utils";
 
 export function DashboardPage() {
   const { data, isLoading, isError, error, refetch } = useQuery({
@@ -26,47 +26,36 @@ export function DashboardPage() {
               Array.from({ length: 4 }).map((_, i) => <StatCardSkeleton key={i} />)
             ) : (
               <>
-                <StatCard
-                  icon={Inbox}
-                  label="New enquiries"
-                  value={data.new_enquiries}
-                  sub={`${data.total_enquiries} total`}
-                  to="/enquiries"
-                />
-                <StatCard icon={UtensilsCrossed} label="Menu items" value={data.total_menu_items} to="/menu" />
-                <StatCard icon={Images} label="Gallery items" value={data.total_gallery_items} to="/gallery" />
-                <StatCard icon={Star} label="Reviews" value={data.total_reviews} to="/reviews" />
+                <StatCard icon={FolderTree} label="Menu Categories" value={data.total_categories} to="/categories" manageLabel="Manage" />
+                <StatCard icon={UtensilsCrossed} label="Menu Items" value={data.total_menu_items} to="/menu" manageLabel="Manage" />
+                <StatCard icon={Camera} label="Instagram Reels" value={data.total_instagram_reels} to="/homepage" />
+                <StatCard icon={Star} label="Reviews" value={data.total_reviews} to="/homepage" />
               </>
             )}
           </div>
 
-          <div className="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-5">
-            <Card className="lg:col-span-3">
-              <CardHeader
-                title="Recent enquiries"
-                description="Latest submissions from the public site"
-                actions={
-                  <Link to="/enquiries" className="flex items-center gap-1 text-xs font-medium text-accent-700 hover:text-accent-800">
-                    View all <ArrowUpRight className="h-3 w-3" />
-                  </Link>
-                }
-              />
-              <CardBody className="!p-0">
+          <div className="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-2">
+            <Card>
+              <CardHeader title="Recent Activity" description="Latest event types captured by the site" />
+              <CardBody>
                 {isLoading || !data ? (
-                  <div className="p-5 text-xs text-neutral-400">Loading…</div>
-                ) : data.recent_enquiries.length === 0 ? (
-                  <div className="px-5 py-10 text-center text-xs text-neutral-400">No enquiries yet.</div>
+                  <div className="text-xs text-neutral-400">Loading…</div>
+                ) : data.recent_events.length === 0 ? (
+                  <p className="text-xs text-neutral-400">No activity recorded yet.</p>
                 ) : (
-                  <ul className="divide-y divide-neutral-100">
-                    {data.recent_enquiries.map((enquiry) => (
-                      <li key={enquiry.id} className="flex items-center justify-between gap-3 px-5 py-3">
-                        <div className="min-w-0">
-                          <p className="truncate text-sm font-medium text-neutral-800">{enquiry.name}</p>
-                          <p className="truncate text-xs text-neutral-500">
-                            {enquiry.source_page} · {formatDateTime(enquiry.created_at)}
-                          </p>
+                  <ul className="flex flex-col gap-3">
+                    {data.recent_events.map((group) => (
+                      <li key={group.event_name} className="flex items-center justify-between gap-3">
+                        <div className="flex min-w-0 items-center gap-2.5">
+                          <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-accent-50">
+                            <Activity className="h-3.5 w-3.5 text-accent-600" />
+                          </div>
+                          <div className="min-w-0">
+                            <p className="truncate text-sm font-medium text-neutral-800">{group.event_name}</p>
+                            <p className="text-xs text-neutral-400">{formatDateTime(group.last_seen)}</p>
+                          </div>
                         </div>
-                        <Badge tone={STATUS_TONE[enquiry.status]}>{enquiry.status}</Badge>
+                        <span className="shrink-0 text-xs font-medium tabular-nums text-neutral-500">×{group.count}</span>
                       </li>
                     ))}
                   </ul>
@@ -74,8 +63,8 @@ export function DashboardPage() {
               </CardBody>
             </Card>
 
-            <Card className="lg:col-span-2">
-              <CardHeader title="Activity, last 30 days" description="Analytics events by name" />
+            <Card>
+              <CardHeader title="Last 30 Days" description="Analytics events by name" />
               <CardBody>
                 {isLoading || !data ? (
                   <div className="text-xs text-neutral-400">Loading…</div>
@@ -95,31 +84,35 @@ function StatCard({
   icon: Icon,
   label,
   value,
-  sub,
+  manageLabel,
   to,
 }: {
-  icon: typeof Inbox;
+  icon: LucideIcon;
   label: string;
   value: number;
-  sub?: string;
+  manageLabel?: string;
   to: string;
 }) {
   return (
     <Link
       to={to}
-      className="group rounded-lg border border-neutral-200 bg-white p-5 transition-colors hover:border-accent-300 hover:bg-accent-50/40"
+      className="group rounded-xl border border-neutral-200/80 bg-white p-5 shadow-elevation-sm transition-all hover:-translate-y-0.5 hover:border-accent-300 hover:shadow-elevation-md"
     >
       <div className="flex items-center justify-between">
         <p className="text-xs font-medium uppercase tracking-wide text-neutral-500">{label}</p>
         <Icon className="h-4 w-4 text-neutral-300 group-hover:text-accent-500" />
       </div>
       <p className="mt-2 text-2xl font-semibold text-neutral-900">{value}</p>
-      {sub && <p className="mt-1 text-xs text-neutral-400">{sub}</p>}
+      {manageLabel && (
+        <p className="mt-2 flex items-center gap-1 text-xs font-medium text-accent-700">
+          {manageLabel} <ArrowUpRight className="h-3 w-3" />
+        </p>
+      )}
     </Link>
   );
 }
 
-export function AnalyticsMiniBars({ counts }: { counts: Record<string, number> }) {
+function AnalyticsMiniBars({ counts }: { counts: Record<string, number> }) {
   const entries = Object.entries(counts).sort((a, b) => b[1] - a[1]);
   if (entries.length === 0) {
     return <p className="text-xs text-neutral-400">No analytics events recorded in this window.</p>;

@@ -10,13 +10,10 @@ import { SpecialsPage } from "./features/specials/SpecialsPage";
 import { EventsPage } from "./features/events/EventsPage";
 import { StayPage } from "./features/stay/StayPage";
 import { GalleryPage } from "./features/gallery/GalleryPage";
-import { ReviewsPage } from "./features/reviews/ReviewsPage";
-import { InstagramPage } from "./features/instagram/InstagramPage";
 import { HomepagePage } from "./features/homepage/HomepagePage";
 import { SettingsPage } from "./features/settings/SettingsPage";
 import { MediaLibraryPage } from "./features/media/MediaLibraryPage";
 import { UsersPage } from "./features/users/UsersPage";
-import { EnquiriesPage } from "./features/enquiries/EnquiriesPage";
 import { NotFoundPage } from "./features/misc/NotFoundPage";
 
 function App() {
@@ -33,15 +30,12 @@ function App() {
         >
           <Route path="/" element={<DashboardPage />} />
           <Route path="/analytics" element={<AnalyticsPage />} />
-          <Route path="/enquiries" element={<EnquiriesPage />} />
           <Route path="/categories" element={<CategoriesPage />} />
           <Route path="/menu" element={<MenuPage />} />
           <Route path="/specials" element={<SpecialsPage />} />
           <Route path="/events" element={<EventsPage />} />
           <Route path="/stay" element={<StayPage />} />
           <Route path="/gallery" element={<GalleryPage />} />
-          <Route path="/reviews" element={<ReviewsPage />} />
-          <Route path="/instagram" element={<InstagramPage />} />
           <Route path="/homepage" element={<HomepagePage />} />
           <Route path="/media" element={<MediaLibraryPage />} />
           <Route

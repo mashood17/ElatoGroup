@@ -3,9 +3,9 @@ from fastapi import APIRouter
 from app.api.v1 import (
     admin_categories,
     admin_dashboard,
-    admin_enquiries,
     admin_event_packages,
     admin_gallery,
+    admin_instagram,
     admin_media,
     admin_menu_items,
     admin_reviews,
@@ -32,8 +32,8 @@ api_router.include_router(admin_rooms.router)
 api_router.include_router(admin_reviews.router)
 api_router.include_router(admin_site_content.router)
 api_router.include_router(admin_settings.router)
-api_router.include_router(admin_enquiries.router)
 api_router.include_router(admin_dashboard.router)
 api_router.include_router(admin_media.router)
+api_router.include_router(admin_instagram.router)
 api_router.include_router(admin_users.router)
 api_router.include_router(sync.router)
