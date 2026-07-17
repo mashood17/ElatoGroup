@@ -1,153 +1,180 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 545 185" preserveAspectRatio="xMidYMid meet">
-<defs>
-  <path id="elato-E" fill-rule="evenodd" clip-rule="evenodd" d="M 50 60 H 115 V 80 H 72 V 96 H 105 V 114 H 72 V 130 H 115 V 150 H 50 Z" />
-  <path id="elato-L" fill-rule="evenodd" clip-rule="evenodd" d="M 140 60 H 162 V 130 H 200 V 150 H 140 Z" />
-  <path id="elato-A" fill-rule="evenodd" clip-rule="evenodd" d="M 258 60 H 280 L 318 150 H 294 L 286.4 132 H 251.6 L 244 150 H 220 Z M 258.36 116 L 279.64 116 L 269 90.7 Z" />
-  <path id="elato-T" fill-rule="evenodd" clip-rule="evenodd" d="M 305 60 H 385 V 80 H 356 V 150 H 334 V 80 H 305 Z" />
-  <path id="elato-O" fill-rule="evenodd" clip-rule="evenodd" d="M 450 60 C 474.85 60 495 80.15 495 105 C 495 129.85 474.85 150 450 150 C 425.15 150 405 129.85 405 105 C 405 80.15 425.15 60 450 60 Z M 450 82 C 437.3 82 427 92.3 427 105 C 427 117.7 437.3 128 450 128 C 462.7 128 473 117.7 473 105 C 473 92.3 462.7 82 450 82 Z" />
-  <path id="elato-macron" fill-rule="evenodd" clip-rule="evenodd" d="M 417 35 H 483 V 48 H 417 Z" />
+<svg viewBox="-100 -100 700 300" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    /* CSS animations for Animation 01: The Architectural Reveal */
+    .fidelity-frame { opacity: 0; animation: crossfade-in 0.16s linear 7.84s forwards; }
+    .animated-scene-wrapper { opacity: 1; animation: crossfade-out 0.16s linear 7.84s forwards; }
+    
+    @keyframes crossfade-in { 0% { opacity: 0; } 100% { opacity: 1; } }
+    @keyframes crossfade-out { 0% { opacity: 1; } 100% { opacity: 0; } }
 
-  <mask id="material-mask">
-    <rect x="0" y="-100" width="800" height="400" fill="white" />
-    <rect class="mat-mask-black" x="0" y="-100" width="2000" height="400" fill="black" />
-  </mask>
-  <mask id="o-mask"><circle class="o-mask-circle" cx="450" cy="105" r="60" fill="white" /></mask>
-  <mask id="m-mask"><rect class="m-mask-rect" x="410" y="25" width="80" height="30" fill="white" /></mask>
-  
-  <mask id="full-logo-mask">
-    <use href="#elato-E" fill="white" />
-    <use href="#elato-L" fill="white" />
-    <use href="#elato-A" fill="white" />
-    <use href="#elato-T" fill="white" />
-    <use href="#elato-O" fill="white" />
-    <use href="#elato-macron" fill="white" />
-  </mask>
-  
-  <linearGradient id="sweep-grad" x1="0" y1="0" x2="1" y2="0">
-    <stop offset="0%" stop-color="white" stop-opacity="0" />
-    <stop offset="50%" stop-color="white" stop-opacity="0.8" />
-    <stop offset="100%" stop-color="white" stop-opacity="0" />
-  </linearGradient>
-</defs>
+    .scene {
+      transform-origin: 230px 50px;
+      transform: scale(0.9) skewX(-20deg) skewY(5deg);
+      animation: sceneParallax 4s cubic-bezier(0.25, 1, 0.5, 1) 2s forwards;
+    }
+    @keyframes sceneParallax { to { transform: scale(1) skewX(0deg) skewY(0deg); } }
 
-<style>
-  .scene {
-    transform-origin: 272.5px 92.5px;
-    animation: cameraMove 8s cubic-bezier(0.7, 0, 0.2, 1) forwards, hideScene 8s linear forwards;
-  }
-  @keyframes cameraMove {
-    0%, 25% { transform: scale(0.9) scaleY(0.75) skewX(-15deg) rotate(-2deg); }
-    60%, 100% { transform: scale(1) scaleY(1) skewX(0deg) rotate(0deg); }
-  }
-  @keyframes hideScene { 0%, 98% { opacity: 1; } 99%, 100% { opacity: 0; } }
+    .depth-2 {
+      transform: translate(-15px, 15px);
+      opacity: 0.3;
+      animation: depthParallax 4s cubic-bezier(0.25, 1, 0.5, 1) 2s forwards;
+    }
+    @keyframes depthParallax { to { transform: translate(0px, 0px); opacity: 0; } }
 
-  .final-static-logo { opacity: 0; animation: showStatic 8s linear forwards; }
-  @keyframes showStatic { 0%, 98% { opacity: 0; } 99%, 100% { opacity: 1; } }
+    .pulse {
+      stroke-dasharray: 20 60;
+      opacity: 0;
+      animation: pulseAnim 0.8s linear forwards;
+    }
+    @keyframes pulseAnim {
+      0% { stroke-dashoffset: 400; opacity: 0; }
+      10% { opacity: 0.6; }
+      90% { opacity: 0.6; }
+      100% { stroke-dashoffset: 0; opacity: 0; }
+    }
+    .p-1 { animation-delay: 0.0s; }
+    .p-2 { animation-delay: 0.1s; }
+    .p-3 { animation-delay: 0.2s; }
+    .p-4 { animation-delay: 0.3s; }
 
-  /* First Signal */
-  .signal-group { opacity: 0; animation: sigOp 8s linear forwards; }
-  @keyframes sigOp { 0%, 15% { opacity: 1; } 16%, 100% { opacity: 0; } }
-  .sig-path { fill: none; stroke: #DDB766; stroke-width: 1.5; stroke-dasharray: 4 200; stroke-dashoffset: 200; }
-  .sig-e { animation: drawSig 1.5s cubic-bezier(0.4,0,0.2,1) forwards 0.0s; }
-  .sig-l { animation: drawSig 1.5s cubic-bezier(0.4,0,0.2,1) forwards 0.1s; }
-  .sig-a { animation: drawSig 1.5s cubic-bezier(0.4,0,0.2,1) forwards 0.2s; }
-  .sig-t { animation: drawSig 1.5s cubic-bezier(0.4,0,0.2,1) forwards 0.3s; }
-  .sig-o { animation: drawSig 1.5s cubic-bezier(0.4,0,0.2,1) forwards 0.4s; }
-  @keyframes drawSig { to { stroke-dashoffset: 0; } }
+    .wireframe {
+      stroke-dasharray: 1200;
+      stroke-dashoffset: 1200;
+      opacity: 0;
+    }
+    .wf-1 { animation: drawWf 3.0s cubic-bezier(0.4, 0, 0.2, 1) 0.8s forwards; }
+    .wf-2 { animation: drawWf 3.0s cubic-bezier(0.4, 0, 0.2, 1) 1.0s forwards; }
+    .wf-3 { animation: drawWf 3.0s cubic-bezier(0.4, 0, 0.2, 1) 1.2s forwards; }
+    .wf-4 { animation: drawWf 3.0s cubic-bezier(0.4, 0, 0.2, 1) 1.4s forwards; }
+    .wf-5 { animation: drawWf 3.0s cubic-bezier(0.4, 0, 0.2, 1) 1.6s forwards; }
+    .wf-6 { animation: drawWf 3.0s cubic-bezier(0.4, 0, 0.2, 1) 1.8s forwards; }
 
-  /* Wireframe Drawing */
-  .wf-opacity-group { opacity: 0; animation: wfOpacity 8s linear forwards; }
-  @keyframes wfOpacity { 0%, 9% { opacity: 0; } 10%, 45% { opacity: 0.6; } 60%, 100% { opacity: 0; } }
-  .wireframe { fill: none; stroke: #A77E23; stroke-width: 0.75; stroke-dasharray: 1000; stroke-dashoffset: 1000; }
-  .wf-e { animation: drawPath 2.5s cubic-bezier(0.4,0,0.2,1) forwards 0.8s; }
-  .wf-l { animation: drawPath 2.5s cubic-bezier(0.4,0,0.2,1) forwards 1.0s; }
-  .wf-a { animation: drawPath 2.5s cubic-bezier(0.4,0,0.2,1) forwards 1.2s; }
-  .wf-t { animation: drawPath 2.5s cubic-bezier(0.4,0,0.2,1) forwards 1.4s; }
-  .wf-o { animation: drawPath 2.5s cubic-bezier(0.4,0,0.2,1) forwards 1.6s; }
-  @keyframes drawPath { to { stroke-dashoffset: 0; } }
+    @keyframes drawWf {
+      0% { stroke-dashoffset: 1200; opacity: 1; }
+      70% { stroke-dashoffset: 0; opacity: 1; }
+      100% { stroke-dashoffset: 0; opacity: 0; }
+    }
 
-  /* Dimensional Extrusion Layers */
-  .dim-group { fill: none; stroke: #A77E23; stroke-width: 0.5; opacity: 0; }
-  .dim-1 { animation: dim1 8s cubic-bezier(0.5,0,0.2,1) forwards; }
-  .dim-2 { animation: dim2 8s cubic-bezier(0.5,0,0.2,1) forwards; }
-  @keyframes dim1 { 0%, 25% { transform: translate(0,0); opacity: 0; } 35%, 45% { transform: translate(2px, 3px); opacity: 0.25; } 60%, 100% { transform: translate(0,0); opacity: 0; } }
-  @keyframes dim2 { 0%, 25% { transform: translate(0,0); opacity: 0; } 35%, 45% { transform: translate(4px, 6px); opacity: 0.15; } 60%, 100% { transform: translate(0,0); opacity: 0; } }
+    .mask-sweep {
+      animation: sweepMask 1.8s cubic-bezier(0.4, 0, 0.2, 1) 3.2s forwards;
+    }
+    @keyframes sweepMask {
+      0% { width: 10px; }
+      100% { width: 1200px; }
+    }
 
-  /* Solid Materialization */
-  .solid-elat { mask: url(#material-mask); }
-  .solid-o { mask: url(#o-mask); }
-  .solid-m { mask: url(#m-mask); }
+    .o-mask-circle {
+      animation: bloomO 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 2.8s forwards;
+    }
+    @keyframes bloomO {
+      0% { r: 0; }
+      100% { r: 75px; }
+    }
 
-  .mat-mask-black {
-    transform: translateX(-50px) skewX(-20deg);
-    animation: matReveal 1.6s cubic-bezier(0.6, 0.05, 0.15, 1) forwards 3.2s;
-  }
-  @keyframes matReveal { to { transform: translateX(800px) skewX(-20deg); } }
+    .macron-group {
+      opacity: 0;
+      transform: translateY(-20px);
+      animation: snapMacron 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) 2.8s forwards;
+    }
+    @keyframes snapMacron {
+      0% { opacity: 0; transform: translateY(-20px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
 
-  .o-mask-circle {
-    transform: scale(0); transform-origin: 450px 105px;
-    animation: oReveal 0.6s cubic-bezier(0.5, 0, 0.2, 1) forwards 2.8s;
-  }
-  @keyframes oReveal { to { transform: scale(1.5); } }
+    .light-sweep-rect {
+      transform: translateX(-400px) skewX(-20deg);
+      animation: lightSweep 1.5s cubic-bezier(0.4, 0, 0.2, 1) 6.0s forwards;
+    }
+    @keyframes lightSweep {
+      0% { transform: translateX(-400px) skewX(-20deg); }
+      100% { transform: translateX(800px) skewX(-20deg); }
+    }
+  </style>
 
-  .m-mask-rect {
-    transform: scaleX(0); transform-origin: 450px 41.5px;
-    animation: mReveal 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards 2.8s;
-  }
-  @keyframes mReveal { to { transform: scaleX(1); } }
+  <defs>
+    <path id="path-E" d="M 0,0 H 70 V 22 H 22 V 39 H 60 V 61 H 22 V 78 H 70 V 100 H 0 Z" fill-rule="evenodd" clip-rule="evenodd" />
+    <path id="path-L" d="M 95,0 H 117 V 78 H 155 V 100 H 95 Z" fill-rule="evenodd" clip-rule="evenodd" />
+    <path id="path-A" d="M 180,100 L 214,0 H 234 L 268,100 H 244 L 237.2,80 H 210.8 L 204,100 Z M 217.6,60 L 230.4,60 L 224,41.2 Z" fill-rule="evenodd" clip-rule="evenodd" />
+    <path id="path-T" d="M 285,0 H 359 V 22 H 333 V 100 H 311 V 22 H 285 Z" fill-rule="evenodd" clip-rule="evenodd" />
+    <path id="path-O" d="M 432,0 A 50,50 0 1,1 432,100 A 50,50 0 1,1 432,0 Z M 432,22 A 28,28 0 1,0 432,78 A 28,28 0 1,0 432,22 Z" fill-rule="evenodd" clip-rule="evenodd" />
+    <path id="path-macron" d="M 405,-30 H 459 V -18 H 405 Z" fill-rule="evenodd" clip-rule="evenodd" />
 
-  /* Final Sweep */
-  .final-sweep-group { opacity: 0; animation: sweepGroupOp 8s linear forwards; }
-  @keyframes sweepGroupOp { 0%, 84% { opacity: 0; } 85%, 98% { opacity: 1; } 99%, 100% { opacity: 0; } }
-  .final-sweep-rect { transform: translateX(-200px) skewX(-25deg); animation: finalSweep 1.2s cubic-bezier(0.5, 0, 0.2, 1) forwards 6.8s; }
-  @keyframes finalSweep { to { transform: translateX(700px) skewX(-25deg); } }
-</style>
+    <mask id="material-mask">
+      <rect class="mask-sweep" x="-500" y="-100" width="10" height="400" fill="white" transform="skewX(-20)" />
+    </mask>
+    
+    <mask id="o-mask">
+      <circle class="o-mask-circle" cx="432" cy="50" r="0" fill="white" />
+    </mask>
 
-<g class="scene">
-  <g class="solid-elat">
-    <use href="#elato-E" fill="#A77E23" />
-    <use href="#elato-L" fill="#A77E23" />
-    <use href="#elato-A" fill="#A77E23" />
-    <use href="#elato-T" fill="#A77E23" />
+    <mask id="logo-mask">
+      <use href="#path-E" fill="white" />
+      <use href="#path-L" fill="white" />
+      <use href="#path-A" fill="white" />
+      <use href="#path-T" fill="white" />
+      <use href="#path-O" fill="white" />
+      <use href="#path-macron" fill="white" />
+    </mask>
+
+    <linearGradient id="sweep-grad" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="white" stop-opacity="0" />
+      <stop offset="50%" stop-color="white" stop-opacity="0.8" />
+      <stop offset="100%" stop-color="white" stop-opacity="0" />
+    </linearGradient>
+  </defs>
+
+  <!-- Static Fidelity Frame -->
+  <g class="fidelity-frame">
+    <use href="#path-E" fill="#A47B22" />
+    <use href="#path-L" fill="#A47B22" />
+    <use href="#path-A" fill="#A47B22" />
+    <use href="#path-T" fill="#A47B22" />
+    <use href="#path-O" fill="#A47B22" />
+    <use href="#path-macron" fill="#BAA07D" />
   </g>
-  <g class="solid-o"><use href="#elato-O" fill="#A77E23" /></g>
-  <g class="solid-m"><use href="#elato-macron" fill="#D3BFA3" /></g>
 
-  <g class="final-sweep-group" mask="url(#full-logo-mask)">
-    <rect class="final-sweep-rect" x="0" y="-100" width="150" height="400" fill="url(#sweep-grad)" />
-  </g>
+  <!-- Animated Scene -->
+  <g class="animated-scene-wrapper">
+    <g class="scene">
+      <g class="energy-pulses">
+        <use href="#path-E" class="pulse p-1" stroke="#fff" stroke-width="2" fill="none" />
+        <use href="#path-L" class="pulse p-2" stroke="#fff" stroke-width="2" fill="none" />
+        <use href="#path-A" class="pulse p-3" stroke="#fff" stroke-width="2" fill="none" />
+        <use href="#path-T" class="pulse p-4" stroke="#fff" stroke-width="2" fill="none" />
+      </g>
 
-  <g class="dim-group dim-1">
-    <use href="#elato-E" /> <use href="#elato-L" /> <use href="#elato-A" /> <use href="#elato-T" /> <use href="#elato-O" />
-  </g>
-  <g class="dim-group dim-2">
-    <use href="#elato-E" /> <use href="#elato-L" /> <use href="#elato-A" /> <use href="#elato-T" /> <use href="#elato-O" />
-  </g>
+      <g class="wireframes depth-2">
+        <use href="#path-E" class="wireframe wf-1" stroke="#BAA07D" stroke-width="1" fill="none" />
+        <use href="#path-L" class="wireframe wf-2" stroke="#BAA07D" stroke-width="1" fill="none" />
+        <use href="#path-A" class="wireframe wf-3" stroke="#BAA07D" stroke-width="1" fill="none" />
+        <use href="#path-T" class="wireframe wf-4" stroke="#BAA07D" stroke-width="1" fill="none" />
+        <use href="#path-O" class="wireframe wf-5" stroke="#BAA07D" stroke-width="1" fill="none" />
+        <use href="#path-macron" class="wireframe wf-6" stroke="#A47B22" stroke-width="1" fill="none" />
+      </g>
+      <g class="wireframes depth-1">
+        <use href="#path-E" class="wireframe wf-1" stroke="#A47B22" stroke-width="1.5" fill="none" />
+        <use href="#path-L" class="wireframe wf-2" stroke="#A47B22" stroke-width="1.5" fill="none" />
+        <use href="#path-A" class="wireframe wf-3" stroke="#A47B22" stroke-width="1.5" fill="none" />
+        <use href="#path-T" class="wireframe wf-4" stroke="#A47B22" stroke-width="1.5" fill="none" />
+        <use href="#path-O" class="wireframe wf-5" stroke="#A47B22" stroke-width="1.5" fill="none" />
+        <use href="#path-macron" class="wireframe wf-6" stroke="#BAA07D" stroke-width="1.5" fill="none" />
+      </g>
 
-  <g class="wf-opacity-group">
-    <use class="wireframe wf-e" href="#elato-E" />
-    <use class="wireframe wf-l" href="#elato-L" />
-    <use class="wireframe wf-a" href="#elato-A" />
-    <use class="wireframe wf-t" href="#elato-T" />
-    <use class="wireframe wf-o" href="#elato-O" />
-  </g>
+      <g mask="url(#material-mask)">
+        <use href="#path-E" fill="#A47B22" />
+        <use href="#path-L" fill="#A47B22" />
+        <use href="#path-A" fill="#A47B22" />
+        <use href="#path-T" fill="#A47B22" />
+      </g>
 
-  <g class="signal-group">
-    <use class="sig-path sig-e" href="#elato-E" />
-    <use class="sig-path sig-l" href="#elato-L" />
-    <use class="sig-path sig-a" href="#elato-A" />
-    <use class="sig-path sig-t" href="#elato-T" />
-    <use class="sig-path sig-o" href="#elato-O" />
-  </g>
-</g>
+      <g mask="url(#o-mask)" class="signature-group">
+        <use href="#path-O" fill="#A47B22" />
+      </g>
+      <g class="macron-group">
+        <use href="#path-macron" fill="#BAA07D" />
+      </g>
+    </g>
 
-<!-- PERFECT SETTLE: This cleanly takes over at 8s to guarantee absolute pixel fidelity forever -->
-<g class="final-static-logo">
-  <use href="#elato-E" fill="#A77E23" />
-  <use href="#elato-L" fill="#A77E23" />
-  <use href="#elato-A" fill="#A77E23" />
-  <use href="#elato-T" fill="#A77E23" />
-  <use href="#elato-O" fill="#A77E23" />
-  <use href="#elato-macron" fill="#D3BFA3" />
-</g>
+    <rect class="light-sweep-rect" x="0" y="-100" width="300" height="400" fill="url(#sweep-grad)" transform="skewX(-20)" mask="url(#logo-mask)" />
+  </g>
 </svg>

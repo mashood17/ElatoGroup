@@ -83,7 +83,7 @@ export function HomeHero() {
           bottom) so the visible wordmark — not the padded box — is what the
           surrounding gaps and vertical centering measure against.
         */}
-        <HeroLogo className="-my-6 w-[min(94vw,26rem)] sm:-my-8 sm:w-[30rem] md:-my-10 md:w-[38rem] lg:-my-13 lg:w-[50rem] xl:-my-15 xl:w-[59rem] [@media(max-height:500px)]:-my-4 [@media(max-height:500px)]:w-[17rem]" />
+        <HeroLogo className="-my-8 w-[min(104vw,33rem)] sm:-my-9 sm:w-[34rem] md:-my-11 md:w-[43rem] lg:-my-14 lg:w-[56rem] xl:-my-16 xl:w-[66rem] [@media(max-height:500px)]:-my-4 [@media(max-height:500px)]:w-[19rem]" />
 
         <div className="flex flex-col items-center gap-4 sm:gap-4">
           <motion.h1

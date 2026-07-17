@@ -10,13 +10,26 @@ const MotionLink = motion.create(Link)
 
 /**
  * Fixed-height image card (not aspect-ratio-driven — that made cards balloon
- * on wide columns). The "1px gold border" is not a literal CSS border: the
- * outer wrapper reserves a 1px ring (`p-px`) around the inner card, filled
- * by a resting translucent gold wash plus an always-on slow conic-gradient
- * sweep (`.card-border-glow`, index.css) rotating behind it — a "living"
- * ambient shimmer distinct from (and layered under) the hover-only outer
- * glow. That ring technique means the inner `<Link>` itself carries no
- * border, only the shadows that make its image feel inset/floating.
+ * on wide columns), built as a true three-layer frame rather than an image
+ * with rounded corners:
+ *
+ *   1. Outer luxury border — a permanent 2px ring painted with a four-stop
+ *      gold gradient (`#E7CAA0` → `rgba(231,202,160,.9)` →
+ *      `rgba(255,245,220,.6)` → `#C79A4B`), always visible at rest — not a
+ *      solid CSS `border`, which is why it's a separate absolutely
+ *      positioned layer rather than a `border-*` utility.
+ *   2. A slow conic-gradient "light" (`.card-border-glow`, index.css)
+ *      sweeps across that gradient every 9s, `overlay`-blended so it reads
+ *      as a moving metallic highlight ~15-20% brighter than the gradient
+ *      beneath it, not a separate colored wedge.
+ *   3. Inner dark card — a near-black warm base (`bg-[#140E09]`) that the
+ *      image sits on, so the frame never looks like bare photography with
+ *      rounded corners; its own inset highlight + inset vignette make the
+ *      image read as set *into* the frame.
+ *
+ * The whole assembly (border + card + image) is one `MotionLink`, so the
+ * entire framed card lifts/glows as a single floating unit on hover/tap
+ * rather than the image moving independently inside a static frame.
  *
  * Entrance is direction-alternating (celebre/events — even index — arrive
  * from the right, stay — odd index — from the left, matching
@@ -27,9 +40,17 @@ const MotionLink = motion.create(Link)
  * scrolled down to card 2/3, so they'd appear already fully visible with no
  * visible animation; each card watching its own viewport entry fixes that
  * while `index`-based delay still staggers all three together on desktop,
- * where they're in view at once. The title/description/Explore line inside
- * inherit the same "hidden"/"visible" variant keys, so `staggerChildren` on
- * the card cascades into its own internal reveal automatically.
+ * where they're in view at once.
+ *
+ * Title/description/Explore each carry their *own* `initial`/`whileInView`
+ * (own stagger delay computed from `index`) rather than inheriting a
+ * "visible" variant propagated down from the card's root — `MotionLink`
+ * sits between the root and this content with its own `whileHover`/
+ * `whileTap` and no `variants`, which is exactly the kind of intermediate
+ * motion node that can silently stop ambient variant propagation to
+ * everything nested inside it. Self-driving each element removes that
+ * dependency entirely: they animate in (and reliably land on `opacity: 1`)
+ * regardless of what any ancestor motion component is doing.
  *
  * The background image gets a slow, scroll-linked drift (via its own
  * `useScroll` against this card's box) layered under a separate hover/tap
@@ -74,20 +95,19 @@ export function ServiceCard({ title, description, imageSrc, href, index, classNa
         duration: reduceMotion ? 0.3 : 0.9,
         ease: EASE_CINEMATIC,
         delay: reduceMotion ? 0 : index * 0.15,
-        staggerChildren: reduceMotion ? 0 : 0.12,
-        delayChildren: reduceMotion ? 0 : index * 0.15 + 0.3,
       },
     },
   }
 
-  const contentItem: Variants = {
-    hidden: { opacity: 0, y: reduceMotion ? 0 : 14 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: { duration: reduceMotion ? 0.2 : 0.55, ease: EASE_CINEMATIC },
-    },
-  }
+  // Base delay each content line waits before its own whileInView starts —
+  // after the card itself has mostly settled in, so text doesn't fly in
+  // before the frame around it has arrived.
+  const contentBaseDelay = reduceMotion ? 0 : index * 0.15 + 0.3
+  const contentTransition = (step: number) => ({
+    duration: reduceMotion ? 0.2 : 0.55,
+    ease: EASE_CINEMATIC,
+    delay: reduceMotion ? 0 : contentBaseDelay + step * 0.12,
+  })
 
   return (
     <motion.div
@@ -98,26 +118,29 @@ export function ServiceCard({ title, description, imageSrc, href, index, classNa
       variants={cardReveal}
       className={cn('group h-full', className)}
     >
-      {/* Outer ring wrapper — hosts the 1px "border" (resting gold wash +
-          animated sweep) and the hover-only outer glow, both independent of
-          the inner card's own shadow/scale so they never fight the same
-          transform. */}
-      <div className="relative h-[380px] w-full rounded-[28px] p-px shadow-[0_0_0_rgba(231,202,160,0)] transition-shadow duration-700 ease-out group-hover:shadow-[0_0_36px_rgba(231,202,160,0.4)] sm:h-[420px] lg:h-[460px]">
-        <div className="absolute inset-0 overflow-hidden rounded-[28px]" aria-hidden="true">
-          <div className="card-border-glow" />
-        </div>
+      <MotionLink
+        to={href}
+        whileHover={reduceMotion ? undefined : { y: -6, scale: 1.012 }}
+        whileTap={reduceMotion ? undefined : { scale: 0.99 }}
+        transition={{ duration: 0.5, ease: EASE_CINEMATIC }}
+        className="relative block h-[380px] w-full rounded-[30px] p-[2px] shadow-[0_0_20px_rgba(231,202,160,0.28),0_8px_20px_-6px_rgba(58,46,30,0.35),0_40px_70px_-24px_rgba(58,46,30,0.55)] transition-shadow duration-700 ease-out group-hover:shadow-[0_0_42px_rgba(231,202,160,0.5),0_14px_28px_-8px_rgba(58,46,30,0.4),0_50px_85px_-20px_rgba(58,46,30,0.6)] sm:h-[420px] lg:h-[460px]"
+      >
+        {/* Layer 1 — permanent four-stop gold gradient border, always visible at rest */}
         <div
-          className="pointer-events-none absolute inset-0 rounded-[28px] bg-[#E7CAA0]/25 transition-colors duration-700 ease-out group-hover:bg-[#E7CAA0]/60"
+          className="pointer-events-none absolute inset-0 rounded-[30px] shadow-[inset_0_1px_1px_rgba(255,255,255,0.55)]"
+          style={{
+            background: 'linear-gradient(135deg, #E7CAA0 0%, rgba(231,202,160,0.9) 35%, rgba(255,245,220,0.6) 68%, #C79A4B 100%)',
+          }}
           aria-hidden="true"
         />
+        {/* Layer 1b — the slow metallic light sweeping across that border */}
+        <div className="absolute inset-0 overflow-hidden rounded-[30px]" aria-hidden="true">
+          <div className="card-border-glow" />
+        </div>
 
-        <MotionLink
-          to={href}
-          whileHover={reduceMotion ? undefined : { y: -6, scale: 1.012 }}
-          whileTap={reduceMotion ? undefined : { scale: 0.99 }}
-          transition={{ duration: 0.5, ease: EASE_CINEMATIC }}
-          className="relative z-10 block h-full w-full overflow-hidden rounded-[27px] font-sans shadow-[inset_0_1px_0_rgba(255,255,255,0.35),inset_0_0_28px_rgba(23,15,10,0.22),0_2px_10px_rgba(58,46,30,0.14),0_22px_48px_-20px_rgba(58,46,30,0.45)] transition-shadow duration-500 ease-out group-hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.45),inset_0_0_28px_rgba(23,15,10,0.28),0_4px_14px_rgba(58,46,30,0.18),0_30px_60px_-18px_rgba(58,46,30,0.5)]"
-        >
+        {/* Layer 2 — inner dark card the image sits inside, not on top of the page */}
+        <div className="relative z-10 h-full w-full overflow-hidden rounded-[28px] bg-[#140E09] font-sans shadow-[inset_0_1px_0_rgba(255,255,255,0.4),inset_0_0_30px_rgba(20,14,9,0.4)]">
+          {/* Layer 3 — the photograph */}
           <motion.div
             className="absolute inset-0 bg-cover bg-center"
             style={{ backgroundImage: `url(${imageSrc})`, y: imageY, scale: 1.14 }}
@@ -128,20 +151,45 @@ export function ServiceCard({ title, description, imageSrc, href, index, classNa
           />
 
           <div
-            className="absolute inset-0 bg-gradient-to-t from-ink/90 via-ink/45 to-ink/10"
+            className="absolute inset-0 bg-gradient-to-t from-ink/95 via-ink/50 to-transparent"
             aria-hidden="true"
           />
-          <div className="pointer-events-none absolute inset-0 rounded-[27px] ring-1 ring-inset ring-white/10" aria-hidden="true" />
 
-          <div className="absolute inset-x-0 bottom-0 flex flex-col p-7 pt-16 lg:p-9 lg:pt-20">
-            <motion.h3 variants={contentItem} className="text-2xl font-semibold leading-tight tracking-tight text-[#E7CAA0] lg:text-3xl">
+          {/* Content — layer 5, above the image (layer 3) and gradient
+              overlay (layer 4) via DOM order plus an explicit z-20 so
+              there's no ambiguity. Each line drives its own whileInView
+              (see the note above `contentTransition`) so it's guaranteed to
+              resolve to opacity:1 on its own, independent of any ancestor's
+              variant state. The whole block nudges up and brightens
+              slightly on hover/tap — layer 6, a plain CSS transition on
+              `.group`, independent of the image's own Framer Motion zoom. */}
+          <div className="absolute inset-x-0 bottom-0 z-20 flex flex-col p-6 pb-7 pl-7 pr-6 pt-16 opacity-100 transition-[transform,filter] duration-500 ease-out group-hover:-translate-y-1.5 group-hover:brightness-110 lg:p-8 lg:pb-10 lg:pl-9 lg:pr-8 lg:pt-20">
+            <motion.h3
+              initial={reduceMotion ? { opacity: 0 } : { opacity: 0, y: 14 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.3 }}
+              transition={contentTransition(0)}
+              className="text-2xl font-semibold leading-tight tracking-tight text-[#E7CAA0] lg:text-3xl"
+            >
               {title}
             </motion.h3>
-            <motion.p variants={contentItem} className="text-body mt-2.5 max-w-[30ch] text-[#E7CAA0]/85">
+            <motion.p
+              initial={reduceMotion ? { opacity: 0 } : { opacity: 0, y: 14 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.3 }}
+              transition={contentTransition(1)}
+              className="text-body mt-2.5 max-w-[30ch] text-[#E7CAA0]/85"
+            >
               {description}
             </motion.p>
 
-            <motion.span variants={contentItem} className="text-caption mt-7 inline-flex w-fit items-center gap-2 text-[#E7CAA0]">
+            <motion.span
+              initial={reduceMotion ? { opacity: 0 } : { opacity: 0, y: 14 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.3 }}
+              transition={contentTransition(2)}
+              className="text-caption mt-7 inline-flex w-fit items-center gap-2 text-[#E7CAA0]"
+            >
               <span className="relative inline-block pb-0.5">
                 Explore
                 <span className="absolute inset-x-0 -bottom-px h-px origin-left bg-[#E7CAA0]/50 transition-transform duration-500 ease-out group-hover:scale-x-0" />
@@ -150,8 +198,8 @@ export function ServiceCard({ title, description, imageSrc, href, index, classNa
               <ArrowRight className="h-3.5 w-3.5 transition-transform duration-300 ease-out group-hover:translate-x-1.5" />
             </motion.span>
           </div>
-        </MotionLink>
-      </div>
+        </div>
+      </MotionLink>
     </motion.div>
   )
 }

@@ -195,11 +195,13 @@
   pointer-events: none;
 }
 
-/* Service card "living" border — a slow conic-gradient sweep rotating
-   behind a 1px padding ring (see ServiceCard.tsx), giving the gold edge a
-   subtle ambient shimmer independent of hover. Oversized (inset -60%) so
-   the sweep always fully covers the ring regardless of the card's aspect
-   ratio; transform-only, frozen by the reduced-motion rule below. */
+/* Service card luxury frame — a permanent multi-stop gold gradient border
+   (painted directly in ServiceCard.tsx) with a slow conic-gradient "light"
+   sweeping across it, `overlay`-blended so it reads as a moving metallic
+   highlight (~15-20% brighter than the gradient beneath) rather than a
+   separate colored wedge. Oversized (inset -60%) so the sweep always fully
+   covers the ring regardless of the card's aspect ratio; transform-only,
+   frozen by the reduced-motion rule below. */
 @keyframes card-border-spin {
   to { transform: rotate(360deg); }
 }
@@ -210,10 +212,11 @@
   background: conic-gradient(
     from 0deg,
     transparent 0%,
-    rgba(231, 202, 160, 0.9) 6%,
-    transparent 16%,
+    rgba(255, 252, 240, 0.95) 6%,
+    transparent 15%,
     transparent 100%
   );
+  mix-blend-mode: overlay;
   animation: card-border-spin 9s linear infinite;
   will-change: transform;
 }
