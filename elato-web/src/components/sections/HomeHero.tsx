@@ -1,5 +1,5 @@
 import { motion, useReducedMotion, type Variants } from 'framer-motion'
-import { HeroLogo3D } from '../hero/HeroLogo3D'
+import { HeroLogo } from '../hero/HeroLogo'
 import { heroContent } from '../../content/siteContent'
 import heroBackground from '../../assets/newbg/bg.jpg'
 import heroBackgroundMobile from '../../assets/newbg/bg-mb.png'
@@ -24,13 +24,11 @@ const EASE_CINEMATIC = [0.16, 1, 0.3, 1] as const
  * is otherwise untouched. Background is locked; only the content layer below
  * is in scope.
  *
- * The logo owns its own cinematic entrance internally (see HeroLogo3D /
- * LogoScene) — a ~2.5s multi-stage reveal (body settle, macron fall +
- * landing highlight, one light sweep), starting almost immediately after
- * mount rather than after a noticeable idle pause. The tagline and
- * subheading below are timed to start only once that full sequence — plus
- * its own short pause — has resolved, each with its own restrained reveal,
- * staggered after one another.
+ * The logo owns its own cinematic entrance internally (see HeroLogo) — the
+ * client-supplied SVG's baked-in multi-stage reveal (signal draw, wireframe,
+ * material sweep, final static mark), starting immediately on mount. The
+ * tagline and subheading below keep their original staggered reveals with
+ * their own restrained delays.
  */
 export function HomeHero() {
   const reduceMotion = useReducedMotion()
@@ -77,10 +75,17 @@ export function HomeHero() {
       </picture>
       <div className="hero-bg-light" aria-hidden="true" />
 
-      <div className="container-elato relative flex -translate-y-[8vh] flex-col items-center gap-4 pt-20 text-center [@media(max-height:500px)]:gap-3 [@media(max-height:500px)]:pt-10 sm:gap-5 md:translate-y-0 md:gap-6 lg:gap-4">
-        <HeroLogo3D className="h-[90px] sm:h-28 md:h-36 lg:h-48 xl:h-56 [@media(max-height:500px)]:h-16" />
+      <div className="container-elato relative flex -translate-y-[8vh] flex-col items-center gap-7 pt-20 text-center [@media(max-height:500px)]:gap-3 [@media(max-height:500px)]:pt-10 sm:gap-5 md:translate-y-0 md:gap-6 lg:gap-4">
+        {/*
+          Width-driven, mobile-first sizing (h-auto in HeroLogo keeps the
+          aspect locked). The negative vertical margins cancel the SVG's
+          baked-in transparent overshoot padding (~6.4% of its width, top and
+          bottom) so the visible wordmark — not the padded box — is what the
+          surrounding gaps and vertical centering measure against.
+        */}
+        <HeroLogo className="-my-6 w-[min(94vw,26rem)] sm:-my-8 sm:w-[30rem] md:-my-10 md:w-[38rem] lg:-my-13 lg:w-[50rem] xl:-my-15 xl:w-[59rem] [@media(max-height:500px)]:-my-4 [@media(max-height:500px)]:w-[17rem]" />
 
-        <div className="flex flex-col items-center gap-3 sm:gap-4">
+        <div className="flex flex-col items-center gap-4 sm:gap-4">
           <motion.h1
             initial="hidden"
             animate="visible"
