@@ -195,6 +195,29 @@
   pointer-events: none;
 }
 
+/* Service card "living" border — a slow conic-gradient sweep rotating
+   behind a 1px padding ring (see ServiceCard.tsx), giving the gold edge a
+   subtle ambient shimmer independent of hover. Oversized (inset -60%) so
+   the sweep always fully covers the ring regardless of the card's aspect
+   ratio; transform-only, frozen by the reduced-motion rule below. */
+@keyframes card-border-spin {
+  to { transform: rotate(360deg); }
+}
+
+.card-border-glow {
+  position: absolute;
+  inset: -60%;
+  background: conic-gradient(
+    from 0deg,
+    transparent 0%,
+    rgba(231, 202, 160, 0.9) 6%,
+    transparent 16%,
+    transparent 100%
+  );
+  animation: card-border-spin 9s linear infinite;
+  will-change: transform;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;

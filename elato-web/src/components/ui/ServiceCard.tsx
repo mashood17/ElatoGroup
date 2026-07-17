@@ -6,12 +6,17 @@ import { cn } from '../../lib/cn'
 
 const EASE_CINEMATIC = [0.16, 1, 0.3, 1] as const
 
+const MotionLink = motion.create(Link)
+
 /**
  * Fixed-height image card (not aspect-ratio-driven — that made cards balloon
- * on wide columns) with the title/description/CTA sitting on a contained
- * dark scrim at the bottom. Thin brand-gold border + inset hairline
- * highlight + soft ambient shadow read as an editorial print/hospitality
- * card rather than app UI — no blur/glassmorphism.
+ * on wide columns). The "1px gold border" is not a literal CSS border: the
+ * outer wrapper reserves a 1px ring (`p-px`) around the inner card, filled
+ * by a resting translucent gold wash plus an always-on slow conic-gradient
+ * sweep (`.card-border-glow`, index.css) rotating behind it — a "living"
+ * ambient shimmer distinct from (and layered under) the hover-only outer
+ * glow. That ring technique means the inner `<Link>` itself carries no
+ * border, only the shadows that make its image feel inset/floating.
  *
  * Entrance is direction-alternating (celebre/events — even index — arrive
  * from the right, stay — odd index — from the left, matching
@@ -27,10 +32,10 @@ const EASE_CINEMATIC = [0.16, 1, 0.3, 1] as const
  * the card cascades into its own internal reveal automatically.
  *
  * The background image gets a slow, scroll-linked drift (via its own
- * `useScroll` against this card's box) layered under the existing hover
- * zoom — two independent effects on the same transform, composed by
- * Framer Motion rather than colliding, so the image feels alive while
- * idle and zooms further on hover/focus.
+ * `useScroll` against this card's box) layered under a separate hover/tap
+ * zoom — independent effects on the same transform, composed by Framer
+ * Motion rather than colliding, so the image feels alive while idle and
+ * zooms further on hover (desktop) or tap (touch).
  */
 interface ServiceCardProps {
   title: string
@@ -93,42 +98,60 @@ export function ServiceCard({ title, description, imageSrc, href, index, classNa
       variants={cardReveal}
       className={cn('group h-full', className)}
     >
-      <Link
-        to={href}
-        className="relative block h-[380px] w-full overflow-hidden rounded-[20px] border border-[#E7CAA0]/40 font-sans shadow-[0_1px_0_rgba(255,255,255,0.35)_inset,0_18px_40px_-18px_rgba(58,46,30,0.45)] transition-[box-shadow,border-color,transform] duration-500 ease-out hover:-translate-y-1.5 hover:border-[#E7CAA0]/80 hover:shadow-[0_1px_0_rgba(255,255,255,0.5)_inset,0_26px_54px_-16px_rgba(58,46,30,0.5)] sm:h-[420px] lg:h-[460px]"
-      >
-        <motion.div
-          className="absolute inset-0 bg-cover bg-center"
-          style={{ backgroundImage: `url(${imageSrc})`, y: imageY, scale: 1.14 }}
-          whileHover={reduceMotion ? undefined : { scale: 1.24 }}
-          transition={{ duration: 0.8, ease: EASE_CINEMATIC }}
-          aria-hidden="true"
-        />
-
-        <div
-          className="absolute inset-0 bg-gradient-to-t from-ink/90 via-ink/45 to-ink/10"
-          aria-hidden="true"
-        />
-        <div className="pointer-events-none absolute inset-0 rounded-[20px] ring-1 ring-inset ring-white/10" aria-hidden="true" />
-
-        <div className="absolute inset-x-0 bottom-0 flex flex-col p-6 pt-16 lg:p-8 lg:pt-20">
-          <motion.h3 variants={contentItem} className="text-2xl font-semibold leading-tight text-[#E7CAA0] lg:text-3xl">
-            {title}
-          </motion.h3>
-          <motion.p variants={contentItem} className="text-body mt-2 max-w-[30ch] text-[#E7CAA0]/85">
-            {description}
-          </motion.p>
-
-          <motion.span variants={contentItem} className="text-caption mt-6 inline-flex w-fit items-center gap-2 text-[#E7CAA0]">
-            <span className="relative inline-block pb-0.5">
-              Explore
-              <span className="absolute inset-x-0 -bottom-px h-px origin-left bg-[#E7CAA0]/50 transition-transform duration-500 ease-out group-hover:scale-x-0" />
-              <span className="absolute inset-x-0 -bottom-px h-px origin-right scale-x-0 bg-[#E7CAA0] transition-transform duration-500 ease-out group-hover:scale-x-100" />
-            </span>
-            <ArrowRight className="h-3.5 w-3.5 transition-transform duration-300 ease-out group-hover:translate-x-1.5" />
-          </motion.span>
+      {/* Outer ring wrapper — hosts the 1px "border" (resting gold wash +
+          animated sweep) and the hover-only outer glow, both independent of
+          the inner card's own shadow/scale so they never fight the same
+          transform. */}
+      <div className="relative h-[380px] w-full rounded-[28px] p-px shadow-[0_0_0_rgba(231,202,160,0)] transition-shadow duration-700 ease-out group-hover:shadow-[0_0_36px_rgba(231,202,160,0.4)] sm:h-[420px] lg:h-[460px]">
+        <div className="absolute inset-0 overflow-hidden rounded-[28px]" aria-hidden="true">
+          <div className="card-border-glow" />
         </div>
-      </Link>
+        <div
+          className="pointer-events-none absolute inset-0 rounded-[28px] bg-[#E7CAA0]/25 transition-colors duration-700 ease-out group-hover:bg-[#E7CAA0]/60"
+          aria-hidden="true"
+        />
+
+        <MotionLink
+          to={href}
+          whileHover={reduceMotion ? undefined : { y: -6, scale: 1.012 }}
+          whileTap={reduceMotion ? undefined : { scale: 0.99 }}
+          transition={{ duration: 0.5, ease: EASE_CINEMATIC }}
+          className="relative z-10 block h-full w-full overflow-hidden rounded-[27px] font-sans shadow-[inset_0_1px_0_rgba(255,255,255,0.35),inset_0_0_28px_rgba(23,15,10,0.22),0_2px_10px_rgba(58,46,30,0.14),0_22px_48px_-20px_rgba(58,46,30,0.45)] transition-shadow duration-500 ease-out group-hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.45),inset_0_0_28px_rgba(23,15,10,0.28),0_4px_14px_rgba(58,46,30,0.18),0_30px_60px_-18px_rgba(58,46,30,0.5)]"
+        >
+          <motion.div
+            className="absolute inset-0 bg-cover bg-center"
+            style={{ backgroundImage: `url(${imageSrc})`, y: imageY, scale: 1.14 }}
+            whileHover={reduceMotion ? undefined : { scale: 1.19 }}
+            whileTap={reduceMotion ? undefined : { scale: 1.17 }}
+            transition={{ duration: 0.8, ease: EASE_CINEMATIC }}
+            aria-hidden="true"
+          />
+
+          <div
+            className="absolute inset-0 bg-gradient-to-t from-ink/90 via-ink/45 to-ink/10"
+            aria-hidden="true"
+          />
+          <div className="pointer-events-none absolute inset-0 rounded-[27px] ring-1 ring-inset ring-white/10" aria-hidden="true" />
+
+          <div className="absolute inset-x-0 bottom-0 flex flex-col p-7 pt-16 lg:p-9 lg:pt-20">
+            <motion.h3 variants={contentItem} className="text-2xl font-semibold leading-tight tracking-tight text-[#E7CAA0] lg:text-3xl">
+              {title}
+            </motion.h3>
+            <motion.p variants={contentItem} className="text-body mt-2.5 max-w-[30ch] text-[#E7CAA0]/85">
+              {description}
+            </motion.p>
+
+            <motion.span variants={contentItem} className="text-caption mt-7 inline-flex w-fit items-center gap-2 text-[#E7CAA0]">
+              <span className="relative inline-block pb-0.5">
+                Explore
+                <span className="absolute inset-x-0 -bottom-px h-px origin-left bg-[#E7CAA0]/50 transition-transform duration-500 ease-out group-hover:scale-x-0" />
+                <span className="absolute inset-x-0 -bottom-px h-px origin-right scale-x-0 bg-[#E7CAA0] transition-transform duration-500 ease-out group-hover:scale-x-100" />
+              </span>
+              <ArrowRight className="h-3.5 w-3.5 transition-transform duration-300 ease-out group-hover:translate-x-1.5" />
+            </motion.span>
+          </div>
+        </MotionLink>
+      </div>
     </motion.div>
   )
 }
