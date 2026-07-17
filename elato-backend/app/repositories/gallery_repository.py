@@ -31,7 +31,7 @@ def list_admin(limit: int, offset: int) -> tuple[list[dict[str, Any]], int]:
 
 
 def get(item_id: str) -> dict[str, Any]:
-    res = client().table(TABLE).select("*").eq("id", item_id).limit(1).execute()
+    res = client().table(TABLE).select("*, media(storage_path, bucket)").eq("id", item_id).limit(1).execute()
     return unwrap_single(res.data, "Gallery item not found")
 
 

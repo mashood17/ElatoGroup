@@ -1,8 +1,13 @@
 import { motion } from 'framer-motion'
 import { sectionReveal, viewportOnce } from '../../lib/motion'
+import { useSiteImage } from '../../lib/useSiteImage'
 import gatheringImg from '../../assets/about/gathering.jpeg'
 import bgDesktop from '../../assets/newbg/bg.jpg'
 import bgMobile from '../../assets/newbg/bg-mb.png'
+
+// site_content key that the admin's Celebré → Small Gatherings image slot
+// writes to. Falls back to the bundled static asset when unset.
+const GATHERINGS_IMAGE_KEY = 'celebre_gatherings_image'
 
 const partyContent = {
   overline: 'Small Gatherings',
@@ -17,6 +22,8 @@ const partyContent = {
 }
 
 export function PartyFacilities() {
+  const gatheringImage = useSiteImage(GATHERINGS_IMAGE_KEY, gatheringImg)
+
   return (
     <section className="relative overflow-hidden py-16 lg:py-32">
       <div className="absolute inset-0 -z-10 bg-cover bg-center sm:hidden" style={{ backgroundImage: `url(${bgMobile})` }} aria-hidden="true" />
@@ -65,7 +72,7 @@ export function PartyFacilities() {
             transition={{ duration: 0.7, ease: 'easeOut' }}
             className="relative aspect-square w-full overflow-hidden rounded-2xl shadow-elato-lg"
           >
-            <img src={gatheringImg} alt="A small gathering at Celebré" className="h-full w-full object-cover" />
+            <img src={gatheringImage} alt="A small gathering at Celebré" className="h-full w-full object-cover" />
           </motion.div>
 
           <div className="absolute -top-4 right-4 rounded-lg bg-surface-elevated px-5 py-3 shadow-elato-lg sm:right-6">

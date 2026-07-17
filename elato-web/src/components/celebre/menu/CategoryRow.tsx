@@ -61,6 +61,9 @@ export function CategoryRow({
             className={`relative aspect-[4/3] w-full overflow-hidden rounded-3xl shadow-elato-xl ring-1 ring-black/5 bg-gradient-to-br ${gradients[index % gradients.length]}`}
             aria-hidden="true"
           >
+            {category.imageUrl && (
+              <img src={category.imageUrl} alt="" loading="lazy" className="absolute inset-0 h-full w-full object-cover" />
+            )}
             <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/20 blur-3xl" />
             <div className="absolute -bottom-12 -left-12 h-44 w-44 rounded-full bg-secondary-900/15 blur-3xl" />
             <div className="absolute inset-0 bg-gradient-to-tr from-white/15 via-transparent to-transparent" />

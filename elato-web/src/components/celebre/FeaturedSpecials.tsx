@@ -93,6 +93,7 @@ export function FeaturedSpecials() {
               description: special.description,
               price: special.price,
               gradientClass: gradients[i % gradients.length],
+              imageUrl: special.imageUrl,
               onClick: () => setActiveSpecial(special),
             }))}
           />

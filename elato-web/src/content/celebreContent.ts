@@ -21,6 +21,8 @@ export type Category = {
   slug: string
   description: string
   sortOrder: number
+  /** Admin-managed image (optimized Supabase URL). Null when none uploaded. */
+  imageUrl?: string | null
 }
 
 export type MenuItem = {
@@ -32,6 +34,8 @@ export type MenuItem = {
   isVeg: boolean
   deliveryAvailable: boolean
   sortOrder: number
+  /** Admin-managed image (optimized Supabase URL). Null when none uploaded. */
+  imageUrl?: string | null
 }
 
 export type Special = {
@@ -39,6 +43,8 @@ export type Special = {
   name: string
   description: string
   price: number
+  /** Admin-managed image (optimized Supabase URL). Null when none uploaded. */
+  imageUrl?: string | null
 }
 
 export const categories: Category[] = [

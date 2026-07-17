@@ -2,6 +2,7 @@ import { PremiumHero } from '../hero/PremiumHero'
 import { stayHero } from '../../content/stayContent'
 import eventsStayLogo from '../../assets/logos/events_stay.PNG'
 import stayHeroImage from '../../assets/services/stay.png'
+import { useSiteImage } from '../../lib/useSiteImage'
 
 // Real, client-confirmed capacity (see stayInfo in stayContent.ts) — not a
 // made-up figure.
@@ -20,6 +21,7 @@ const LOGO_ASPECT = 3270 / 1124
 const MACRON_RECT: [number, number, number, number] = [0.7373, 0.8105, 0.0988, 0.0676]
 
 export function StayHero() {
+  const imageSrc = useSiteImage('stay_hero_image', stayHeroImage)
   return (
     <PremiumHero
       id="stay-hero"
@@ -30,7 +32,7 @@ export function StayHero() {
       sectionName="Stay"
       tagline={stayHero.tagline}
       imageAlt="ELATŌ Stay — the premium serviced apartment building"
-      imageSrc={stayHeroImage}
+      imageSrc={imageSrc}
       cardStatLabel="Guest Capacity"
       cardStatValue={STAY_CAPACITY_VALUE}
       cardBadgeLabel="Loved By Guests"

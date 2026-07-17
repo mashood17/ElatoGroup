@@ -9,7 +9,14 @@ TABLE = "categories"
 
 def list_public() -> list[dict[str, Any]]:
     try:
-        res = client().table(TABLE).select("*").eq("is_active", True).order("display_order").execute()
+        res = (
+            client()
+            .table(TABLE)
+            .select("*, media(storage_path, bucket)")
+            .eq("is_active", True)
+            .order("display_order")
+            .execute()
+        )
     except APIError as exc:
         raise_for_postgrest(exc)
     return res.data

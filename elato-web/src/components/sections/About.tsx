@@ -8,12 +8,14 @@ import { SectionBackground } from '../ui/SectionBackground'
 import { aboutContent, businessInfo } from '../../content/siteContent'
 import { viewportOnce, PARALLAX_MAX_PX } from '../../lib/motion'
 import { useAggregateRating } from '../../lib/useAggregateRating'
+import { useSiteImage } from '../../lib/useSiteImage'
 
 const EASE_EDITORIAL = [0.16, 1, 0.3, 1] as const
 
 export function About() {
   const reduceMotion = useReducedMotion()
   const aggregateRating = useAggregateRating()
+  const aboutImageSrc = useSiteImage('home_about_image', aboutImage)
   const imageRef = useRef<HTMLDivElement>(null)
   const { scrollYProgress } = useScroll({ target: imageRef, offset: ['start end', 'end start'] })
   const parallaxY = useTransform(
@@ -111,7 +113,7 @@ export function About() {
           <div ref={imageRef} className="relative z-10 overflow-hidden rounded-2xl shadow-elato-xl">
             <motion.img
               style={{ y: parallaxY, scale: 1.12 }}
-              src={aboutImage}
+              src={aboutImageSrc}
               alt="ELATŌ's handcrafted desserts and premium hospitality experience"
               className="aspect-[4/5] w-full object-cover lg:aspect-[5/6]"
               loading="lazy"

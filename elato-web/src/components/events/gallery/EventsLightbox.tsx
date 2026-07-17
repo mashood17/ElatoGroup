@@ -1,9 +1,9 @@
 import { useEffect, useRef } from 'react'
 import { motion } from 'framer-motion'
-import type { EventGalleryItem as EventGalleryItemType } from '../../../content/eventsContent'
+import type { EventsGalleryTile } from './EventsGalleryItem'
 
 /** Click-to-enlarge lightbox for the events gallery — same accessible-modal pattern as the other detail modals. */
-export function EventsLightbox({ item, onClose }: { item: EventGalleryItemType | null; onClose: () => void }) {
+export function EventsLightbox({ item, onClose }: { item: EventsGalleryTile | null; onClose: () => void }) {
   const dialogRef = useRef<HTMLDivElement>(null)
   const triggerRef = useRef<Element | null>(null)
 
@@ -37,7 +37,7 @@ export function EventsLightbox({ item, onClose }: { item: EventGalleryItemType |
         ref={dialogRef}
         role="dialog"
         aria-modal="true"
-        aria-label={`${item.category}: ${item.caption}`}
+        aria-label={item.category ? `${item.category}: ${item.caption}` : item.caption}
         tabIndex={-1}
         initial={{ opacity: 0, scale: 0.96 }}
         animate={{ opacity: 1, scale: 1 }}
@@ -45,13 +45,17 @@ export function EventsLightbox({ item, onClose }: { item: EventGalleryItemType |
         onClick={(e) => e.stopPropagation()}
         className="w-full max-w-2xl overflow-hidden rounded-lg bg-surface-elevated shadow-elato-xl"
       >
-        <div
-          className="aspect-4/3 w-full bg-gradient-to-br from-primary-300 via-primary-100 to-secondary-500"
-          aria-hidden="true"
-        />
+        {item.url ? (
+          <img src={item.url} alt={item.caption} className="aspect-4/3 w-full object-cover" />
+        ) : (
+          <div
+            className="aspect-4/3 w-full bg-gradient-to-br from-primary-300 via-primary-100 to-secondary-500"
+            aria-hidden="true"
+          />
+        )}
         <div className="flex items-center justify-between p-6">
           <div>
-            <p className="text-caption text-secondary-500">{item.category}</p>
+            {item.category && <p className="text-caption text-secondary-500">{item.category}</p>}
             <p className="text-body mt-1 text-secondary-900">{item.caption}</p>
           </div>
           <button

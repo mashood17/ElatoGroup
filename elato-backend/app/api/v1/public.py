@@ -19,6 +19,7 @@ from app.repositories import (
     special_repository,
 )
 from app.repositories import analytics_repository
+from app.services import media_service
 from app.schemas.analytics_event import AnalyticsEventCreate
 from app.schemas.category import CategoryOut
 from app.schemas.enquiry import EnquiryCreate, EnquiryOut
@@ -34,6 +35,17 @@ from app.schemas.special import SpecialOut
 router = APIRouter(prefix="", tags=["public"])
 
 
+@router.get("/site-content", response_model=list[SiteContentOut])
+def list_site_content(response: Response):
+    # All admin-managed section content (hero/services/about images, etc.) in
+    # one request so the public site can resolve every slot from a single map
+    # rather than one call per key. Values are already public — the per-key
+    # endpoint below exposes the same data — and change rarely, so a short
+    # browser/CDN cache is safe.
+    response.headers["Cache-Control"] = "public, max-age=60"
+    return [SiteContentOut(**row) for row in site_content_repository.list_all()]
+
+
 @router.get("/site-content/{key}", response_model=SiteContentOut)
 def get_site_content(key: str):
     return SiteContentOut(**site_content_repository.get(key))
@@ -41,30 +53,38 @@ def get_site_content(key: str):
 
 @router.get("/categories", response_model=list[CategoryOut])
 def list_categories():
-    return category_repository.list_public()
+    # Each row carries an embedded media(storage_path, bucket) join — resolve it
+    # to the optimized public URL so the Celebré frontend gets a usable image.
+    out = []
+    for row in category_repository.list_public():
+        image_url = media_service.pop_embedded_media_url(row)
+        out.append(CategoryOut(**row, image_url=image_url))
+    return out
 
 
 @router.get("/menu-items", response_model=list[MenuItemOut])
 def list_menu_items(category_id: str | None = None, is_available: bool | None = None):
-    return menu_item_repository.list_public(category_id, is_available)
+    out = []
+    for row in menu_item_repository.list_public(category_id, is_available):
+        image_url = media_service.pop_embedded_media_url(row)
+        out.append(MenuItemOut(**row, image_url=image_url))
+    return out
 
 
 @router.get("/specials", response_model=list[SpecialOut])
 def list_specials():
-    return special_repository.list_public()
+    out = []
+    for row in special_repository.list_public():
+        image_url = media_service.pop_embedded_media_url(row)
+        out.append(SpecialOut(**row, image_url=image_url))
+    return out
 
 
 @router.get("/gallery", response_model=list[GalleryItemOut])
 def list_gallery(category: str | None = None):
-    from app.db import get_supabase
-
-    rows = gallery_repository.list_public(category)
     out = []
-    for row in rows:
-        media = row.pop("media", None) or {}
-        storage_path = media.get("storage_path")
-        bucket = media.get("bucket")
-        media_url = get_supabase().storage.from_(bucket).get_public_url(storage_path) if storage_path and bucket else None
+    for row in gallery_repository.list_public(category):
+        media_url = media_service.pop_embedded_media_url(row)
         out.append(GalleryItemOut(**row, media_url=media_url))
     return out
 

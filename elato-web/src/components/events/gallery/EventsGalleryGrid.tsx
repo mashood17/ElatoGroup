@@ -1,14 +1,13 @@
 import { motion } from 'framer-motion'
-import { EventsGalleryItem } from './EventsGalleryItem'
-import type { EventGalleryItem as EventGalleryItemType } from '../../../content/eventsContent'
+import { EventsGalleryItem, type EventsGalleryTile } from './EventsGalleryItem'
 import { staggerContainer, viewportOnce } from '../../../lib/motion'
 
 export function EventsGalleryGrid({
   items,
   onOpen,
 }: {
-  items: EventGalleryItemType[]
-  onOpen: (item: EventGalleryItemType) => void
+  items: EventsGalleryTile[]
+  onOpen: (item: EventsGalleryTile) => void
 }) {
   if (items.length === 0) {
     return (

@@ -8,7 +8,7 @@ TABLE = "menu_items"
 
 
 def list_public(category_id: str | None, is_available: bool | None) -> list[dict[str, Any]]:
-    query = client().table(TABLE).select("*")
+    query = client().table(TABLE).select("*, media(storage_path, bucket)")
     if category_id:
         query = query.eq("category_id", category_id)
     query = query.eq("is_available", is_available if is_available is not None else True)

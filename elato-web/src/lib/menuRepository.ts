@@ -14,6 +14,7 @@ type CategoryDto = {
   description: string | null
   display_order: number
   is_active: boolean
+  image_url: string | null
 }
 
 type MenuItemDto = {
@@ -26,6 +27,7 @@ type MenuItemDto = {
   is_veg: boolean
   delivery_available: boolean
   display_order: number
+  image_url: string | null
 }
 
 type SpecialDto = {
@@ -33,6 +35,7 @@ type SpecialDto = {
   title: string
   description: string | null
   price: number | null
+  image_url: string | null
 }
 
 function toCategory(dto: CategoryDto): Category {
@@ -42,6 +45,7 @@ function toCategory(dto: CategoryDto): Category {
     slug: dto.slug,
     description: dto.description ?? '',
     sortOrder: dto.display_order,
+    imageUrl: dto.image_url ?? null,
   }
 }
 
@@ -55,6 +59,7 @@ function toMenuItem(dto: MenuItemDto): MenuItem {
     isVeg: dto.is_veg,
     deliveryAvailable: dto.delivery_available,
     sortOrder: dto.display_order,
+    imageUrl: dto.image_url ?? null,
   }
 }
 
@@ -64,6 +69,7 @@ function toSpecial(dto: SpecialDto): Special {
     name: dto.title,
     description: dto.description ?? '',
     price: dto.price ?? 0,
+    imageUrl: dto.image_url ?? null,
   }
 }
 

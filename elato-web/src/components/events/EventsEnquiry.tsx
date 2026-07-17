@@ -19,6 +19,7 @@ import {
 } from '../../lib/validation'
 import { persistEnquiry } from '../../lib/enquiryRepository'
 import { trackEvent } from '../../lib/analytics'
+import { useSiteImage } from '../../lib/useSiteImage'
 
 const EVENT_TYPES = [
   'Wedding',
@@ -49,6 +50,7 @@ export function EventsEnquiry() {
   const [errors, setErrors] = useState<Errors>({})
   const [submitting, setSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
+  const planImage = useSiteImage('events_plan_image', eventsImage)
 
   const validate = (): Errors => ({
     name: validateName(name),
@@ -266,7 +268,7 @@ export function EventsEnquiry() {
           />
           <div className="relative h-full w-full overflow-hidden rounded-[36px] rounded-br-[110px] border-[10px] border-secondary-900 ring-4 ring-surface-elevated shadow-elato-lg lg:rounded-[48px] lg:rounded-br-[150px] lg:border-[14px]">
             <img
-              src={eventsImage}
+              src={planImage}
               alt="An event hosted at ELATŌ"
               loading="lazy"
               className="h-full w-full object-cover"

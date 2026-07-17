@@ -7,6 +7,7 @@ import { useToast } from "../../context/ToastContext";
 import { errorMessage } from "../../lib/query-client";
 
 const HERO_IMAGE_KEY = "stay_hero_image";
+const INTRO_IMAGE_KEY = "stay_intro_image";
 const RESERVE_IMAGE_KEY = "stay_reserve_image";
 
 export function StayPage() {
@@ -36,6 +37,14 @@ export function StayPage() {
           value={siteContentByKey.get(HERO_IMAGE_KEY)}
           onSave={(image) => saveSectionImage.mutate({ key: HERO_IMAGE_KEY, value: image })}
           isSaving={saveSectionImage.isPending && saveSectionImage.variables?.key === HERO_IMAGE_KEY}
+        />
+        <SectionImageCard
+          label="The Stay — Information Section"
+          description="Image shown next to the “A spacious 2BHK” introduction on the Stay page."
+          bucket="stay"
+          value={siteContentByKey.get(INTRO_IMAGE_KEY)}
+          onSave={(image) => saveSectionImage.mutate({ key: INTRO_IMAGE_KEY, value: image })}
+          isSaving={saveSectionImage.isPending && saveSectionImage.variables?.key === INTRO_IMAGE_KEY}
         />
         <GalleryPanel category="stay" title="Boutique Retreat & Gallery Images" />
         <SectionImageCard

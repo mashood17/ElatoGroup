@@ -24,9 +24,13 @@ export function SpecialDetailModal({ special, onClose }: { special: Special | nu
       {special && (
         <>
           <div
-            className="aspect-video w-full rounded-t-lg bg-gradient-to-br from-primary-300 via-primary-100 to-secondary-500"
+            className="aspect-video w-full overflow-hidden rounded-t-lg bg-gradient-to-br from-primary-300 via-primary-100 to-secondary-500"
             aria-hidden="true"
-          />
+          >
+            {special.imageUrl && (
+              <img src={special.imageUrl} alt="" className="h-full w-full object-cover" />
+            )}
+          </div>
           <div className="p-6 lg:p-8">
             <p className="text-caption text-secondary-500">Featured Special</p>
             <h2 className="text-h2 mt-2 text-secondary-900">{special.name}</h2>

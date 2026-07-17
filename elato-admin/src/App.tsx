@@ -9,6 +9,7 @@ import { MenuPage } from "./features/menu/MenuPage";
 import { SpecialsPage } from "./features/specials/SpecialsPage";
 import { EventsPage } from "./features/events/EventsPage";
 import { StayPage } from "./features/stay/StayPage";
+import { CelebrePage } from "./features/celebre/CelebrePage";
 import { HomepagePage } from "./features/homepage/HomepagePage";
 import { SettingsPage } from "./features/settings/SettingsPage";
 import { UsersPage } from "./features/users/UsersPage";
@@ -30,6 +31,7 @@ function App() {
           <Route path="/analytics" element={<AnalyticsPage />} />
           <Route path="/categories" element={<CategoriesPage />} />
           <Route path="/menu" element={<MenuPage />} />
+          <Route path="/celebre" element={<CelebrePage />} />
           <Route path="/specials" element={<SpecialsPage />} />
           <Route path="/events" element={<EventsPage />} />
           <Route path="/stay" element={<StayPage />} />

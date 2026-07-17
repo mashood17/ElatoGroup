@@ -5,6 +5,7 @@ import {
   FolderTree,
   UtensilsCrossed,
   Sparkles,
+  Cake,
   PartyPopper,
   BedDouble,
   FileText,
@@ -29,6 +30,7 @@ export const NAV_ITEMS: NavItem[] = [
   { to: "/specials", label: "Specials", icon: Sparkles, section: "Content" },
   { to: "/categories", label: "Categories", icon: FolderTree, section: "Content" },
   { to: "/menu", label: "Menu", icon: UtensilsCrossed, section: "Content" },
+  { to: "/celebre", label: "Celebré", icon: Cake, section: "Content" },
   { to: "/stay", label: "Stay", icon: BedDouble, section: "Content" },
   { to: "/events", label: "Events", icon: PartyPopper, section: "Content" },
 

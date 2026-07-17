@@ -6,8 +6,10 @@ export interface FanCardItem {
   name: string
   description: string
   price: number
-  /** Tailwind gradient stop classes, e.g. "from-primary-300 to-secondary-500" — stands in for photography until real menu shots exist. */
+  /** Tailwind gradient stop classes, e.g. "from-primary-300 to-secondary-500" — fallback when no admin image exists. */
   gradientClass: string
+  /** Admin-managed image URL. When present it fills the card's image area; otherwise the gradient shows. */
+  imageUrl?: string | null
   onClick?: () => void
 }
 
@@ -330,7 +332,11 @@ export default function CardFanCarousel({ cards }: CardFanCarouselProps) {
           {cards.map((card) => {
             const inner = (
               <div className="flex h-full w-full flex-col overflow-hidden rounded-lg bg-surface-elevated shadow-elato-lg sm:rounded-xl">
-                <div className={`h-[58%] w-full shrink-0 bg-gradient-to-br ${card.gradientClass}`} aria-hidden="true" />
+                <div className={`h-[58%] w-full shrink-0 overflow-hidden bg-gradient-to-br ${card.gradientClass}`} aria-hidden="true">
+                  {card.imageUrl && (
+                    <img src={card.imageUrl} alt="" loading="lazy" className="h-full w-full object-cover" />
+                  )}
+                </div>
                 <div className="flex flex-1 flex-col px-3 py-2.5 sm:px-4 sm:py-3">
                   <h3 className="line-clamp-1 font-sans text-[13px] font-semibold leading-tight text-[#9e7641] sm:text-sm md:text-base">
                     {card.name}

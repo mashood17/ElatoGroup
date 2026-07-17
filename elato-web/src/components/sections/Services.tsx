@@ -5,6 +5,7 @@ import { serviceImages } from '../../content/serviceImages'
 import sectionBackground from '../../assets/newbg/bg2.png'
 import sectionBackgroundMobile from '../../assets/newbg/bg-mb2.png'
 import { viewportOnce } from '../../lib/motion'
+import { useSiteImages } from '../../lib/useSiteImage'
 
 const routes: Record<string, string> = {
   stay: '/elato-stay',
@@ -12,10 +13,23 @@ const routes: Record<string, string> = {
   events: '/elato-events',
 }
 
+// site_content key that the admin's Homepage → Services image slot writes to,
+// per service. Falls back to the bundled static asset when unset.
+const serviceImageKeys: Record<string, string> = {
+  celebre: 'home_services_celebre_image',
+  stay: 'home_services_stay_image',
+  events: 'home_services_events_image',
+}
+
 const EASE_EDITORIAL = [0.16, 1, 0.3, 1] as const
 
 export function Services() {
   const reduceMotion = useReducedMotion()
+  const images = useSiteImages({
+    [serviceImageKeys.celebre]: serviceImages.celebre,
+    [serviceImageKeys.stay]: serviceImages.stay,
+    [serviceImageKeys.events]: serviceImages.events,
+  })
 
   const headingReveal: Variants = {
     hidden: { opacity: 0, y: reduceMotion ? 0 : 20 },
@@ -67,7 +81,7 @@ export function Services() {
               key={service.id}
               title={service.title}
               description={service.descriptor}
-              imageSrc={serviceImages[service.id]}
+              imageSrc={images[serviceImageKeys[service.id]]}
               href={routes[service.id]}
               index={index}
             />

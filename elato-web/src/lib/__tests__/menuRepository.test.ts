@@ -18,8 +18,8 @@ function jsonResponse(body: unknown, status = 200) {
 }
 
 const categoryDtos = [
-  { id: 'cat-coffee', name: 'Artisan Coffee', slug: 'artisan-coffee', description: 'Slow-brewed.', display_order: 1, is_active: true },
-  { id: 'cat-ice-cream', name: 'Premium Ice Creams', slug: 'premium-ice-creams', description: null, display_order: 0, is_active: true },
+  { id: 'cat-coffee', name: 'Artisan Coffee', slug: 'artisan-coffee', description: 'Slow-brewed.', display_order: 1, is_active: true, image_url: null },
+  { id: 'cat-ice-cream', name: 'Premium Ice Creams', slug: 'premium-ice-creams', description: null, display_order: 0, is_active: true, image_url: 'https://cdn.test/cat.webp' },
 ]
 
 const menuItemDtos = [
@@ -33,6 +33,7 @@ const menuItemDtos = [
     is_veg: true,
     delivery_available: true,
     display_order: 1,
+    image_url: 'https://cdn.test/item.webp',
   },
   {
     id: 'item-belgian-choc',
@@ -44,12 +45,13 @@ const menuItemDtos = [
     is_veg: true,
     delivery_available: false,
     display_order: 0,
+    image_url: null,
   },
 ]
 
 const specialDtos = [
-  { id: 'sp-tower', title: 'Celebration Sundae Tower', description: 'Built for the table.', price: 890 },
-  { id: 'sp-duo', title: 'Anniversary Dessert Duo', description: null, price: null },
+  { id: 'sp-tower', title: 'Celebration Sundae Tower', description: 'Built for the table.', price: 890, image_url: 'https://cdn.test/sp.webp' },
+  { id: 'sp-duo', title: 'Anniversary Dessert Duo', description: null, price: null, image_url: null },
 ]
 
 describe('menuRepository', () => {
@@ -75,6 +77,7 @@ describe('menuRepository', () => {
         slug: 'premium-ice-creams',
         description: '', // null -> '' fallback
         sortOrder: 0,
+        imageUrl: 'https://cdn.test/cat.webp',
       })
     })
   })
@@ -93,6 +96,7 @@ describe('menuRepository', () => {
         isVeg: true,
         deliveryAvailable: false,
         sortOrder: 0,
+        imageUrl: null,
       })
     })
 
@@ -107,8 +111,8 @@ describe('menuRepository', () => {
       vi.mocked(fetch).mockResolvedValue(jsonResponse(specialDtos))
       const result = await getSpecials()
       expect(result).toEqual([
-        { id: 'sp-tower', name: 'Celebration Sundae Tower', description: 'Built for the table.', price: 890 },
-        { id: 'sp-duo', name: 'Anniversary Dessert Duo', description: '', price: 0 },
+        { id: 'sp-tower', name: 'Celebration Sundae Tower', description: 'Built for the table.', price: 890, imageUrl: 'https://cdn.test/sp.webp' },
+        { id: 'sp-duo', name: 'Anniversary Dessert Duo', description: '', price: 0, imageUrl: null },
       ])
     })
   })

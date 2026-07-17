@@ -89,9 +89,13 @@ export function ItemDetailModal({ itemId, onClose }: { itemId: string | null; on
             ) : (
               <>
                 <div
-                  className="aspect-4/3 w-full rounded-t-lg bg-gradient-to-br from-primary-300 via-primary-100 to-secondary-500"
+                  className="aspect-4/3 w-full overflow-hidden rounded-t-lg bg-gradient-to-br from-primary-300 via-primary-100 to-secondary-500"
                   aria-hidden="true"
-                />
+                >
+                  {item.imageUrl && (
+                    <img src={item.imageUrl} alt="" className="h-full w-full object-cover" />
+                  )}
+                </div>
                 <div className="p-6 lg:p-8">
                   <p className="text-caption text-secondary-500">{categoryName}</p>
                   <h2 className="text-h2 mt-2 font-sans text-secondary-900">{item.name}</h2>

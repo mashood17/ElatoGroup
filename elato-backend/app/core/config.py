@@ -36,6 +36,14 @@ class Settings(BaseSettings):
 
     whatsapp_business_number: str = Field(default="+919731400313", alias="WHATSAPP_BUSINESS_NUMBER")
 
+    # Max accepted upload size, in bytes. This is only a resource-exhaustion
+    # guard, not a quality gate: the media pipeline downscales and re-encodes
+    # every image to web-sized WebP/JPEG/AVIF variants, so admins can upload
+    # ordinary high-resolution phone/DSLR photography (typically 5-30MB)
+    # without pre-compressing. Raise via env if genuinely larger sources are
+    # expected. Defaults to 50MB.
+    max_upload_bytes: int = Field(default=50 * 1024 * 1024, alias="MAX_UPLOAD_BYTES")
+
     # Password reset emails — Supabase Auth's built-in email sender (see
     # app/services/auth_service.py for the reasoning behind this choice).
     frontend_admin_url: str = Field(

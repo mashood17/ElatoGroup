@@ -26,3 +26,6 @@ class CategoryUpdate(BaseModel):
 class CategoryOut(CategoryBase):
     id: str
     created_at: str
+    # Resolved public URL for `image_id`, filled in by the public endpoint from
+    # the embedded media row. `image_id` is preserved for admin/back-compat.
+    image_url: str | None = None

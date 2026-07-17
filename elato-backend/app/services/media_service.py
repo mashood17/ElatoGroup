@@ -12,6 +12,7 @@ from PIL import Image, ImageOps
 from fastapi import UploadFile
 
 import pillow_avif  # noqa: F401  registers the AVIF codec with Pillow on import
+from app.core.config import get_settings
 from app.core.exceptions import AppError
 from app.db import get_supabase
 from app.repositories import media_repository
@@ -26,7 +27,11 @@ _MAGIC_BYTES: dict[bytes, str] = {
 
 _BREAKPOINTS = {"thumbnail": 320, "sm": 640, "lg": 1280}
 _ENCODE_QUALITY = 82  # 80-85% per the media-pipeline spec — visually lossless, meaningfully smaller
-_MAX_PIXELS = 40_000_000  # ~40MP guard against decompression-bomb uploads, independent of the byte-size cap
+# Decompression-bomb / memory guard on the *decoded* dimensions, independent of
+# the byte-size cap. Sized to comfortably admit legitimate high-resolution
+# photography (50MP covers current phones and most DSLRs) while still rejecting
+# absurd/hostile pixel counts before we allocate a bitmap for them.
+_MAX_PIXELS = 50_000_000
 # Must match the buckets that actually exist in the live Supabase project —
 # migration 0001's `insert into storage.buckets` used different names
 # (menu-images/hero-assets/rooms/avatars) that were never applied; the
@@ -52,6 +57,28 @@ class StoredVariant:
     width: int
     height: int
     format: str
+
+
+def public_url_for(bucket: str | None, storage_path: str | None) -> str | None:
+    """
+    Resolve a stored media row's (bucket, storage_path) to its optimized public
+    URL. `storage_path` is the canonical `lg.webp` variant written by
+    `process_and_store`, so callers get the optimized image, not the original.
+    Returns None for missing/incomplete media so callers can fall back safely.
+    Single source of truth for public endpoints that embed a `media` row
+    (gallery, categories, menu items, specials) — no duplicated resolution.
+    """
+    if not bucket or not storage_path:
+        return None
+    return get_supabase().storage.from_(bucket).get_public_url(storage_path)
+
+
+def pop_embedded_media_url(row: dict) -> str | None:
+    """Consume an embedded `media(storage_path, bucket)` join off a row and
+    resolve it to a public URL. Mutates `row` (removes the `media` key) so the
+    remaining fields map cleanly onto the response schema."""
+    media = row.pop("media", None) or {}
+    return public_url_for(media.get("bucket"), media.get("storage_path"))
 
 
 def _sniff_image_type(raw: bytes) -> str:
@@ -82,8 +109,14 @@ async def process_and_store(
         raise AppError(code="invalid_bucket", message=f"Unknown storage bucket '{bucket}'.", status_code=422)
 
     raw = await file.read()
-    if len(raw) > 15 * 1024 * 1024:
-        raise AppError(code="file_too_large", message="Images must be 15MB or smaller.", status_code=422)
+    max_bytes = get_settings().max_upload_bytes
+    if len(raw) > max_bytes:
+        limit_mb = max_bytes // (1024 * 1024)
+        raise AppError(
+            code="file_too_large",
+            message=f"Image is too large — please keep source files under {limit_mb}MB.",
+            status_code=422,
+        )
 
     _sniff_image_type(raw)  # raises if not a real image
 

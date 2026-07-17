@@ -4,6 +4,7 @@ from app.core.dependencies import CurrentAdmin, get_current_admin, require_role
 from app.repositories import gallery_repository
 from app.schemas.common import Page, PaginationParams
 from app.schemas.gallery import GalleryItemCreate, GalleryItemOut, GalleryItemUpdate
+from app.services import media_service
 
 router = APIRouter(prefix="/admin/gallery", tags=["admin-gallery"])
 
@@ -13,14 +14,16 @@ def list_gallery(pagination: PaginationParams = Depends(), admin: CurrentAdmin =
     rows, total = gallery_repository.list_admin(pagination.limit, pagination.offset)
     items = []
     for row in rows:
-        media = row.pop("media", None) or {}
-        items.append(GalleryItemOut(**row, media_url=media.get("storage_path")))
+        media_url = media_service.pop_embedded_media_url(row)
+        items.append(GalleryItemOut(**row, media_url=media_url))
     return Page(items=items, total=total, limit=pagination.limit, offset=pagination.offset)
 
 
 @router.get("/{item_id}", response_model=GalleryItemOut)
 def get_gallery_item(item_id: str, admin: CurrentAdmin = Depends(get_current_admin)):
-    return gallery_repository.get(item_id)
+    row = gallery_repository.get(item_id)
+    media_url = media_service.pop_embedded_media_url(row)
+    return GalleryItemOut(**row, media_url=media_url)
 
 
 @router.post("", response_model=GalleryItemOut, status_code=201)

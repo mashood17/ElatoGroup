@@ -34,6 +34,7 @@ import type { EventPackageOut } from "../../types/api";
 
 const LIMIT = 50;
 const HERO_IMAGE_KEY = "events_hero_image";
+const EXPERIENCE_IMAGE_KEY = "events_experience_image";
 const PLAN_IMAGE_KEY = "events_plan_image";
 
 export function EventsPage() {
@@ -101,6 +102,14 @@ export function EventsPage() {
           value={siteContentByKey.get(HERO_IMAGE_KEY)}
           onSave={(image) => saveSectionImage.mutate({ key: HERO_IMAGE_KEY, value: image })}
           isSaving={saveSectionImage.isPending && saveSectionImage.variables?.key === HERO_IMAGE_KEY}
+        />
+        <SectionImageCard
+          label="The Experience — Section Image"
+          description="Image shown next to the “Where Every Celebration Becomes a Lasting Memory” section."
+          bucket="events"
+          value={siteContentByKey.get(EXPERIENCE_IMAGE_KEY)}
+          onSave={(image) => saveSectionImage.mutate({ key: EXPERIENCE_IMAGE_KEY, value: image })}
+          isSaving={saveSectionImage.isPending && saveSectionImage.variables?.key === EXPERIENCE_IMAGE_KEY}
         />
         <GalleryPanel category="events" title="Events Gallery" />
         <SectionImageCard

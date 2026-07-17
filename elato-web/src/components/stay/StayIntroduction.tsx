@@ -5,8 +5,10 @@ import sectionBackgroundMobile from '../../assets/newbg/bg-mb2.png'
 import { SectionBackground } from '../ui/SectionBackground'
 import { introduction, stayInfo } from '../../content/stayContent'
 import { sectionReveal, staggerContainer, viewportOnce } from '../../lib/motion'
+import { useSiteImage } from '../../lib/useSiteImage'
 
 export function StayIntroduction() {
+  const imageSrc = useSiteImage('stay_intro_image', stayImage)
   return (
     <section className="relative overflow-hidden py-16 lg:py-32">
       <SectionBackground image={sectionBackground} mobileImage={sectionBackgroundMobile} />
@@ -26,7 +28,7 @@ export function StayIntroduction() {
             />
             <div className="relative h-full w-full overflow-hidden rounded-[36px] rounded-bl-[110px] border-[10px] border-secondary-900 ring-4 ring-surface-elevated shadow-elato-lg lg:rounded-[48px] lg:rounded-bl-[150px] lg:border-[14px]">
               <img
-                src={stayImage}
+                src={imageSrc}
                 alt="ELATŌ Stay — the premium 2BHK apartment"
                 loading="lazy"
                 className="h-full w-full object-cover"
