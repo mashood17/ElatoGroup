@@ -6,6 +6,7 @@ import sectionBackground from '../../assets/newbg/bg2.png'
 import sectionBackgroundMobile from '../../assets/newbg/bg-mb2.png'
 import { viewportOnce } from '../../lib/motion'
 import { useSiteImages } from '../../lib/useSiteImage'
+import { useSectionExitFade } from '../../lib/useSectionExitFade'
 
 const routes: Record<string, string> = {
   stay: '/elato-stay',
@@ -25,6 +26,7 @@ const EASE_EDITORIAL = [0.16, 1, 0.3, 1] as const
 
 export function Services() {
   const reduceMotion = useReducedMotion()
+  const exitFade = useSectionExitFade<HTMLElement>()
   const images = useSiteImages({
     [serviceImageKeys.celebre]: serviceImages.celebre,
     [serviceImageKeys.stay]: serviceImages.stay,
@@ -43,10 +45,14 @@ export function Services() {
   // Rounded top corners + a soft ambient shadow give this its "premium
   // sheet" look; the rise itself is driven from outside by
   // HeroServicesReveal, which slides this whole section into place over
-  // the pinned hero, so no motion/positioning logic lives here.
+  // the pinned hero, so no motion/positioning logic lives here. The shared
+  // useSectionExitFade hook (same one every Home section uses) handles the
+  // handoff into About as the user scrolls on.
   return (
-    <section
+    <motion.section
       id="services"
+      ref={exitFade.ref}
+      style={exitFade.style}
       className="relative z-0 overflow-hidden rounded-t-[28px] bg-surface-base py-8 font-sans shadow-[0_-10px_30px_rgba(23,15,10,0.06),0_30px_70px_rgba(23,15,10,0.16)] lg:rounded-t-[48px] lg:py-14"
     >
       <picture>
@@ -88,6 +94,6 @@ export function Services() {
           ))}
         </div>
       </div>
-    </section>
+    </motion.section>
   )
 }

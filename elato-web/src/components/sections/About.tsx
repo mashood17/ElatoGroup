@@ -9,6 +9,7 @@ import { aboutContent, businessInfo } from '../../content/siteContent'
 import { viewportOnce, PARALLAX_MAX_PX } from '../../lib/motion'
 import { useAggregateRating } from '../../lib/useAggregateRating'
 import { useSiteImage } from '../../lib/useSiteImage'
+import { useSectionExitFade } from '../../lib/useSectionExitFade'
 
 const EASE_EDITORIAL = [0.16, 1, 0.3, 1] as const
 
@@ -17,6 +18,7 @@ export function About() {
   const aggregateRating = useAggregateRating()
   const aboutImageSrc = useSiteImage('home_about_image', aboutImage)
   const imageRef = useRef<HTMLDivElement>(null)
+  const exitFade = useSectionExitFade<HTMLElement>()
   const { scrollYProgress } = useScroll({ target: imageRef, offset: ['start end', 'end start'] })
   const parallaxY = useTransform(
     scrollYProgress,
@@ -82,7 +84,12 @@ export function About() {
   }
 
   return (
-    <section id="about" className="relative z-0 pb-20 pt-14 font-sans lg:py-32">
+    <motion.section
+      id="about"
+      ref={exitFade.ref}
+      style={exitFade.style}
+      className="relative z-0 pb-20 pt-14 font-sans lg:py-32"
+    >
       <SectionBackground image={sectionBackground} mobileImage={sectionBackgroundMobile} />
 
       <motion.div
@@ -189,6 +196,6 @@ export function About() {
           </motion.a>
         </motion.div>
       </motion.div>
-    </section>
+    </motion.section>
   )
 }

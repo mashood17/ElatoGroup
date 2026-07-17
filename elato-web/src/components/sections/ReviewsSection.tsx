@@ -9,6 +9,7 @@ import { reviewsHeading, reviewsFallback } from '../../content/reviewsContent'
 import { getFeaturedReviews } from '../../lib/reviewsRepository'
 import { useAggregateRating } from '../../lib/useAggregateRating'
 import { viewportOnce } from '../../lib/motion'
+import { useSectionExitFade } from '../../lib/useSectionExitFade'
 import sectionBackground from '../../assets/newbg/bg.jpg'
 import sectionBackgroundMobile from '../../assets/newbg/bg-mb.png'
 
@@ -26,6 +27,7 @@ export function ReviewsSection() {
   const [canScrollNext, setCanScrollNext] = useState(true)
   const [scrollProgress, setScrollProgress] = useState(0)
   const aggregateRating = useAggregateRating()
+  const exitFade = useSectionExitFade<HTMLElement>()
 
   useEffect(() => {
     let cancelled = false
@@ -101,7 +103,12 @@ export function ReviewsSection() {
   const fillPercent = Math.max(20, 100 / Math.max(items.length, 1))
 
   return (
-    <section id="reviews" className="relative py-16 font-sans lg:py-24">
+    <motion.section
+      id="reviews"
+      ref={exitFade.ref}
+      style={exitFade.style}
+      className="relative py-16 font-sans lg:py-24"
+    >
       <SectionBackground image={sectionBackground} mobileImage={sectionBackgroundMobile} />
 
       <div className="container-elato">
@@ -219,6 +226,6 @@ export function ReviewsSection() {
           </div>
         </div>
       </div>
-    </section>
+    </motion.section>
   )
 }

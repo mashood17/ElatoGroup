@@ -1,36 +1,50 @@
-import { useReducedMotion } from 'framer-motion'
+import { useRef } from 'react'
+import { motion, useReducedMotion, useScroll, useTransform } from 'framer-motion'
 import { HomeHero } from './HomeHero'
 import { Services } from './Services'
 
 /**
- * Pinned Hero → Services reveal, built entirely from CSS grid + sticky
- * positioning — no scroll-linked transform, no manual height measurement.
+ * Hero → Services transition — an Aceternity-style "container scroll", not
+ * the old CSS-grid overlap. Previous implementation stacked Hero and
+ * Services in the *same* grid cell so Services (pushed down by exactly
+ * Hero's own margin) would rise and physically cover Hero as it arrived.
+ * That coupled the pin's duration to Services' own rendered height and,
+ * because the two boxes only started overlapping right at the very end of
+ * the pinned range, most of the scroll showed Hero shrinking in place with
+ * nothing behind it — which is why layering transforms on that structure
+ * read as "basically unchanged."
  *
- * Hero and Services are placed in the *same* grid cell ([grid-area:1/1]),
- * so their boxes overlap. Hero's wrapper is sticky, pinning it to the top
- * of the viewport. Services sits in normal flow inside that same cell,
- * pushed down by exactly one viewport height (mt-[100vh]) — so it starts
- * completely below the fold and rises into view as the user scrolls,
- * arriving flush with the top exactly when Hero's sticky range ends.
- * Services (position: relative, later in DOM order than Hero's sticky
- * wrapper) paints above it, so it visually covers the hero as it rises.
+ * This version removes that coupling entirely. `containerRef` below wraps
+ * *only* Hero, sized taller than one viewport (100vh + a per-breakpoint
+ * scroll allowance) purely to give the sticky pin room to run its
+ * animation. Services is an ordinary next sibling, outside this wrapper,
+ * in normal document flow — once the wrapper's extra height is used up,
+ * the sticky Hero releases and Services simply continues scrolling up into
+ * view the way any section would. No overlap math, no margin trick, no
+ * dependency on Services' height.
  *
- * Because the grid row's height is the browser's own layout computation —
- * 100vh from Hero, plus Services' true rendered height from its margin +
- * content — there is no distance to get out of sync with. About, rendered
- * immediately after this component, always starts exactly where Services'
- * real content ends, regardless of Services' height on any breakpoint.
- *
- * The outer wrapper needs `position: relative` (even with no z-index) so it
- * participates in the same "positioned" stacking tier as every section
- * after it. Without it, this wrapper is `position: static`, which always
- * paints behind positioned siblings regardless of DOM order or overlap —
- * so About's background (which intentionally bleeds ~160px above its own
- * top edge to crossfade into whatever precedes it) would win against this
- * entire block instead of just blending into Services' last 160px.
+ * `scrollYProgress` is read off the wrapper itself, offset
+ * `['start start', 'end start']`: progress 0 the instant the wrapper's top
+ * reaches the viewport top (Hero starts pinning), progress 1 when the
+ * wrapper's *bottom* reaches the viewport top — which happens after
+ * exactly (wrapper height − 100vh) of scroll, i.e. precisely the sticky
+ * range, whatever that allowance is set to per breakpoint. That progress
+ * drives Hero's scale/rotateX/y directly (GPU transform only, no repaint-
+ * triggering properties), giving it real depth via `perspective` on the
+ * wrapper — a card receding in 3D as it releases, not a flat cover-up.
  */
 export function HeroServicesReveal() {
   const reduceMotion = useReducedMotion()
+  const containerRef = useRef<HTMLDivElement>(null)
+
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ['start start', 'end start'],
+  })
+
+  const heroScale = useTransform(scrollYProgress, [0, 1], [1, 0.78])
+  const heroRotate = useTransform(scrollYProgress, [0, 1], [0, -18])
+  const heroY = useTransform(scrollYProgress, [0, 1], [0, -80])
 
   if (reduceMotion) {
     return (
@@ -42,13 +56,28 @@ export function HeroServicesReveal() {
   }
 
   return (
-    <div className="relative grid">
-      <div className="sticky top-0 h-screen [grid-area:1/1]">
-        <HomeHero />
+    <>
+      <div
+        ref={containerRef}
+        className="relative h-[130vh] bg-surface-base sm:h-[145vh] lg:h-[165vh]"
+        style={{ perspective: '1600px' }}
+      >
+        <div className="sticky top-0 h-screen overflow-hidden">
+          <motion.div
+            style={{
+              scale: heroScale,
+              rotateX: heroRotate,
+              y: heroY,
+              transformOrigin: 'center bottom',
+              willChange: 'transform',
+            }}
+            className="h-full w-full"
+          >
+            <HomeHero />
+          </motion.div>
+        </div>
       </div>
-      <div className="relative mt-[100vh] [grid-area:1/1]">
-        <Services />
-      </div>
-    </div>
+      <Services />
+    </>
   )
 }

@@ -9,6 +9,7 @@ import { businessInfo } from '../../content/siteContent'
 import { getLatestInstagramPosts } from '../../lib/instagramRepository'
 import { cn } from '../../lib/cn'
 import { viewportOnce } from '../../lib/motion'
+import { useSectionExitFade } from '../../lib/useSectionExitFade'
 import sectionBackground from '../../assets/newbg/bg2.png'
 import sectionBackgroundMobile from '../../assets/newbg/bg-mb2.png'
 
@@ -29,6 +30,7 @@ function deriveTitle(caption: string): string {
 export function InstagramSection() {
   const reduceMotion = useReducedMotion()
   const trackRef = useRef<HTMLDivElement>(null)
+  const exitFade = useSectionExitFade<HTMLElement>()
   const [canScrollPrev, setCanScrollPrev] = useState(false)
   const [canScrollNext, setCanScrollNext] = useState(false)
   const [activeIndex, setActiveIndex] = useState(0)
@@ -119,7 +121,12 @@ export function InstagramSection() {
   }
 
   return (
-    <section id="instagram" className="relative py-12 font-sans lg:py-24">
+    <motion.section
+      id="instagram"
+      ref={exitFade.ref}
+      style={exitFade.style}
+      className="relative py-12 font-sans lg:py-24"
+    >
       <SectionBackground image={sectionBackground} mobileImage={sectionBackgroundMobile} />
       <div className="container-elato">
         <motion.div
@@ -232,6 +239,6 @@ export function InstagramSection() {
           <ArrowRight className="h-4 w-4 transition-transform duration-300 ease-out group-hover:translate-x-1" />
         </a>
       </div>
-    </section>
+    </motion.section>
   )
 }

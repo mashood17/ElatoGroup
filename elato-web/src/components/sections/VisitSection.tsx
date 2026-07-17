@@ -7,6 +7,7 @@ import { businessInfo } from '../../content/siteContent'
 import { visitHeading, visitContact, visitMap } from '../../content/visitContent'
 import { buildWhatsAppLink } from '../../lib/whatsapp'
 import { viewportOnce } from '../../lib/motion'
+import { useSectionExitFade } from '../../lib/useSectionExitFade'
 import { validateName, validatePhone10, validateMessage } from '../../lib/validation'
 import { persistEnquiry } from '../../lib/enquiryRepository'
 import { trackEvent } from '../../lib/analytics'
@@ -29,6 +30,7 @@ export function VisitSection() {
   const [submitting, setSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
   const [mapActive, setMapActive] = useState(false)
+  const exitFade = useSectionExitFade<HTMLElement>()
 
   const validate = (): Errors => ({
     name: validateName(name),
@@ -90,7 +92,12 @@ export function VisitSection() {
   const iconClasses = 'pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[#9e7641]/60'
 
   return (
-    <section id="visit" className="relative pb-16 pt-8 font-sans lg:pb-24 lg:pt-12">
+    <motion.section
+      id="visit"
+      ref={exitFade.ref}
+      style={exitFade.style}
+      className="relative pb-16 pt-8 font-sans lg:pb-24 lg:pt-12"
+    >
       <SectionBackground image={sectionBackground} mobileImage={sectionBackgroundMobile} />
 
       <div className="container-elato">
@@ -361,6 +368,6 @@ export function VisitSection() {
           </motion.div>
         </motion.div>
       </div>
-    </section>
+    </motion.section>
   )
 }
