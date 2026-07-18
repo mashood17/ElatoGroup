@@ -148,10 +148,6 @@ export function VisitSection() {
                       className="absolute inset-0 h-full w-full object-cover"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-secondary-900/60 via-secondary-900/10 to-transparent transition-colors duration-300 ease-out group-hover:from-secondary-900/70" />
-                    <span className="relative z-10 mb-5 flex items-center gap-2 rounded-full bg-surface-elevated/90 px-4 py-2 text-body font-semibold text-[#9E7641] shadow-elato-sm backdrop-blur-sm">
-                      <MapPin className="h-4 w-4" aria-hidden="true" />
-                      Tap to view interactive map
-                    </span>
                   </button>
                 ) : (
                   // No-API-key embed — swap for the Places API "Embed" variant
