@@ -53,7 +53,7 @@ export function StayGallery() {
             ))}
           </div>
         ) : (
-          <PerspectiveGallery items={tiles} ariaLabel="Stay photo gallery — drag, swipe, or use arrow keys to browse" />
+          <PerspectiveGallery items={tiles} ariaLabel="Stay photo gallery — use the arrow buttons or arrow keys to browse" />
         )}
       </div>
     </section>

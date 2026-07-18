@@ -51,7 +51,7 @@ export function EventsGallery() {
             ))}
           </div>
         ) : (
-          <PerspectiveGallery items={tiles} ariaLabel="Events photo gallery — drag, swipe, or use arrow keys to browse" />
+          <PerspectiveGallery items={tiles} ariaLabel="Events photo gallery — use the arrow buttons or arrow keys to browse" />
         )}
       </div>
     </section>

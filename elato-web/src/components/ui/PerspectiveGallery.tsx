@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
-import { animate, motion, useMotionValue, useTransform, type MotionValue, type PanInfo } from 'framer-motion'
+import { useCallback, useEffect, useState } from 'react'
+import { animate, motion, useMotionValue, useTransform, type MotionValue } from 'framer-motion'
 
 export interface PerspectiveGalleryItem {
   id: string
@@ -48,12 +48,6 @@ const TIER_CONFIG = {
 // independently-sprung cards — the idiomatic framer-motion way to keep a
 // multi-element gesture buttery at 60fps without React re-rendering per frame.
 const SETTLE_SPRING = { type: 'spring', stiffness: 90, damping: 22, mass: 1.2 } as const
-// A swipe always moves exactly one card: past this fraction of a card's
-// width, or a fast-enough flick even if short, counts as "next/previous".
-// Below both thresholds the gesture is treated as accidental and springs
-// back to the card it started on.
-const MIN_SWIPE_FRACTION = 0.15
-const MIN_SWIPE_VELOCITY = 300
 
 interface CardProps {
   item: PerspectiveGalleryItem
@@ -86,7 +80,7 @@ function PerspectiveCard({ item, index, gradient, position, total, half, spacing
 
   return (
     <motion.div
-      className="absolute aspect-[4/3.6] w-[clamp(19.5rem,12.5rem_+_22vw,31rem)] cursor-grab active:cursor-grabbing sm:aspect-[6/5]"
+      className="absolute aspect-[4/3.6] w-[clamp(19.5rem,12.5rem_+_22vw,31rem)] sm:aspect-[6/5]"
       style={{ x, rotateY, z, scale, opacity, zIndex, willChange: 'transform' }}
     >
       <div
@@ -122,14 +116,14 @@ function PerspectiveCard({ item, index, gradient, position, total, half, spacing
  * Shared floating perspective gallery — not a carousel. Cards sit along a
  * shallow arc via rotateY/translateZ/translateX driven by each card's
  * continuous distance from a shared `position` motion value (see
- * PerspectiveCard). Drag/swipe update it live via framer-motion's pan
- * gesture; release, arrow clicks, and arrow keys all hand off to a single
- * spring animation on that same value, so every interaction settles with
- * the same slow, weighted glide. There is no active/inactive hierarchy —
- * the whole stack reads as one suspended, continuously-looping collection.
- * Used by both Stay's "A Glimpse Inside" and Events' "Captured Moments" —
- * everything about the cards/controls/motion is shared; only each page's
- * own section background differs.
+ * PerspectiveCard). Navigation is arrow-buttons/arrow-keys only — no
+ * drag/swipe — and every step hands off to the same single spring animation
+ * on that value, so each move settles with the same slow, weighted glide.
+ * There is no active/inactive hierarchy — the whole stack reads as one
+ * suspended, continuously-looping collection. Used by both Stay's "A
+ * Glimpse Inside" and Events' "Captured Moments" — everything about the
+ * cards/controls/motion is shared; only each page's own section background
+ * differs.
  */
 export function PerspectiveGallery({ items, ariaLabel }: PerspectiveGalleryProps) {
   const tier = useViewportTier()
@@ -139,7 +133,6 @@ export function PerspectiveGallery({ items, ariaLabel }: PerspectiveGalleryProps
   const initialIndex = total > 0 ? Math.min(total >> 1, total - 1) : 0
   const position = useMotionValue(initialIndex)
   const [currentIndex, setCurrentIndex] = useState(initialIndex)
-  const panStartIndex = useRef(initialIndex)
 
   useEffect(() => {
     const mid = total > 0 ? Math.min(total >> 1, total - 1) : 0
@@ -158,36 +151,6 @@ export function PerspectiveGallery({ items, ariaLabel }: PerspectiveGalleryProps
     [total, position],
   )
 
-  const onPanStart = useCallback(() => {
-    panStartIndex.current = Math.round(position.get())
-  }, [position])
-
-  const onPan = useCallback(
-    (_event: unknown, info: PanInfo) => {
-      position.set(position.get() - info.delta.x / spacing)
-    },
-    [position, spacing],
-  )
-
-  const onPanEnd = useCallback(
-    (_event: unknown, info: PanInfo) => {
-      if (total <= 1) return
-      const startIndex = panStartIndex.current
-      const dragDistance = position.get() - startIndex
-
-      let target = startIndex
-      if (Math.abs(dragDistance) > MIN_SWIPE_FRACTION) {
-        target = startIndex + Math.sign(dragDistance)
-      } else if (Math.abs(info.velocity.x) > MIN_SWIPE_VELOCITY) {
-        target = startIndex + (info.velocity.x < 0 ? 1 : -1)
-      }
-
-      setCurrentIndex(wrapIndex(target, total))
-      animate(position, target, SETTLE_SPRING)
-    },
-    [total, position],
-  )
-
   const onKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'ArrowLeft') commitDelta(-1)
     else if (e.key === 'ArrowRight') commitDelta(1)
@@ -197,21 +160,16 @@ export function PerspectiveGallery({ items, ariaLabel }: PerspectiveGalleryProps
 
   return (
     <div className="flex w-full flex-col items-center">
-      <motion.div
+      <div
         role="group"
         aria-label={ariaLabel}
         tabIndex={0}
         onKeyDown={onKeyDown}
-        onPanStart={total > 1 ? onPanStart : undefined}
-        onPan={total > 1 ? onPan : undefined}
-        onPanEnd={total > 1 ? onPanEnd : undefined}
-        className="relative flex w-full touch-pan-y select-none items-center justify-center outline-none"
+        className="relative flex w-full items-center justify-center outline-none"
         style={{ height: stageHeight, perspective: '1600px' }}
       >
         {items.map((item, i) => {
-          // Cap how many cards are simultaneously mounted (and recomputing
-          // their transforms every touch-move frame) — every card renders
-          // was killing drag smoothness on mobile with larger galleries.
+          // Cap how many cards are simultaneously mounted and animating.
           // Wrapped with the same nearest-multiple math as each card's own
           // distance transform, so this stays correct across any number of
           // loops, not just a raw index subtraction.
@@ -234,7 +192,7 @@ export function PerspectiveGallery({ items, ariaLabel }: PerspectiveGalleryProps
             />
           )
         })}
-      </motion.div>
+      </div>
 
       {total > 1 && (
         <div className="z-30 mt-1 flex items-center justify-center gap-4 lg:-mt-4">
