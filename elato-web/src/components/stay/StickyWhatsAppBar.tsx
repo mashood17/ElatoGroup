@@ -1,20 +1,15 @@
-import { useEffect, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { Button } from '../ui/Button'
 import { businessInfo } from '../../content/siteContent'
 import { buildWhatsAppLink } from '../../lib/whatsapp'
 import { trackEvent } from '../../lib/analytics'
+import { useScrollPast } from '../../lib/useScrollPast'
+
+const getHeroThreshold = () => window.innerHeight * 0.8
 
 /** PRD Ch. 13 — sticky mobile CTA bar, appears once the visitor scrolls past the hero. */
 export function StickyWhatsAppBar() {
-  const [visible, setVisible] = useState(false)
-
-  useEffect(() => {
-    const onScroll = () => setVisible(window.scrollY > window.innerHeight * 0.8)
-    onScroll()
-    window.addEventListener('scroll', onScroll, { passive: true })
-    return () => window.removeEventListener('scroll', onScroll)
-  }, [])
+  const visible = useScrollPast(getHeroThreshold)
 
   return (
     <AnimatePresence>

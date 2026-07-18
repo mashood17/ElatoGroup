@@ -43,11 +43,18 @@ export function useSectionExitFade<T extends HTMLElement = HTMLElement>(): {
   const { scrollYProgress } = useScroll({ target: ref, offset: ['start start', 'end start'] })
 
   const STOPS = [0, 0.6, 0.84, 1]
-  const opacity = useTransform(scrollYProgress, STOPS, reduceMotion ? [1, 1, 1, 1] : [1, 1, 0.4, 0])
+  const opacity = useTransform(scrollYProgress, STOPS, reduceMotion ? [1, 1, 1, 1] : [1, 1, 0.5, 0])
   const scale = useTransform(scrollYProgress, STOPS, reduceMotion ? [1, 1, 1, 1] : [1, 1, 0.97, 0.935])
   const y = useTransform(scrollYProgress, STOPS, reduceMotion ? [0, 0, 0, 0] : [0, 0, -24, -52])
-  const blurPx = useTransform(scrollYProgress, STOPS, reduceMotion ? [0, 0, 0, 0] : [0, 0, 5, 12])
-  const filter = useTransform(blurPx, (v) => `blur(${v}px)`)
+  const blurPx = useTransform(scrollYProgress, STOPS, reduceMotion ? [0, 0, 0, 0] : [0, 0, 4, 10])
+  // `blur(0px)` and `none` render identically, but `blur(0px)` is still a
+  // non-`none` filter value — browsers can keep the section pinned to its
+  // own filter-compositing layer the entire time simply because *a* filter
+  // is present, even while it's doing nothing. Sections spend roughly their
+  // first 60% of scroll range at blur 0 (STOPS above), so emitting literal
+  // `none` there instead avoids paying for that layer except during the
+  // trailing stretch where the blur is actually animating.
+  const filter = useTransform(blurPx, (v) => (v === 0 ? 'none' : `blur(${v}px)`))
 
   return { ref, style: { opacity, scale, y, filter } }
 }

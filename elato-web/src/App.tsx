@@ -4,6 +4,7 @@ import { Navbar } from './components/layout/Navbar'
 import { Footer } from './components/layout/Footer'
 import { ErrorBoundary } from './components/ErrorBoundary'
 import { ScrollToTopButton } from './components/ui/ScrollToTopButton'
+import { PageTransitionProvider } from './lib/pageTransition'
 
 // Route-based code splitting (PRD Ch. 46.2) — each page ships as its own chunk.
 const HomePage = lazy(() => import('./pages/HomePage').then((m) => ({ default: m.HomePage })))
@@ -172,21 +173,23 @@ function App() {
   return (
     <ErrorBoundary>
       <BrowserRouter>
-        <ScrollToTop />
-        <ScrollPositionRestoration />
-        <HashScroll />
-        <Navbar />
-        <Suspense fallback={<RouteFallback />}>
-          <Routes>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/elato-stay" element={<StayPage />} />
-            <Route path="/elato-celebre" element={<CelebrePage />} />
-            <Route path="/elato-events" element={<EventsPage />} />
-            <Route path="*" element={<NotFoundPage />} />
-          </Routes>
-        </Suspense>
-        <Footer />
-        <ScrollToTopButton />
+        <PageTransitionProvider>
+          <ScrollToTop />
+          <ScrollPositionRestoration />
+          <HashScroll />
+          <Navbar />
+          <Suspense fallback={<RouteFallback />}>
+            <Routes>
+              <Route path="/" element={<HomePage />} />
+              <Route path="/elato-stay" element={<StayPage />} />
+              <Route path="/elato-celebre" element={<CelebrePage />} />
+              <Route path="/elato-events" element={<EventsPage />} />
+              <Route path="*" element={<NotFoundPage />} />
+            </Routes>
+          </Suspense>
+          <Footer />
+          <ScrollToTopButton />
+        </PageTransitionProvider>
       </BrowserRouter>
     </ErrorBoundary>
   )

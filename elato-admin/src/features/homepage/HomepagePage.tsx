@@ -7,10 +7,14 @@ import { ReviewsSection } from "../reviews/ReviewsSection";
 import { useToast } from "../../context/ToastContext";
 import { errorMessage } from "../../lib/query-client";
 
-const SERVICES_IMAGE_KEYS: { key: string; label: string }[] = [
-  { key: "home_services_stay_image", label: "Stay" },
-  { key: "home_services_celebre_image", label: "Celebré" },
-  { key: "home_services_events_image", label: "Events" },
+// Each of these three images is shown in two places: the homepage service
+// card AND the hero image on that experience's own page (Stay/Celebré/
+// Events). There is no separate hero-image field for any of them — this is
+// the single place all three are managed.
+const SERVICES_IMAGE_KEYS: { key: string; label: string; description: string }[] = [
+  { key: "home_services_stay_image", label: "Stay", description: "Used for the Stay service card on the homepage and the hero image on the Stay page." },
+  { key: "home_services_celebre_image", label: "Celebré", description: "Used for the Celebré service card on the homepage and the hero image on the Celebré page." },
+  { key: "home_services_events_image", label: "Events", description: "Used for the Events service card on the homepage and the hero image on the Events page." },
 ];
 
 const ABOUT_IMAGE_KEY = "home_about_image";
@@ -51,11 +55,15 @@ export function HomepagePage() {
         <div className="flex flex-col gap-6">
           <div>
             <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-neutral-400">Services</p>
+            <p className="mb-3 text-xs text-neutral-400">
+              Each image below powers both the homepage card and that experience's own page hero — there's no separate hero image to manage.
+            </p>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
               {SERVICES_IMAGE_KEYS.map((config) => (
                 <SectionImageCard
                   key={config.key}
                   label={config.label}
+                  description={config.description}
                   bucket="hero"
                   value={byKey.get(config.key)}
                   onSave={(image) => saveMutation.mutate({ key: config.key, value: image })}

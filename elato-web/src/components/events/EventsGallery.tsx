@@ -4,8 +4,8 @@ import { eventGalleryItems } from '../../content/eventsContent'
 import { useEventsGallery } from '../../lib/useEventsGallery'
 import { sectionReveal, viewportOnce } from '../../lib/motion'
 import { useSectionExitFade } from '../../lib/useSectionExitFade'
-import bgDesktop from '../../assets/newbg/bg.jpg'
-import bgMobile from '../../assets/newbg/bg-mb.png'
+import bgDesktop from '../../assets/newbg/bg.webp'
+import bgMobile from '../../assets/newbg/bg-mb.webp'
 
 /**
  * "Captured Moments" — driven by the admin-managed Events gallery

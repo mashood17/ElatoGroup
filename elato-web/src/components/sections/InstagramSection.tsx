@@ -9,8 +9,8 @@ import { businessInfo } from '../../content/siteContent'
 import { getLatestInstagramPosts } from '../../lib/instagramRepository'
 import { viewportOnce } from '../../lib/motion'
 import { useSectionExitFade } from '../../lib/useSectionExitFade'
-import sectionBackground from '../../assets/newbg/bg2.png'
-import sectionBackgroundMobile from '../../assets/newbg/bg-mb2.png'
+import sectionBackground from '../../assets/newbg/bg2.webp'
+import sectionBackgroundMobile from '../../assets/newbg/bg-mb2.webp'
 
 const EASE_EDITORIAL = [0.16, 1, 0.3, 1] as const
 

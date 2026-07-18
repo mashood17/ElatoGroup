@@ -11,6 +11,7 @@ import { Link, useLocation } from 'react-router-dom'
 import { LogoImage } from '../brand/LogoImage'
 import { Button } from '../ui/Button'
 import { NavPill, type ResolvedNavItem } from './NavPill'
+import { useScrollPast } from '../../lib/useScrollPast'
 
 // `to` items are real routes; `hash` items are anchors on `basePath` (default home).
 const navItems = [
@@ -25,8 +26,11 @@ const navItems = [
 const MENU_BASE_PATH = '/elato-celebre'
 const MENU_ANCHOR = '#menu'
 
+const SCROLLED_THRESHOLD = 64
+const getScrolledThreshold = () => SCROLLED_THRESHOLD
+
 export function Navbar() {
-  const [scrolled, setScrolled] = useState(false)
+  const scrolled = useScrollPast(getScrolledThreshold)
   const [menuOpen, setMenuOpen] = useState(false)
   const location = useLocation()
   const prefersReducedMotion = useReducedMotion()
@@ -51,13 +55,6 @@ export function Navbar() {
     }
     setMenuOpen(false)
   }
-
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 64)
-    onScroll()
-    window.addEventListener('scroll', onScroll, { passive: true })
-    return () => window.removeEventListener('scroll', onScroll)
-  }, [])
 
   // Very subtle device-tilt parallax on the ambient blobs behind the panel.
   // No-ops (and never prompts for permission) on browsers that gate

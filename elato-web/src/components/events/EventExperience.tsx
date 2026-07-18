@@ -3,9 +3,9 @@ import { EVENTS_HALL_CAPACITY_MIN, EVENTS_HALL_CAPACITY_MAX } from '../../conten
 import { sectionReveal, viewportOnce } from '../../lib/motion'
 import { useSectionExitFade } from '../../lib/useSectionExitFade'
 import { useSiteImage } from '../../lib/useSiteImage'
-import eventsImg from '../../assets/services/events.png'
-import bgDesktop from '../../assets/newbg/bg2.png'
-import bgMobile from '../../assets/newbg/bg-mb2.png'
+import eventsImg from '../../assets/services/events.webp'
+import bgDesktop from '../../assets/newbg/bg2.webp'
+import bgMobile from '../../assets/newbg/bg-mb2.webp'
 
 // Same cinematic left-entrance treatment as Home's About section image card.
 const imageViewport = { once: true, amount: 0.28 }

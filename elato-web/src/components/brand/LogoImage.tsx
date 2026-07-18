@@ -1,4 +1,4 @@
-import elatoWordmark from '../../assets/logos/elato-wordmark.png'
+import elatoWordmark from '../../assets/logos/elato-wordmark.webp'
 
 /**
  * Client-supplied ELATŌ wordmark artwork (background-removed for use over

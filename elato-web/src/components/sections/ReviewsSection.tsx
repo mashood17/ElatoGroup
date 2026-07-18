@@ -10,8 +10,8 @@ import { getFeaturedReviews } from '../../lib/reviewsRepository'
 import { viewportOnce } from '../../lib/motion'
 import { useSectionExitFade } from '../../lib/useSectionExitFade'
 import { cn } from '../../lib/cn'
-import sectionBackground from '../../assets/newbg/bg.jpg'
-import sectionBackgroundMobile from '../../assets/newbg/bg-mb.png'
+import sectionBackground from '../../assets/newbg/bg.webp'
+import sectionBackgroundMobile from '../../assets/newbg/bg-mb.webp'
 
 const EASE_EDITORIAL = [0.16, 1, 0.3, 1] as const
 const SWIPE_DISTANCE_PX = 70

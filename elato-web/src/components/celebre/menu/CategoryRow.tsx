@@ -1,4 +1,4 @@
-import { useRef } from 'react'
+import { memo, useRef } from 'react'
 import { motion, useScroll, useTransform } from 'framer-motion'
 import { MenuItemRow } from './MenuItemRow'
 import type { Category, MenuItem } from '../../../content/celebreContent'
@@ -13,7 +13,7 @@ const gradients = [
   'from-primary-300 to-primary-100',
 ]
 
-export function CategoryRow({
+export const CategoryRow = memo(function CategoryRow({
   category,
   items,
   index,
@@ -57,7 +57,7 @@ export function CategoryRow({
 
         <div className="hidden lg:sticky lg:top-28 lg:block">
           <motion.div
-            style={{ y }}
+            style={{ y, willChange: 'transform' }}
             className={`relative aspect-[4/3] w-full overflow-hidden rounded-3xl shadow-elato-xl ring-1 ring-black/5 bg-gradient-to-br ${gradients[index % gradients.length]}`}
             aria-hidden="true"
           >
@@ -72,4 +72,4 @@ export function CategoryRow({
       </div>
     </motion.div>
   )
-}
+})

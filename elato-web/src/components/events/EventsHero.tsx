@@ -1,7 +1,7 @@
 import { PremiumHero } from '../hero/PremiumHero'
 import { eventsHero, EVENTS_HALL_CAPACITY_MIN, EVENTS_HALL_CAPACITY_MAX } from '../../content/eventsContent'
-import eventsStayLogo from '../../assets/logos/events_stay.PNG'
-import eventsHeroImage from '../../assets/services/events.png'
+import eventsStayLogo from '../../assets/logos/events_stay.webp'
+import { serviceImages, serviceImageKeys } from '../../content/serviceImages'
 import { useSiteImage } from '../../lib/useSiteImage'
 
 // Real pixel dimensions of the shared Stay/Events wordmark artwork.
@@ -17,7 +17,10 @@ const LOGO_ASPECT = 3270 / 1124
 const MACRON_RECT: [number, number, number, number] = [0.7373, 0.8105, 0.0988, 0.0676]
 
 export function EventsHero() {
-  const imageSrc = useSiteImage('events_hero_image', eventsHeroImage)
+  // Same site_content key the "Discover ELATŌ" Events card reads
+  // (`Services.tsx`) — one shared image, so the shared-element transition
+  // never has to swap it for a different photo on arrival.
+  const imageSrc = useSiteImage(serviceImageKeys.events, serviceImages.events)
   return (
     <PremiumHero
       id="events-hero"

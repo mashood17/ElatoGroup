@@ -33,7 +33,6 @@ import { errorMessage } from "../../lib/query-client";
 import type { EventPackageOut } from "../../types/api";
 
 const LIMIT = 50;
-const HERO_IMAGE_KEY = "events_hero_image";
 const EXPERIENCE_IMAGE_KEY = "events_experience_image";
 const PLAN_IMAGE_KEY = "events_plan_image";
 
@@ -80,7 +79,7 @@ export function EventsPage() {
     <div>
       <PageHeader
         title="Events"
-        description="Event packages shown on the public site."
+        description="Event packages shown on the public site. The hero image is managed from Homepage → Services (Events) — it's shared with the homepage service card."
         actions={
           <Button
             size="sm"
@@ -95,14 +94,6 @@ export function EventsPage() {
       />
 
       <div className="mb-6 flex flex-col gap-4">
-        <SectionImageCard
-          label="The Experience"
-          description="Hero image for the Events page."
-          bucket="events"
-          value={siteContentByKey.get(HERO_IMAGE_KEY)}
-          onSave={(image) => saveSectionImage.mutate({ key: HERO_IMAGE_KEY, value: image })}
-          isSaving={saveSectionImage.isPending && saveSectionImage.variables?.key === HERO_IMAGE_KEY}
-        />
         <SectionImageCard
           label="The Experience — Section Image"
           description="Image shown next to the “Where Every Celebration Becomes a Lasting Memory” section."

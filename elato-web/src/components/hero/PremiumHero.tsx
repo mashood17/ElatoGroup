@@ -1,7 +1,10 @@
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { motion, useReducedMotion, type Variants } from 'framer-motion'
 import { PremiumHeroLogo3D } from './PremiumHeroLogo3D'
-import heroBackground from '../../assets/newbg/bg.jpg'
-import heroBackgroundMobile from '../../assets/newbg/bg-mb.png'
+import { usePageTransition, FADE_MS } from '../../lib/pageTransition'
+import { useInView } from '../../lib/useInView'
+import heroBackground from '../../assets/newbg/bg.webp'
+import heroBackgroundMobile from '../../assets/newbg/bg-mb.webp'
 
 const EASE_CINEMATIC = [0.16, 1, 0.3, 1] as const
 
@@ -59,6 +62,65 @@ export function PremiumHero({
   cardBadgeLabel,
 }: PremiumHeroProps) {
   const reduceMotion = useReducedMotion()
+  const { heroFastReveal, heroSettled, reportHeroTarget } = usePageTransition()
+  // Captured once at mount, not read reactively — this stays true for the
+  // rest of this hero's lifetime even after the transition's own state
+  // resets back to idle a moment later.
+  const arrivedViaCardTransition = useRef(heroFastReveal).current
+  const heroImageRef = useRef<HTMLDivElement>(null)
+  // Pauses the Ken Burns background pan + light-drift overlay once this hero
+  // has scrolled out of view — both are plain infinite CSS animations that
+  // otherwise keep running (and costing GPU time) for the rest of the page
+  // visit, long after the user has scrolled past. `animation-play-state`
+  // freezes/resumes at the exact current keyframe, so there's no jump.
+  const { ref: heroSectionRef, inView: heroInView } = useInView<HTMLElement>()
+
+  // The flying clone needs to know exactly where this hero's real image
+  // lives to land on it — report that rect once, right after mount. Scroll
+  // is already reset to (0,0) by `beginCardTransition` before it navigates,
+  // so this is the final resting position, not a scrolled-away one.
+  useLayoutEffect(() => {
+    if (!arrivedViaCardTransition) return
+    const el = heroImageRef.current
+    if (!el) return
+    const rect = el.getBoundingClientRect()
+    reportHeroTarget({ top: rect.top, left: rect.left, width: rect.width, height: rect.height })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  // Cold direct loads (typed URL, refresh, navbar link) keep the original
+  // cinematic delay so the tagline/image arrive after the 3D wordmark
+  // animation has had its moment — entirely unchanged.
+  //
+  // Arriving from a "Discover ELATŌ" card click is different: the real
+  // image/tagline/badges must stay invisible until the flying clone has
+  // actually landed on this exact spot (`heroSettled`) and crossfade in
+  // right then — revealing them on a fixed timer instead would show the
+  // real (static) image sitting in place *while* the clone is still
+  // mid-flight toward it, which reads as two overlapping photos rather than
+  // one continuous shared element.
+  //
+  // `heroSettled` on the context is deliberately transient — the provider
+  // flips it back to `false` shortly after, as cleanup so the *next* card
+  // transition starts from a clean slate. This hero must not listen to that
+  // reset: once it has taken ownership of the shared element it owns it
+  // permanently, so `revealed` is a one-way latch (set, never unset) rather
+  // than a direct read of `heroSettled`. Reading `heroSettled` directly here
+  // was the bug — the image would dutifully fade back out the moment the
+  // context reset it.
+  const [revealed, setRevealed] = useState(!arrivedViaCardTransition)
+  useEffect(() => {
+    if (heroSettled) setRevealed(true)
+  }, [heroSettled])
+  const revealNow = revealed
+  const crossfadeS = FADE_MS / 1000
+
+  const imageDelay = reduceMotion ? 0 : arrivedViaCardTransition ? 0 : 3.4
+  const imageDuration = reduceMotion ? 0.4 : arrivedViaCardTransition ? crossfadeS : 1
+  const taglineDelay = reduceMotion ? 0 : arrivedViaCardTransition ? crossfadeS + 0.08 : 2.8
+  const taglineDuration = reduceMotion ? 0.4 : arrivedViaCardTransition ? 0.4 : 0.8
+  // Floating badges settle in once the image has crossfaded into place.
+  const badgeDelay = arrivedViaCardTransition ? crossfadeS + 0.16 : imageDelay + imageDuration * 0.55
 
   const taglineReveal: Variants = {
     hidden: { opacity: 0, y: reduceMotion ? 0 : 10, filter: reduceMotion ? 'blur(0px)' : 'blur(6px)' },
@@ -67,29 +129,39 @@ export function PremiumHero({
       y: 0,
       filter: 'blur(0px)',
       transition: {
-        delay: reduceMotion ? 0 : 2.8,
-        duration: reduceMotion ? 0.4 : 0.8,
+        delay: taglineDelay,
+        duration: taglineDuration,
         ease: EASE_CINEMATIC,
       },
     },
   }
 
+  // A transition-driven arrival skips the y/scale settle here — the flying
+  // clone already sits exactly on top of this container, so it must hold
+  // its final, undistorted layout position from the very first paint (only
+  // opacity toggles) rather than animating in from an offset.
   const imageCardReveal: Variants = {
-    hidden: { opacity: 0, y: reduceMotion ? 0 : 28, scale: reduceMotion ? 1 : 0.96 },
+    hidden: arrivedViaCardTransition
+      ? { opacity: 0 }
+      : { opacity: 0, y: reduceMotion ? 0 : 28, scale: reduceMotion ? 1 : 0.96 },
     visible: {
       opacity: 1,
       y: 0,
       scale: 1,
       transition: {
-        delay: reduceMotion ? 0 : 3.4,
-        duration: reduceMotion ? 0.4 : 1,
+        delay: imageDelay,
+        duration: imageDuration,
         ease: EASE_CINEMATIC,
       },
     },
   }
 
   return (
-    <section id={id} className="relative flex min-h-[87vh] items-center overflow-hidden pt-28 pb-16 sm:pb-28 lg:min-h-screen lg:py-24 [@media(max-height:600px)_and_(max-width:900px)]:py-16">
+    <section
+      id={id}
+      ref={heroSectionRef}
+      className="relative flex min-h-[87vh] items-center overflow-hidden pt-28 pb-16 sm:pb-28 lg:min-h-screen lg:py-24 [@media(max-height:600px)_and_(max-width:900px)]:py-16"
+    >
       <picture>
         <source media="(min-width: 768px)" srcSet={heroBackground} />
         <img
@@ -99,9 +171,10 @@ export function PremiumHero({
           fetchPriority="high"
           decoding="async"
           className="hero-bg-kenburns absolute inset-0 -z-10 h-full w-full object-cover object-center"
+          style={{ animationPlayState: heroInView ? 'running' : 'paused' }}
         />
       </picture>
-      <div className="hero-bg-light" aria-hidden="true" />
+      <div className="hero-bg-light" aria-hidden="true" style={{ animationPlayState: heroInView ? 'running' : 'paused' }} />
 
       <div className="container-elato relative grid w-full items-center gap-14 lg:grid-cols-[1.5fr_1fr] lg:items-stretch lg:gap-10 xl:gap-16">
         {/*
@@ -132,7 +205,7 @@ export function PremiumHero({
 
             <motion.p
               initial="hidden"
-              animate="visible"
+              animate={revealNow ? 'visible' : 'hidden'}
               variants={taglineReveal}
               className="w-[73%] font-sans text-[17px] font-medium leading-relaxed tracking-[0.03em] text-[#9e7641] sm:w-[60%] sm:text-[18px] md:text-[20px] lg:ml-[13.3%] lg:text-[19px] xl:text-[21px]"
             >
@@ -145,7 +218,7 @@ export function PremiumHero({
 
         <motion.div
           initial="hidden"
-          animate="visible"
+          animate={revealNow ? 'visible' : 'hidden'}
           variants={imageCardReveal}
           className="relative mx-auto w-full max-w-[390px] px-6 pt-8 pb-10 sm:max-w-[380px] lg:mx-0 lg:max-w-[400px] xl:max-w-[440px] lg:self-center"
         >
@@ -157,6 +230,9 @@ export function PremiumHero({
             statLabel={cardStatLabel}
             statValue={cardStatValue}
             badgeLabel={cardBadgeLabel}
+            badgeDelay={badgeDelay}
+            revealNow={revealNow}
+            imageContainerRef={heroImageRef}
           />
         </motion.div>
       </div>
@@ -172,6 +248,12 @@ type HeroShowcaseCardProps = {
   statLabel: string
   statValue: string
   badgeLabel: string
+  /** Seconds to wait before the two floating badges start their own entrance — passed down so they settle in only once the hero image itself has crossfaded into place. */
+  badgeDelay: number
+  /** Gates the badges' own reveal the same way the image/tagline are gated — see the note above `revealNow` in PremiumHero. */
+  revealNow: boolean
+  /** The real photo container — measured and reported to the page-transition context so the flying clone knows exactly where to land. */
+  imageContainerRef: React.RefObject<HTMLDivElement | null>
 }
 
 /**
@@ -185,7 +267,18 @@ type HeroShowcaseCardProps = {
  * `PremiumHeroProps.imageSrc`, `PlaceholderArt` renders in its place at the
  * exact same proportions, so the final layout never has to be revisited.
  */
-function HeroShowcaseCard({ src, alt, sectionName, reduceMotion, statLabel, statValue, badgeLabel }: HeroShowcaseCardProps) {
+function HeroShowcaseCard({
+  src,
+  alt,
+  sectionName,
+  reduceMotion,
+  statLabel,
+  statValue,
+  badgeLabel,
+  badgeDelay,
+  revealNow,
+  imageContainerRef,
+}: HeroShowcaseCardProps) {
   return (
     <motion.div
       className="group relative"
@@ -213,7 +306,10 @@ function HeroShowcaseCard({ src, alt, sectionName, reduceMotion, statLabel, stat
         className="absolute -top-5 -left-5 z-0 h-full w-full rounded-[1.75rem] border-2 border-[#e7caa0]"
       />
 
-      <div className="relative z-10 aspect-[6/7] w-full overflow-hidden rounded-[1.75rem] border border-white/60 bg-surface-elevated shadow-elato-xl">
+      <div
+        ref={imageContainerRef}
+        className="relative z-10 aspect-[6/7] w-full overflow-hidden rounded-[1.75rem] border border-white/60 bg-surface-elevated shadow-elato-xl"
+      >
         {src ? (
           <img src={src} alt={alt} className="h-full w-full object-cover" />
         ) : (
@@ -225,13 +321,23 @@ function HeroShowcaseCard({ src, alt, sectionName, reduceMotion, statLabel, stat
       </div>
 
       {/* Floating stat badge, top-right — overlaps the photo's corner */}
-      <div className="absolute -top-5 -right-5 z-20 rounded-2xl bg-white px-4 py-3 shadow-elato-lg sm:-top-6 sm:-right-6 sm:px-5 sm:py-3.5">
+      <motion.div
+        initial={reduceMotion ? { opacity: 0 } : { opacity: 0, y: 12, scale: 0.9 }}
+        animate={revealNow ? { opacity: 1, y: 0, scale: 1 } : { opacity: 0, y: 12, scale: 0.9 }}
+        transition={{ delay: badgeDelay, duration: reduceMotion ? 0.3 : 0.5, ease: EASE_CINEMATIC }}
+        className="absolute -top-5 -right-5 z-20 rounded-2xl bg-white px-4 py-3 shadow-elato-lg sm:-top-6 sm:-right-6 sm:px-5 sm:py-3.5"
+      >
         <p className="text-[9px] font-medium uppercase tracking-[0.16em] text-ink-soft sm:text-[10px]">{statLabel}</p>
         <p className="font-display text-[20px] font-semibold leading-tight text-[#9e7641] sm:text-[24px]">{statValue}</p>
-      </div>
+      </motion.div>
 
       {/* Avatar-cluster badge, bottom-left — overlaps the photo's corner. No numeric review/member claim: the copy stays qualitative. */}
-      <div className="absolute -bottom-5 -left-5 z-20 flex items-center gap-2.5 rounded-2xl bg-white px-3.5 py-2.5 shadow-elato-lg sm:-bottom-6 sm:-left-6 sm:gap-3 sm:px-4 sm:py-3">
+      <motion.div
+        initial={reduceMotion ? { opacity: 0 } : { opacity: 0, y: 12, scale: 0.9 }}
+        animate={revealNow ? { opacity: 1, y: 0, scale: 1 } : { opacity: 0, y: 12, scale: 0.9 }}
+        transition={{ delay: badgeDelay + 0.12, duration: reduceMotion ? 0.3 : 0.5, ease: EASE_CINEMATIC }}
+        className="absolute -bottom-5 -left-5 z-20 flex items-center gap-2.5 rounded-2xl bg-white px-3.5 py-2.5 shadow-elato-lg sm:-bottom-6 sm:-left-6 sm:gap-3 sm:px-4 sm:py-3"
+      >
         <div className="flex -space-x-2.5" aria-hidden="true">
           <span className="flex h-7 w-7 items-center justify-center rounded-full border-2 border-white bg-[#e7caa0] sm:h-8 sm:w-8">
             <UserGlyph />
@@ -241,7 +347,7 @@ function HeroShowcaseCard({ src, alt, sectionName, reduceMotion, statLabel, stat
           </span>
         </div>
         <p className="text-[10px] font-medium leading-tight text-ink sm:text-[11px]">{badgeLabel}</p>
-      </div>
+      </motion.div>
     </motion.div>
   )
 }

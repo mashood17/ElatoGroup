@@ -1,8 +1,13 @@
 import { useEffect, useMemo, useRef } from 'react'
 import { Canvas, useFrame } from '@react-three/fiber'
-import { useTexture } from '@react-three/drei'
+// Deep import rather than the `@react-three/drei` barrel — the barrel's
+// index re-exports 150+ helpers, many with their own heavy dependency
+// trees, and pulling even one named export from it risked dragging the
+// whole graph into this lazy chunk instead of just the texture loader.
+import { useTexture } from '@react-three/drei/core/Texture'
 import { animate } from 'framer-motion'
 import * as THREE from 'three'
+import { useInView } from '../../lib/useInView'
 
 const EASE_LOGO = [0.19, 1, 0.22, 1] as const
 
@@ -242,10 +247,20 @@ export type PremiumLogoSceneProps = {
  */
 export default function PremiumLogoScene({ className, src, aspect, macronRect }: PremiumLogoSceneProps) {
   const maskRect = useMemo(() => new THREE.Vector4(...macronRect), [macronRect])
+  // Stops the render loop once this hero has scrolled out of view — R3F's
+  // default `frameloop="always"` otherwise keeps rendering forever (idle
+  // breathing/parallax never stops on its own), which is wasted GPU work for
+  // the rest of the page visit once the user has scrolled past. The idle
+  // animation is driven off `performance.now()` (real elapsed time, not an
+  // accumulated per-frame delta — see LogoMesh's useFrame), so pausing and
+  // resuming the loop produces no jump: it just picks back up wherever real
+  // time says it should be.
+  const { ref: inViewRef, inView } = useInView<HTMLDivElement>()
 
   return (
-    <div className={className} style={{ aspectRatio: String(aspect) }}>
+    <div ref={inViewRef} className={className} style={{ aspectRatio: String(aspect) }}>
       <Canvas
+        frameloop={inView ? 'always' : 'never'}
         dpr={[1, 2]}
         gl={{
           alpha: true,

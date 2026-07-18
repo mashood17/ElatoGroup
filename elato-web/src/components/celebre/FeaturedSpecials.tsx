@@ -7,8 +7,8 @@ import { getSpecials } from '../../lib/menuRepository'
 import type { Special } from '../../content/celebreContent'
 import { sectionReveal, viewportOnce } from '../../lib/motion'
 import { useSectionExitFade } from '../../lib/useSectionExitFade'
-import bgDesktop from '../../assets/newbg/bg2.png'
-import bgMobile from '../../assets/newbg/bg-mb2.png'
+import bgDesktop from '../../assets/newbg/bg2.webp'
+import bgMobile from '../../assets/newbg/bg-mb2.webp'
 
 const gradients = [
   'from-primary-300 to-secondary-500',

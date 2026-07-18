@@ -1,9 +1,9 @@
 import { motion, useReducedMotion, type Variants } from 'framer-motion'
 import { ServiceCard } from '../ui/ServiceCard'
 import { servicesContent, servicesHeading } from '../../content/siteContent'
-import { serviceImages } from '../../content/serviceImages'
-import sectionBackground from '../../assets/newbg/bg2.png'
-import sectionBackgroundMobile from '../../assets/newbg/bg-mb2.png'
+import { serviceImages, serviceImageKeys } from '../../content/serviceImages'
+import sectionBackground from '../../assets/newbg/bg2.webp'
+import sectionBackgroundMobile from '../../assets/newbg/bg-mb2.webp'
 import { viewportOnce } from '../../lib/motion'
 import { useSiteImages } from '../../lib/useSiteImage'
 import { useSectionExitFade } from '../../lib/useSectionExitFade'
@@ -12,14 +12,6 @@ const routes: Record<string, string> = {
   stay: '/elato-stay',
   celebre: '/elato-celebre',
   events: '/elato-events',
-}
-
-// site_content key that the admin's Homepage → Services image slot writes to,
-// per service. Falls back to the bundled static asset when unset.
-const serviceImageKeys: Record<string, string> = {
-  celebre: 'home_services_celebre_image',
-  stay: 'home_services_stay_image',
-  events: 'home_services_events_image',
 }
 
 const EASE_EDITORIAL = [0.16, 1, 0.3, 1] as const

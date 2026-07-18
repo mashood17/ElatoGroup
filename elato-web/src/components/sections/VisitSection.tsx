@@ -11,9 +11,9 @@ import { useSectionExitFade } from '../../lib/useSectionExitFade'
 import { validateName, validatePhone10, validateMessage } from '../../lib/validation'
 import { persistEnquiry } from '../../lib/enquiryRepository'
 import { trackEvent } from '../../lib/analytics'
-import sectionBackground from '../../assets/newbg/bg2.png'
-import sectionBackgroundMobile from '../../assets/newbg/bg-mb2.png'
-import mapCover from '../../assets/visit/map.png'
+import sectionBackground from '../../assets/newbg/bg2.webp'
+import sectionBackgroundMobile from '../../assets/newbg/bg-mb2.webp'
+import mapCover from '../../assets/visit/map.webp'
 
 const purposes = ['Stay', 'Celebré', 'Events', 'General'] as const
 

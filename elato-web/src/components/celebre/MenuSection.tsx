@@ -7,8 +7,8 @@ import { ItemDetailModal } from './menu/ItemDetailModal'
 import { getCategories, getMenuItems, searchMenuItems } from '../../lib/menuRepository'
 import type { Category, MenuItem } from '../../content/celebreContent'
 import { sectionReveal, viewportOnce } from '../../lib/motion'
-import bgDesktop from '../../assets/newbg/bg2.png'
-import bgMobile from '../../assets/newbg/bg-mb2.png'
+import bgDesktop from '../../assets/newbg/bg2.webp'
+import bgMobile from '../../assets/newbg/bg-mb2.webp'
 
 export function MenuSection() {
   const [categories, setCategories] = useState<Category[] | null>(null)

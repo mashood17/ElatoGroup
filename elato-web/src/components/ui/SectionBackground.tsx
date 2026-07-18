@@ -36,7 +36,7 @@ export function SectionBackground({ image, mobileImage }: { image: string; mobil
           alt=""
           loading="eager"
           decoding="async"
-          style={{ y: parallaxY, scale }}
+          style={{ y: parallaxY, scale, willChange: 'transform' }}
           className="absolute inset-0 h-full w-full object-cover object-center"
         />
       </picture>

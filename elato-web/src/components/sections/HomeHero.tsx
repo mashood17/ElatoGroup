@@ -1,8 +1,9 @@
 import { motion, useReducedMotion, type Variants } from 'framer-motion'
 import { HeroLogo } from '../hero/HeroLogo'
 import { heroContent } from '../../content/siteContent'
-import heroBackground from '../../assets/newbg/bg.jpg'
-import heroBackgroundMobile from '../../assets/newbg/bg-mb.png'
+import { useInView } from '../../lib/useInView'
+import heroBackground from '../../assets/newbg/bg.webp'
+import heroBackgroundMobile from '../../assets/newbg/bg-mb.webp'
 
 const EASE_CINEMATIC = [0.16, 1, 0.3, 1] as const
 
@@ -32,6 +33,12 @@ const EASE_CINEMATIC = [0.16, 1, 0.3, 1] as const
  */
 export function HomeHero() {
   const reduceMotion = useReducedMotion()
+  // Pauses the Ken Burns background pan + light-drift overlay once this hero
+  // has scrolled out of view — both are plain infinite CSS animations that
+  // otherwise keep running (and costing GPU time) for the rest of the page
+  // visit, long after the user has scrolled past. `animation-play-state`
+  // freezes/resumes at the exact current keyframe, so there's no jump.
+  const { ref: heroSectionRef, inView: heroInView } = useInView<HTMLElement>()
 
   const taglineReveal: Variants = {
     hidden: { opacity: 0, y: reduceMotion ? 0 : 10, filter: reduceMotion ? 'blur(0px)' : 'blur(6px)' },
@@ -61,7 +68,7 @@ export function HomeHero() {
   }
 
   return (
-    <section id="home" className="relative flex h-screen items-center justify-center overflow-hidden">
+    <section id="home" ref={heroSectionRef} className="relative flex h-screen items-center justify-center overflow-hidden">
       <picture>
         <source media="(min-width: 768px)" srcSet={heroBackground} />
         <img
@@ -71,9 +78,10 @@ export function HomeHero() {
           fetchPriority="high"
           decoding="async"
           className="hero-bg-kenburns absolute inset-0 -z-10 h-full w-full object-cover object-center"
+          style={{ animationPlayState: heroInView ? 'running' : 'paused' }}
         />
       </picture>
-      <div className="hero-bg-light" aria-hidden="true" />
+      <div className="hero-bg-light" aria-hidden="true" style={{ animationPlayState: heroInView ? 'running' : 'paused' }} />
 
       <div className="container-elato relative flex -translate-y-[8vh] flex-col items-center gap-7 pt-20 text-center [@media(max-height:500px)]:gap-3 [@media(max-height:500px)]:pt-10 sm:gap-5 md:translate-y-0 md:gap-6 lg:gap-4">
         {/*

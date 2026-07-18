@@ -2,9 +2,9 @@ import { motion, useReducedMotion, type Variants } from 'framer-motion'
 import { sectionReveal, viewportOnce } from '../../lib/motion'
 import { useSiteImage } from '../../lib/useSiteImage'
 import { useSectionExitFade } from '../../lib/useSectionExitFade'
-import gatheringImg from '../../assets/about/gathering.jpeg'
-import bgDesktop from '../../assets/newbg/bg.jpg'
-import bgMobile from '../../assets/newbg/bg-mb.png'
+import gatheringImg from '../../assets/about/gathering.webp'
+import bgDesktop from '../../assets/newbg/bg.webp'
+import bgMobile from '../../assets/newbg/bg-mb.webp'
 
 // site_content key that the admin's Celebré → Small Gatherings image slot
 // writes to. Falls back to the bundled static asset when unset.

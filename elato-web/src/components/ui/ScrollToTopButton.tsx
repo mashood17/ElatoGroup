@@ -1,19 +1,13 @@
-import { useEffect, useState } from 'react'
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 import { ArrowUp } from 'lucide-react'
+import { useScrollPast } from '../../lib/useScrollPast'
 
 const SHOW_AFTER_PX = 480
+const getShowThreshold = () => SHOW_AFTER_PX
 
 export function ScrollToTopButton() {
   const reduceMotion = useReducedMotion()
-  const [visible, setVisible] = useState(false)
-
-  useEffect(() => {
-    const onScroll = () => setVisible(window.scrollY > SHOW_AFTER_PX)
-    onScroll()
-    window.addEventListener('scroll', onScroll, { passive: true })
-    return () => window.removeEventListener('scroll', onScroll)
-  }, [])
+  const visible = useScrollPast(getShowThreshold)
 
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: reduceMotion ? 'auto' : 'smooth' })

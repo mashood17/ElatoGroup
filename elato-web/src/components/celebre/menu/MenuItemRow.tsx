@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import type { MenuItem } from '../../../content/celebreContent'
 
 function VegMark({ isVeg }: { isVeg: boolean }) {
@@ -19,7 +20,13 @@ function VegMark({ isVeg }: { isVeg: boolean }) {
   )
 }
 
-export function MenuItemRow({ item, onOpen }: { item: MenuItem; onOpen: (id: string) => void }) {
+export const MenuItemRow = memo(function MenuItemRow({
+  item,
+  onOpen,
+}: {
+  item: MenuItem
+  onOpen: (id: string) => void
+}) {
   return (
     <button
       type="button"
@@ -44,4 +51,4 @@ export function MenuItemRow({ item, onOpen }: { item: MenuItem; onOpen: (id: str
       </span>
     </button>
   )
-}
+})

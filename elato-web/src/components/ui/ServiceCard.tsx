@@ -1,8 +1,9 @@
 import { ArrowRight } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { motion, useReducedMotion, useScroll, useSpring, useTransform, type Variants } from 'framer-motion'
-import { useRef } from 'react'
+import { memo, useRef } from 'react'
 import { cn } from '../../lib/cn'
+import { usePageTransition } from '../../lib/pageTransition'
 
 const EASE_CINEMATIC = [0.16, 1, 0.3, 1] as const
 
@@ -67,9 +68,30 @@ interface ServiceCardProps {
   className?: string
 }
 
-export function ServiceCard({ title, description, imageSrc, href, index, className }: ServiceCardProps) {
+export const ServiceCard = memo(function ServiceCard({ title, description, imageSrc, href, index, className }: ServiceCardProps) {
   const reduceMotion = useReducedMotion()
   const cardRef = useRef<HTMLDivElement>(null)
+  const linkRef = useRef<HTMLAnchorElement>(null)
+  const { isTransitioning, pendingId, beginCardTransition } = usePageTransition()
+
+  const isSelected = pendingId === href
+  const isDimmed = isTransitioning && !isSelected
+
+  function handleClick(event: React.MouseEvent<HTMLAnchorElement>) {
+    if (reduceMotion) return // plain <Link> navigation, no shared-element cinematic
+    if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return // let modified/middle clicks open in a new tab as normal
+
+    event.preventDefault()
+    if (isTransitioning || !linkRef.current) return
+
+    const rect = linkRef.current.getBoundingClientRect()
+    beginCardTransition({
+      id: href,
+      href,
+      imageSrc,
+      rect: { top: rect.top, left: rect.left, width: rect.width, height: rect.height },
+    })
+  }
 
   const { scrollYProgress } = useScroll({ target: cardRef, offset: ['start end', 'end start'] })
   const imageYRaw = useTransform(scrollYProgress, [0, 1], reduceMotion ? [0, 0] : [-16, 16])
@@ -119,11 +141,35 @@ export function ServiceCard({ title, description, imageSrc, href, index, classNa
       className={cn('group h-full', className)}
     >
       <MotionLink
+        ref={linkRef}
         to={href}
-        whileHover={reduceMotion ? undefined : { y: -6, scale: 1.012 }}
-        whileTap={reduceMotion ? undefined : { scale: 0.99 }}
+        onClick={handleClick}
+        whileHover={reduceMotion || isTransitioning ? undefined : { y: -6, scale: 1.012 }}
+        whileTap={reduceMotion || isTransitioning ? undefined : { scale: 0.99 }}
+        animate={
+          reduceMotion
+            ? undefined
+            : isSelected
+              ? { scale: 1.02, y: -10, opacity: 1 }
+              : isDimmed
+                ? { opacity: 0.18, scale: 0.965, y: 0 }
+                : { opacity: 1, scale: 1, y: 0 }
+        }
+        // Plain (non-motion-animated) style so it rides the element's existing
+        // `transition-shadow duration-700` CSS transition instead of fighting
+        // framer-motion's own inline-style ownership of animated properties —
+        // undefined lets the CSS shadow classes (rest / group-hover) show through.
+        style={
+          isSelected
+            ? { boxShadow: '0 0 46px rgba(231,202,160,0.55), 0 16px 30px -8px rgba(58,46,30,0.4), 0 55px 90px -20px rgba(58,46,30,0.6)' }
+            : undefined
+        }
         transition={{ duration: 0.5, ease: EASE_CINEMATIC }}
-        className="relative block h-[380px] w-full rounded-[30px] p-[2px] shadow-[0_0_20px_rgba(231,202,160,0.28),0_8px_20px_-6px_rgba(58,46,30,0.35),0_40px_70px_-24px_rgba(58,46,30,0.55)] transition-shadow duration-700 ease-out group-hover:shadow-[0_0_42px_rgba(231,202,160,0.5),0_14px_28px_-8px_rgba(58,46,30,0.4),0_50px_85px_-20px_rgba(58,46,30,0.6)] sm:h-[420px] lg:h-[460px]"
+        aria-disabled={isTransitioning || undefined}
+        className={cn(
+          'relative block h-[380px] w-full rounded-[30px] p-[2px] shadow-[0_0_20px_rgba(231,202,160,0.28),0_8px_20px_-6px_rgba(58,46,30,0.35),0_40px_70px_-24px_rgba(58,46,30,0.55)] transition-shadow duration-700 ease-out group-hover:shadow-[0_0_42px_rgba(231,202,160,0.5),0_14px_28px_-8px_rgba(58,46,30,0.4),0_50px_85px_-20px_rgba(58,46,30,0.6)] sm:h-[420px] lg:h-[460px]',
+          isTransitioning && 'pointer-events-none',
+        )}
       >
         {/* Layer 1 — permanent four-stop gold gradient border, always visible at rest */}
         <div
@@ -143,9 +189,10 @@ export function ServiceCard({ title, description, imageSrc, href, index, classNa
           {/* Layer 3 — the photograph */}
           <motion.div
             className="absolute inset-0 bg-cover bg-center"
-            style={{ backgroundImage: `url(${imageSrc})`, y: imageY, scale: 1.14 }}
-            whileHover={reduceMotion ? undefined : { scale: 1.19 }}
-            whileTap={reduceMotion ? undefined : { scale: 1.17 }}
+            style={{ backgroundImage: `url(${imageSrc})`, y: imageY, willChange: 'transform' }}
+            animate={reduceMotion ? undefined : { scale: isSelected ? 1.2 : 1.14 }}
+            whileHover={reduceMotion || isTransitioning ? undefined : { scale: 1.19 }}
+            whileTap={reduceMotion || isTransitioning ? undefined : { scale: 1.17 }}
             transition={{ duration: 0.8, ease: EASE_CINEMATIC }}
             aria-hidden="true"
           />
@@ -202,4 +249,4 @@ export function ServiceCard({ title, description, imageSrc, href, index, classNa
       </MotionLink>
     </motion.div>
   )
-}
+})
