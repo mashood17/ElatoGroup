@@ -1,6 +1,5 @@
 import { motion } from 'framer-motion'
-import { GalleryPerspectiveGallery } from './gallery/GalleryPerspectiveGallery'
-import type { StayGalleryTile } from './gallery/GalleryItem'
+import { PerspectiveGallery, type PerspectiveGalleryItem } from '../ui/PerspectiveGallery'
 import sectionBackground from '../../assets/newbg/bg2.png'
 import sectionBackgroundMobile from '../../assets/newbg/bg-mb2.png'
 import { SectionBackground } from '../ui/SectionBackground'
@@ -10,23 +9,23 @@ import { sectionReveal, viewportOnce } from '../../lib/motion'
 
 /**
  * "A Glimpse Inside" — driven by the admin-managed Stay gallery
- * (GET /gallery?category=stay). Presented as a floating 3D perspective
- * gallery (./gallery/GalleryPerspectiveGallery.tsx) against an immersive
- * dark backdrop so the photography reads as the focal point. While loading
- * or if no photos have been added yet, it falls back to the static
- * placeholder tiles so the section never looks broken.
+ * (GET /gallery?category=stay). Presented via the shared PerspectiveGallery
+ * (../ui/PerspectiveGallery.tsx) — also used by Events' "Captured Moments" —
+ * so cards, controls, and motion stay identical across both pages; only the
+ * section background differs. While loading or if no photos have been
+ * added yet, it falls back to the static placeholder tiles so the section
+ * never looks broken.
  */
 export function StayGallery() {
   const { status, images } = useStayGallery()
 
-  const liveTiles: StayGalleryTile[] = images.map((img) => ({
+  const liveTiles: PerspectiveGalleryItem[] = images.map((img) => ({
     id: img.id,
     caption: img.caption,
-    span: 'normal',
     url: img.url,
   }))
 
-  const tiles: StayGalleryTile[] = status === 'ready' ? liveTiles : galleryItems
+  const tiles: PerspectiveGalleryItem[] = status === 'ready' ? liveTiles : galleryItems
 
   return (
     <section className="relative overflow-hidden py-20 lg:py-36">
@@ -54,7 +53,7 @@ export function StayGallery() {
             ))}
           </div>
         ) : (
-          <GalleryPerspectiveGallery items={tiles} />
+          <PerspectiveGallery items={tiles} ariaLabel="Stay photo gallery — drag, swipe, or use arrow keys to browse" />
         )}
       </div>
     </section>
