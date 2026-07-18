@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { animate, motion, useMotionValue, useTransform, type MotionValue, type PanInfo } from 'framer-motion'
 
 export interface PerspectiveGalleryItem {
@@ -48,7 +48,12 @@ const TIER_CONFIG = {
 // independently-sprung cards — the idiomatic framer-motion way to keep a
 // multi-element gesture buttery at 60fps without React re-rendering per frame.
 const SETTLE_SPRING = { type: 'spring', stiffness: 90, damping: 22, mass: 1.2 } as const
-const FLICK_LOOKAHEAD_SECONDS = 0.12
+// A swipe always moves exactly one card: past this fraction of a card's
+// width, or a fast-enough flick even if short, counts as "next/previous".
+// Below both thresholds the gesture is treated as accidental and springs
+// back to the card it started on.
+const MIN_SWIPE_FRACTION = 0.15
+const MIN_SWIPE_VELOCITY = 300
 
 interface CardProps {
   item: PerspectiveGalleryItem
@@ -64,12 +69,12 @@ interface CardProps {
 
 function PerspectiveCard({ item, index, gradient, position, total, half, spacing, rotate, depth }: CardProps) {
   const distance = useTransform(position, (pos) => {
-    let d = index - pos
-    if (total > 2) {
-      if (d > total / 2) d -= total
-      else if (d < -total / 2) d += total
-    }
-    return d
+    const d = index - pos
+    // Wrap to the nearest of infinitely many equivalent positions
+    // (index, index ± total, index ± 2*total, ...) — `position` keeps
+    // accumulating indefinitely across swipes/loops rather than resetting,
+    // so this must handle any distance, not just one lap's worth.
+    return total > 2 ? d - total * Math.round(d / total) : d
   })
   const absDistance = useTransform(distance, (d) => Math.abs(d))
   const x = useTransform(distance, (d) => d * spacing)
@@ -82,7 +87,7 @@ function PerspectiveCard({ item, index, gradient, position, total, half, spacing
   return (
     <motion.div
       className="absolute aspect-[4/3.6] w-[clamp(19.5rem,12.5rem_+_22vw,31rem)] cursor-grab active:cursor-grabbing sm:aspect-[6/5]"
-      style={{ x, rotateY, z, scale, opacity, zIndex }}
+      style={{ x, rotateY, z, scale, opacity, zIndex, willChange: 'transform' }}
     >
       <div
         className="h-full w-full overflow-hidden rounded-[36px] border-[1.5px] border-[#9e7641]/45 bg-secondary-900/40"
@@ -134,6 +139,7 @@ export function PerspectiveGallery({ items, ariaLabel }: PerspectiveGalleryProps
   const initialIndex = total > 0 ? Math.min(total >> 1, total - 1) : 0
   const position = useMotionValue(initialIndex)
   const [currentIndex, setCurrentIndex] = useState(initialIndex)
+  const panStartIndex = useRef(initialIndex)
 
   useEffect(() => {
     const mid = total > 0 ? Math.min(total >> 1, total - 1) : 0
@@ -152,6 +158,10 @@ export function PerspectiveGallery({ items, ariaLabel }: PerspectiveGalleryProps
     [total, position],
   )
 
+  const onPanStart = useCallback(() => {
+    panStartIndex.current = Math.round(position.get())
+  }, [position])
+
   const onPan = useCallback(
     (_event: unknown, info: PanInfo) => {
       position.set(position.get() - info.delta.x / spacing)
@@ -162,12 +172,20 @@ export function PerspectiveGallery({ items, ariaLabel }: PerspectiveGalleryProps
   const onPanEnd = useCallback(
     (_event: unknown, info: PanInfo) => {
       if (total <= 1) return
-      const biased = position.get() - (info.velocity.x * FLICK_LOOKAHEAD_SECONDS) / spacing
-      const target = Math.round(biased)
+      const startIndex = panStartIndex.current
+      const dragDistance = position.get() - startIndex
+
+      let target = startIndex
+      if (Math.abs(dragDistance) > MIN_SWIPE_FRACTION) {
+        target = startIndex + Math.sign(dragDistance)
+      } else if (Math.abs(info.velocity.x) > MIN_SWIPE_VELOCITY) {
+        target = startIndex + (info.velocity.x < 0 ? 1 : -1)
+      }
+
       setCurrentIndex(wrapIndex(target, total))
       animate(position, target, SETTLE_SPRING)
     },
-    [total, position, spacing],
+    [total, position],
   )
 
   const onKeyDown = (e: React.KeyboardEvent) => {
@@ -184,18 +202,22 @@ export function PerspectiveGallery({ items, ariaLabel }: PerspectiveGalleryProps
         aria-label={ariaLabel}
         tabIndex={0}
         onKeyDown={onKeyDown}
+        onPanStart={total > 1 ? onPanStart : undefined}
         onPan={total > 1 ? onPan : undefined}
         onPanEnd={total > 1 ? onPanEnd : undefined}
         className="relative flex w-full touch-pan-y select-none items-center justify-center outline-none"
         style={{ height: stageHeight, perspective: '1600px' }}
       >
         {items.map((item, i) => {
-          let staticDistance = i - currentIndex
-          if (total > 2) {
-            if (staticDistance > total / 2) staticDistance -= total
-            else if (staticDistance < -total / 2) staticDistance += total
-          }
-          if (Math.abs(staticDistance) > half + 2) return null
+          // Cap how many cards are simultaneously mounted (and recomputing
+          // their transforms every touch-move frame) — every card renders
+          // was killing drag smoothness on mobile with larger galleries.
+          // Wrapped with the same nearest-multiple math as each card's own
+          // distance transform, so this stays correct across any number of
+          // loops, not just a raw index subtraction.
+          const rawGap = i - currentIndex
+          const gap = total > 2 ? rawGap - total * Math.round(rawGap / total) : rawGap
+          if (Math.abs(gap) > half + 2) return null
 
           return (
             <PerspectiveCard
