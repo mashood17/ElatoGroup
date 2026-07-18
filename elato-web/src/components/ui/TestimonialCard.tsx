@@ -51,7 +51,7 @@ export function TestimonialCard({ item, className }: { item: TestimonialItem; cl
     >
       <Quote className="h-5 w-5 text-[#E7CAA0]" fill="#E7CAA0" fillOpacity={0.6} aria-hidden="true" />
 
-      <p className="mx-auto mt-5 max-w-[46ch] text-balance font-sans text-[18px] italic leading-[1.75] text-secondary-900 sm:text-[21px]">
+      <p className="mx-auto mt-5 max-w-[46ch] text-balance font-serif-italic text-[20px] italic leading-[1.75] text-secondary-900 sm:text-[24px] lg:max-w-[58ch]">
         {item.text}
       </p>
 

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { AnimatePresence, motion, useReducedMotion, type PanInfo, type Variants } from 'framer-motion'
 import { ArrowLeft, ArrowRight, ExternalLink, PenLine } from 'lucide-react'
 import { SkeletonCard } from '../ui/SkeletonCard'
@@ -14,8 +14,6 @@ import sectionBackground from '../../assets/newbg/bg.jpg'
 import sectionBackgroundMobile from '../../assets/newbg/bg-mb.png'
 
 const EASE_EDITORIAL = [0.16, 1, 0.3, 1] as const
-const AUTOPLAY_MS = 7000
-const RESUME_AFTER_MS = 8000
 const SWIPE_DISTANCE_PX = 70
 const SWIPE_VELOCITY = 400
 
@@ -52,10 +50,7 @@ export function ReviewsSection() {
   const [state, setState] = useState<LoadState>('loading')
   const [liveReviews, setLiveReviews] = useState<TestimonialItem[]>([])
   const [index, setIndex] = useState(0)
-  const [hoverPaused, setHoverPaused] = useState(false)
-  const [interactionPaused, setInteractionPaused] = useState(false)
   const exitFade = useSectionExitFade<HTMLElement>()
-  const resumeTimer = useRef<number | undefined>(undefined)
 
   useEffect(() => {
     let cancelled = false
@@ -90,40 +85,16 @@ export function ReviewsSection() {
     setIndex(0)
   }, [state])
 
-  useEffect(() => () => window.clearTimeout(resumeTimer.current), [])
-
-  const pauseInteraction = useCallback(() => {
-    setInteractionPaused(true)
-    window.clearTimeout(resumeTimer.current)
-    resumeTimer.current = window.setTimeout(() => setInteractionPaused(false), RESUME_AFTER_MS)
-  }, [])
-
   const triggerNav = useCallback(
     (direction: 1 | -1) => {
       setIndex((i) => (i + direction + count) % count)
-      pauseInteraction()
     },
-    [count, pauseInteraction],
+    [count],
   )
 
-  const goToIndex = useCallback(
-    (i: number) => {
-      setIndex(i)
-      pauseInteraction()
-    },
-    [pauseInteraction],
-  )
-
-  // Autoplay — paused on hover/focus and for a cooldown after any manual
-  // interaction (arrow, dot, swipe, or keyboard), and skipped entirely under
-  // prefers-reduced-motion.
-  useEffect(() => {
-    if (reduceMotion || state === 'loading' || count <= 1 || hoverPaused || interactionPaused) return
-    const id = window.setInterval(() => {
-      setIndex((i) => (i + 1) % count)
-    }, AUTOPLAY_MS)
-    return () => window.clearInterval(id)
-  }, [reduceMotion, state, count, hoverPaused, interactionPaused])
+  const goToIndex = useCallback((i: number) => {
+    setIndex(i)
+  }, [])
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (count <= 1) return
@@ -176,7 +147,7 @@ export function ReviewsSection() {
       <SectionBackground image={sectionBackground} mobileImage={sectionBackgroundMobile} />
 
       <div className="container-elato">
-        <div className="mx-auto flex max-w-xl flex-col items-center text-center">
+        <div className="mx-auto flex max-w-xl flex-col items-center text-center lg:max-w-2xl">
           <motion.div initial="hidden" whileInView="visible" viewport={viewportOnce} variants={introReveal}>
             <p className="text-caption text-[#9E7641]">{reviewsHeading.overline}</p>
             <h2 className="mt-3 font-sans text-[32px] font-bold leading-[1.15] text-[#9E7641] sm:text-[40px]">
@@ -191,10 +162,6 @@ export function ReviewsSection() {
             <div
               tabIndex={0}
               onKeyDown={handleKeyDown}
-              onMouseEnter={() => setHoverPaused(true)}
-              onMouseLeave={() => setHoverPaused(false)}
-              onFocus={() => setHoverPaused(true)}
-              onBlur={() => setHoverPaused(false)}
               role="group"
               aria-roledescription="carousel"
               aria-label="Guest reviews"

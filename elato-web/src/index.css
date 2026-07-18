@@ -2,6 +2,7 @@
 @import "@fontsource-variable/montserrat";
 @import "@fontsource/playfair-display/400.css";
 @import "@fontsource/playfair-display/600.css";
+@import "@fontsource/cormorant-garamond/400-italic.css";
 
 @theme {
   /*
@@ -55,6 +56,7 @@
   /* Fonts */
   --font-display: "Playfair Display", serif;
   --font-sans: "Montserrat Variable", "Montserrat", sans-serif;
+  --font-serif-italic: "Cormorant Garamond", serif;
 
   /* Container widths (PRD Ch. 24) */
   --container-tablet: 720px;
@@ -219,6 +221,43 @@
   mix-blend-mode: overlay;
   animation: card-border-spin 9s linear infinite;
   will-change: transform;
+}
+
+/* Mobile navigation — luxury glass panel ambient motion. Three blobs drift
+   independently (different durations/paths) so the depth behind the glass
+   never reads as a single repeating loop; the sheen is a single soft light
+   pass every ~9s, mostly idle so it feels occasional rather than looping.
+   Transform/opacity only — GPU-accelerated, and frozen by the
+   prefers-reduced-motion rule below. */
+@keyframes mobile-nav-blob-a {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+  50% { transform: translate3d(4%, 6%, 0) scale(1.12); }
+}
+@keyframes mobile-nav-blob-b {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+  50% { transform: translate3d(-5%, -4%, 0) scale(1.08); }
+}
+@keyframes mobile-nav-blob-c {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+  50% { transform: translate3d(3%, -5%, 0) scale(1.1); }
+}
+.mobile-nav-blob-a { animation: mobile-nav-blob-a 16s ease-in-out infinite; will-change: transform; }
+.mobile-nav-blob-b { animation: mobile-nav-blob-b 21s ease-in-out infinite; will-change: transform; }
+.mobile-nav-blob-c { animation: mobile-nav-blob-c 19s ease-in-out infinite; will-change: transform; }
+
+@keyframes mobile-nav-sheen {
+  0%, 82% { transform: translate3d(-130%, -130%, 0) rotate(20deg); opacity: 0; }
+  88% { opacity: 0.5; }
+  96% { opacity: 0; }
+  100% { transform: translate3d(130%, 130%, 0) rotate(20deg); opacity: 0; }
+}
+.mobile-nav-sheen {
+  position: absolute;
+  inset: -20%;
+  background: linear-gradient(115deg, transparent 45%, rgba(255, 252, 240, 0.55) 50%, transparent 55%);
+  animation: mobile-nav-sheen 9s ease-in-out infinite;
+  will-change: transform, opacity;
+  pointer-events: none;
 }
 
 @media (prefers-reduced-motion: reduce) {
