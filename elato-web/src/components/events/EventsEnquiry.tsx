@@ -9,6 +9,7 @@ import { SectionBackground } from '../ui/SectionBackground'
 import { businessInfo } from '../../content/siteContent'
 import { buildWhatsAppLink } from '../../lib/whatsapp'
 import { sectionReveal, viewportOnce } from '../../lib/motion'
+import { useSectionExitFade } from '../../lib/useSectionExitFade'
 import {
   validateName,
   validatePhone10,
@@ -51,6 +52,7 @@ export function EventsEnquiry() {
   const [submitting, setSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
   const planImage = useSiteImage('events_plan_image', eventsImage)
+  const exitFade = useSectionExitFade<HTMLElement>()
 
   const validate = (): Errors => ({
     name: validateName(name),
@@ -90,7 +92,7 @@ export function EventsEnquiry() {
   }
 
   return (
-    <section id="events-enquiry" className="relative overflow-hidden py-16 lg:py-32">
+    <motion.section id="events-enquiry" ref={exitFade.ref} style={exitFade.style} className="relative overflow-hidden py-16 lg:py-32">
       <SectionBackground image={sectionBackground} mobileImage={sectionBackgroundMobile} />
       <motion.div
         initial="hidden"
@@ -287,7 +289,7 @@ export function EventsEnquiry() {
         </div>
         </div>
       </motion.div>
-    </section>
+    </motion.section>
   )
 }
 

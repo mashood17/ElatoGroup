@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion'
 import { sectionReveal, viewportOnce } from '../../lib/motion'
 import { useSiteImage } from '../../lib/useSiteImage'
+import { useSectionExitFade } from '../../lib/useSectionExitFade'
 import gatheringImg from '../../assets/about/gathering.jpeg'
 import bgDesktop from '../../assets/newbg/bg.jpg'
 import bgMobile from '../../assets/newbg/bg-mb.png'
@@ -23,9 +24,10 @@ const partyContent = {
 
 export function PartyFacilities() {
   const gatheringImage = useSiteImage(GATHERINGS_IMAGE_KEY, gatheringImg)
+  const exitFade = useSectionExitFade<HTMLElement>()
 
   return (
-    <section className="relative overflow-hidden py-16 lg:py-32">
+    <motion.section ref={exitFade.ref} style={exitFade.style} className="relative overflow-hidden py-16 lg:py-32">
       <div className="absolute inset-0 -z-10 bg-cover bg-center sm:hidden" style={{ backgroundImage: `url(${bgMobile})` }} aria-hidden="true" />
       <div className="absolute inset-0 -z-10 hidden bg-cover bg-center sm:block" style={{ backgroundImage: `url(${bgDesktop})` }} aria-hidden="true" />
       <div className="container-elato grid grid-cols-1 items-center gap-16 lg:grid-cols-2">
@@ -91,6 +93,6 @@ export function PartyFacilities() {
           </div>
         </div>
       </div>
-    </section>
+    </motion.section>
   )
 }

@@ -9,6 +9,7 @@ import Stack from '../ui/Stack'
 import { amenities } from '../../content/stayContent'
 import { useStayGallery } from '../../lib/useStayGallery'
 import { sectionReveal, staggerContainer, viewportOnce } from '../../lib/motion'
+import { useSectionExitFade } from '../../lib/useSectionExitFade'
 
 const amenityIcons: Record<string, LucideIcon> = {
   'Fully Furnished': Sofa,
@@ -46,6 +47,7 @@ const fallbackStackCards = [
 
 export function Amenities() {
   const { status, images } = useStayGallery()
+  const exitFade = useSectionExitFade<HTMLElement>()
 
   // Same admin-managed Stay gallery as "A Glimpse Inside" — rendered here as
   // the stacked cards. Falls back to the static images until photos load.
@@ -62,7 +64,7 @@ export function Amenities() {
       : fallbackStackCards
 
   return (
-    <section className="relative overflow-hidden py-16 lg:py-32">
+    <motion.section ref={exitFade.ref} style={exitFade.style} className="relative overflow-hidden py-16 lg:py-32">
       <SectionBackground image={sectionBackground} mobileImage={sectionBackgroundMobile} />
 
       <div className="container-elato relative">
@@ -110,6 +112,6 @@ export function Amenities() {
           </motion.div>
         </motion.div>
       </div>
-    </section>
+    </motion.section>
   )
 }

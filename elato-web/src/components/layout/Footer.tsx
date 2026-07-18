@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom'
-import { Mail } from 'lucide-react'
+import { Mail, Phone } from 'lucide-react'
 import { LogoImage } from '../brand/LogoImage'
 import { businessInfo } from '../../content/siteContent'
 import { buildWhatsAppLink } from '../../lib/whatsapp'
@@ -82,6 +82,16 @@ export function Footer() {
         <div>
           <p className="text-caption mb-4 text-[#9E7641]">Contact</p>
           <ul className="flex flex-col gap-3 text-body">
+            <li>
+              <a
+                href={`tel:+${businessInfo.whatsappNumber}`}
+                onClick={() => trackEvent('call_click', 'footer')}
+                className={socialLinkClass}
+              >
+                <Phone className={socialIconClass} aria-hidden="true" />
+                <span>{businessInfo.phone}</span>
+              </a>
+            </li>
             <li>
               <a
                 href={buildWhatsAppLink(businessInfo.whatsappNumber, 'Hi Elato!')}

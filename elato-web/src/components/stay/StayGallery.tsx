@@ -6,6 +6,7 @@ import { SectionBackground } from '../ui/SectionBackground'
 import { galleryItems } from '../../content/stayContent'
 import { useStayGallery } from '../../lib/useStayGallery'
 import { sectionReveal, viewportOnce } from '../../lib/motion'
+import { useSectionExitFade } from '../../lib/useSectionExitFade'
 
 /**
  * "A Glimpse Inside" — driven by the admin-managed Stay gallery
@@ -18,6 +19,7 @@ import { sectionReveal, viewportOnce } from '../../lib/motion'
  */
 export function StayGallery() {
   const { status, images } = useStayGallery()
+  const exitFade = useSectionExitFade<HTMLElement>()
 
   const liveTiles: PerspectiveGalleryItem[] = images.map((img) => ({
     id: img.id,
@@ -28,7 +30,7 @@ export function StayGallery() {
   const tiles: PerspectiveGalleryItem[] = status === 'ready' ? liveTiles : galleryItems
 
   return (
-    <section className="relative overflow-hidden py-20 lg:py-36">
+    <motion.section ref={exitFade.ref} style={exitFade.style} className="relative overflow-hidden py-20 lg:py-36">
       <SectionBackground image={sectionBackground} mobileImage={sectionBackgroundMobile} />
 
       <div className="container-elato relative">
@@ -56,6 +58,6 @@ export function StayGallery() {
           <PerspectiveGallery items={tiles} ariaLabel="Stay photo gallery — use the arrow buttons or arrow keys to browse" />
         )}
       </div>
-    </section>
+    </motion.section>
   )
 }

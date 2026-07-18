@@ -1,7 +1,6 @@
 import { Seo } from '../components/Seo'
 import { eventVenueJsonLd } from '../lib/jsonLd'
-import { EventsHero } from '../components/events/EventsHero'
-import { EventExperience } from '../components/events/EventExperience'
+import { EventsHeroReveal } from '../components/events/EventsHeroReveal'
 import { EventsGallery } from '../components/events/EventsGallery'
 import { EventsEnquiry } from '../components/events/EventsEnquiry'
 
@@ -15,8 +14,7 @@ export function EventsPage() {
         jsonLd={eventVenueJsonLd()}
       />
       <main>
-        <EventsHero />
-        <EventExperience />
+        <EventsHeroReveal />
         <EventsGallery />
         <EventsEnquiry />
       </main>

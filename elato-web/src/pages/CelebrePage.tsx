@@ -1,8 +1,7 @@
 import { Seo } from '../components/Seo'
 import { restaurantJsonLd } from '../lib/jsonLd'
 import { BasketProvider } from '../lib/basketContext'
-import { CelebreHero } from '../components/celebre/CelebreHero'
-import { FeaturedSpecials } from '../components/celebre/FeaturedSpecials'
+import { CelebreHeroReveal } from '../components/celebre/CelebreHeroReveal'
 import { PartyFacilities } from '../components/celebre/PartyFacilities'
 import { MenuSection } from '../components/celebre/MenuSection'
 import { DeliveryBasket } from '../components/celebre/DeliveryBasket'
@@ -17,8 +16,7 @@ export function CelebrePage() {
         jsonLd={restaurantJsonLd()}
       />
       <main>
-        <CelebreHero />
-        <FeaturedSpecials />
+        <CelebreHeroReveal />
         <PartyFacilities />
         <MenuSection />
         <DeliveryBasket />

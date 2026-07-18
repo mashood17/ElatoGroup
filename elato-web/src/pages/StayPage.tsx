@@ -1,7 +1,6 @@
 import { Seo } from '../components/Seo'
 import { lodgingJsonLd } from '../lib/jsonLd'
-import { StayHero } from '../components/stay/StayHero'
-import { StayIntroduction } from '../components/stay/StayIntroduction'
+import { StayHeroReveal } from '../components/stay/StayHeroReveal'
 import { Amenities } from '../components/stay/Amenities'
 import { StayGallery } from '../components/stay/StayGallery'
 import { BookingEnquiry } from '../components/stay/BookingEnquiry'
@@ -17,8 +16,7 @@ export function StayPage() {
         jsonLd={lodgingJsonLd()}
       />
       <main>
-        <StayHero />
-        <StayIntroduction />
+        <StayHeroReveal />
         <Amenities />
         <StayGallery />
         <BookingEnquiry />

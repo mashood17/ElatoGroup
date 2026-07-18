@@ -3,6 +3,7 @@ import { PerspectiveGallery, type PerspectiveGalleryItem } from '../ui/Perspecti
 import { eventGalleryItems } from '../../content/eventsContent'
 import { useEventsGallery } from '../../lib/useEventsGallery'
 import { sectionReveal, viewportOnce } from '../../lib/motion'
+import { useSectionExitFade } from '../../lib/useSectionExitFade'
 import bgDesktop from '../../assets/newbg/bg.jpg'
 import bgMobile from '../../assets/newbg/bg-mb.png'
 
@@ -16,6 +17,7 @@ import bgMobile from '../../assets/newbg/bg-mb.png'
  */
 export function EventsGallery() {
   const { status, images } = useEventsGallery()
+  const exitFade = useSectionExitFade<HTMLElement>()
 
   const liveTiles: PerspectiveGalleryItem[] = images.map((img) => ({
     id: img.id,
@@ -26,7 +28,7 @@ export function EventsGallery() {
   const tiles: PerspectiveGalleryItem[] = status === 'ready' ? liveTiles : eventGalleryItems
 
   return (
-    <section className="relative overflow-hidden py-16 lg:py-32">
+    <motion.section ref={exitFade.ref} style={exitFade.style} className="relative overflow-hidden py-16 lg:py-32">
       <div className="absolute inset-0 -z-10 bg-cover bg-center sm:hidden" style={{ backgroundImage: `url(${bgMobile})` }} aria-hidden="true" />
       <div className="absolute inset-0 -z-10 hidden bg-cover bg-center sm:block" style={{ backgroundImage: `url(${bgDesktop})` }} aria-hidden="true" />
       <div className="container-elato relative">
@@ -54,6 +56,6 @@ export function EventsGallery() {
           <PerspectiveGallery items={tiles} ariaLabel="Events photo gallery — use the arrow buttons or arrow keys to browse" />
         )}
       </div>
-    </section>
+    </motion.section>
   )
 }

@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion'
 import { EVENTS_HALL_CAPACITY_MIN, EVENTS_HALL_CAPACITY_MAX } from '../../content/eventsContent'
 import { sectionReveal, viewportOnce } from '../../lib/motion'
+import { useSectionExitFade } from '../../lib/useSectionExitFade'
 import { useSiteImage } from '../../lib/useSiteImage'
 import eventsImg from '../../assets/services/events.png'
 import bgDesktop from '../../assets/newbg/bg2.png'
@@ -26,8 +27,9 @@ const experience = {
 
 export function EventExperience() {
   const imageSrc = useSiteImage('events_experience_image', eventsImg)
+  const exitFade = useSectionExitFade<HTMLElement>()
   return (
-    <section className="relative overflow-hidden pb-16 pt-16 lg:pb-20 lg:pt-32">
+    <motion.section ref={exitFade.ref} style={exitFade.style} className="relative overflow-hidden pb-16 pt-16 lg:pb-20 lg:pt-32">
       <div className="absolute inset-0 -z-10 bg-cover bg-center sm:hidden" style={{ backgroundImage: `url(${bgMobile})` }} aria-hidden="true" />
       <div className="absolute inset-0 -z-10 hidden bg-cover bg-center sm:block" style={{ backgroundImage: `url(${bgDesktop})` }} aria-hidden="true" />
       <div className="container-elato grid grid-cols-1 items-center gap-16 lg:grid-cols-2 lg:items-start">
@@ -91,6 +93,6 @@ export function EventExperience() {
           </div>
         </motion.div>
       </div>
-    </section>
+    </motion.section>
   )
 }

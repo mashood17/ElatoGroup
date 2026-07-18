@@ -6,11 +6,13 @@ import { SectionBackground } from '../ui/SectionBackground'
 import { introduction, stayInfo } from '../../content/stayContent'
 import { sectionReveal, staggerContainer, viewportOnce } from '../../lib/motion'
 import { useSiteImage } from '../../lib/useSiteImage'
+import { useSectionExitFade } from '../../lib/useSectionExitFade'
 
 export function StayIntroduction() {
   const imageSrc = useSiteImage('stay_intro_image', stayImage)
+  const exitFade = useSectionExitFade<HTMLElement>()
   return (
-    <section className="relative overflow-hidden py-16 lg:py-32">
+    <motion.section ref={exitFade.ref} style={exitFade.style} className="relative overflow-hidden py-16 lg:py-32">
       <SectionBackground image={sectionBackground} mobileImage={sectionBackgroundMobile} />
 
       <div className="container-elato relative grid grid-cols-1 items-center gap-12 lg:grid-cols-2 lg:items-stretch lg:gap-20">
@@ -85,6 +87,6 @@ export function StayIntroduction() {
           </motion.div>
         </motion.div>
       </div>
-    </section>
+    </motion.section>
   )
 }

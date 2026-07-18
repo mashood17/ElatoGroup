@@ -6,7 +6,7 @@
  */
 import { apiPost } from './apiClient'
 
-export type AnalyticsEventName = 'whatsapp_click' | 'order_generated' | 'booking_click' | 'enquiry_submitted'
+export type AnalyticsEventName = 'whatsapp_click' | 'call_click' | 'order_generated' | 'booking_click' | 'enquiry_submitted'
 
 declare global {
   interface Window {

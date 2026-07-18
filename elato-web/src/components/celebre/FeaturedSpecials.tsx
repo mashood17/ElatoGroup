@@ -6,6 +6,7 @@ import { SpecialDetailModal } from './SpecialDetailModal'
 import { getSpecials } from '../../lib/menuRepository'
 import type { Special } from '../../content/celebreContent'
 import { sectionReveal, viewportOnce } from '../../lib/motion'
+import { useSectionExitFade } from '../../lib/useSectionExitFade'
 import bgDesktop from '../../assets/newbg/bg2.png'
 import bgMobile from '../../assets/newbg/bg-mb2.png'
 
@@ -26,6 +27,7 @@ export function FeaturedSpecials() {
   const [loadError, setLoadError] = useState(false)
   const [activeSpecial, setActiveSpecial] = useState<Special | null>(null)
   const requestId = useRef(0)
+  const exitFade = useSectionExitFade<HTMLElement>()
 
   const load = () => {
     const id = ++requestId.current
@@ -49,7 +51,7 @@ export function FeaturedSpecials() {
   }, [])
 
   return (
-    <section className="relative overflow-hidden py-16 lg:py-32">
+    <motion.section ref={exitFade.ref} style={exitFade.style} className="relative overflow-hidden py-16 lg:py-32">
       <div className="absolute inset-0 -z-10 bg-cover bg-center sm:hidden" style={{ backgroundImage: `url(${bgMobile})` }} aria-hidden="true" />
       <div className="absolute inset-0 -z-10 hidden bg-cover bg-center sm:block" style={{ backgroundImage: `url(${bgDesktop})` }} aria-hidden="true" />
       <div className="container-elato">
@@ -101,6 +103,6 @@ export function FeaturedSpecials() {
       )}
 
       <SpecialDetailModal special={activeSpecial} onClose={() => setActiveSpecial(null)} />
-    </section>
+    </motion.section>
   )
 }
