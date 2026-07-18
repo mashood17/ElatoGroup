@@ -50,6 +50,7 @@ export function InstagramSection() {
             description,
             href: row.permalink,
             image: row.mediaUrl,
+            video: row.videoUrl ?? undefined,
             isLive: true,
           }
         })

@@ -25,9 +25,8 @@ import type {
   DashboardStats,
   MediaOut,
   MediaUploadResponse,
-  InstagramPostCreate,
   InstagramPostOut,
-  InstagramPostUpdate,
+  InstagramSyncStatus,
   AdminOut,
   AdminCreateRequest,
   AdminUpdateRequest,
@@ -87,11 +86,14 @@ export const mediaApi = {
   remove: (id: string) => apiDelete<void>(`/admin/media/${id}`),
 };
 
-// Instagram: manual reel entries (paste a URL, upload a cover image) —
-// admin CRUD only, no auto-fetch from Instagram anywhere in this app.
-export const instagramApi = createCrudApi<InstagramPostOut, InstagramPostCreate, InstagramPostUpdate>(
-  "/admin/instagram-posts",
-);
+// Instagram: read-only integration status + reel list, synced automatically
+// from the Meta Graph API (see elato-backend/app/services/instagram_service.py)
+// — nothing here creates or edits a reel, "Sync Now" just re-runs the sync.
+export const instagramApi = {
+  getStatus: () => apiGet<InstagramSyncStatus>("/admin/instagram/status"),
+  syncNow: () => apiPost<InstagramSyncStatus>("/admin/instagram/sync", {}),
+  listReels: (params?: ListParamsShape) => apiGet<Page<InstagramPostOut>>("/admin/instagram/reels", { params }),
+};
 
 export const usersApi = {
   list: () => apiGet<AdminOut[]>("/admin/users"),

@@ -17,7 +17,7 @@ describe('getLatestInstagramPosts', () => {
     vi.restoreAllMocks()
   })
 
-  it('maps permalink/caption with fallbacks for nulls, prefers thumbnail_url, and preserves is_reel', async () => {
+  it('maps permalink/caption/video_url with fallbacks for nulls, prefers thumbnail_url, and preserves is_reel', async () => {
     vi.mocked(fetch).mockResolvedValue(
       jsonResponse([
         {
@@ -26,6 +26,7 @@ describe('getLatestInstagramPosts', () => {
           is_reel: true,
           thumbnail_url: 'https://example.com/a-thumb.jpg',
           media_url: 'https://example.com/a.mp4',
+          video_url: 'https://example.com/a-hosted.mp4',
           permalink: 'https://instagram.com/p/1',
           caption: 'A sundae.',
           posted_at: '2026-01-01T00:00:00Z',
@@ -36,6 +37,7 @@ describe('getLatestInstagramPosts', () => {
           is_reel: true,
           thumbnail_url: null,
           media_url: 'https://example.com/b.mp4',
+          video_url: null,
           permalink: null,
           caption: null,
           posted_at: null,
@@ -49,9 +51,10 @@ describe('getLatestInstagramPosts', () => {
         permalink: 'https://instagram.com/p/1',
         caption: 'A sundae.',
         mediaUrl: 'https://example.com/a-thumb.jpg',
+        videoUrl: 'https://example.com/a-hosted.mp4',
         isReel: true,
       },
-      { id: 'ig-2', permalink: '#', caption: '', mediaUrl: 'https://example.com/b.mp4', isReel: true },
+      { id: 'ig-2', permalink: '#', caption: '', mediaUrl: 'https://example.com/b.mp4', videoUrl: null, isReel: true },
     ])
   })
 })

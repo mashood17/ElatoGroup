@@ -336,23 +336,25 @@ export interface InstagramPostOut {
   is_reel: boolean;
   thumbnail_url: string | null;
   media_url: string;
+  video_url: string | null;
   permalink: string | null;
   caption: string | null;
   posted_at: string | null;
+  import_status: "manual" | "synced";
+  synced_at: string | null;
 }
 
-/** Manual entry only — an admin pastes the Reel URL and uploads a cover
- * image themselves, nothing here is auto-fetched from Instagram. */
-export interface InstagramPostCreate {
-  permalink: string;
-  media_id: string;
-  caption?: string | null;
-}
-
-export interface InstagramPostUpdate {
-  permalink?: string;
-  media_id?: string;
-  caption?: string | null;
+/** Backs the admin "Instagram Integration" panel — reels themselves are
+ * never created or edited from the admin; they come only from the Meta
+ * Graph API sync. */
+export interface InstagramSyncStatus {
+  connected: boolean;
+  account_username: string | null;
+  last_synced_at: string | null;
+  last_sync_status: "success" | "error" | "not_configured" | null;
+  last_sync_error: string | null;
+  imported_reels_count: number;
+  auto_sync_enabled: boolean;
 }
 
 // ---------------------------------------------------------------------------

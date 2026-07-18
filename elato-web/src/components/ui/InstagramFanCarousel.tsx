@@ -50,9 +50,9 @@ function getHeightMultiplier(width: number) {
 
   const available = window.innerHeight * 0.72
   const base = available >= idealPx ? 1 : available / idealPx
-  // Side cards otherwise droop too far down on narrow/mobile screens —
-  // pull them up closer to the center card there.
-  return width < 640 ? base * 0.45 : base
+  // Mobile cards sit flat in a row (no rainbow-curve y-offset); only
+  // desktop/tablet keep the fanned arc.
+  return width < 640 ? 0 : base
 }
 
 function getSlotConfig(totalCards: number, slot: number) {
@@ -344,7 +344,18 @@ export function InstagramFanCarousel({ reels }: InstagramFanCarouselProps) {
 
             const card = (
               <div className="relative flex h-full w-full flex-col overflow-hidden rounded-[28px] border border-[#E7CAA0]/30 bg-[#140E09] shadow-elato-lg">
-                {reel.image ? (
+                {reel.video ? (
+                  <video
+                    src={reel.video}
+                    poster={reel.image}
+                    autoPlay
+                    muted
+                    loop
+                    playsInline
+                    preload="metadata"
+                    className="absolute inset-0 h-full w-full object-cover"
+                  />
+                ) : reel.image ? (
                   <img src={reel.image} alt="" loading="lazy" className="absolute inset-0 h-full w-full object-cover" />
                 ) : (
                   <div className="absolute inset-0 bg-gradient-to-br from-[#9E7641] via-[#B5905E] to-[#E7CAA0]" aria-hidden="true" />

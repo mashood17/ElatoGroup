@@ -42,5 +42,9 @@ services:
         sync: false
       - key: INSTAGRAM_BUSINESS_ID
         sync: false
+      # Scheduled sync (POST /api/v1/sync/instagram) is triggered by the
+      # .github/workflows/instagram-sync.yml GitHub Actions cron, not a
+      # Render Cron Job — this value must match the SYNC_CRON_SECRET repo
+      # secret configured there.
       - key: SYNC_CRON_SECRET
         sync: false

@@ -17,6 +17,7 @@ export interface InstagramReel {
   description: string
   href: string
   image?: string
+  video?: string
   isLive: boolean
 }
 

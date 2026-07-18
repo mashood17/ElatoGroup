@@ -11,6 +11,7 @@ export type InstagramPostDto = {
   is_reel: boolean
   thumbnail_url: string | null
   media_url: string
+  video_url: string | null
   permalink: string | null
   caption: string | null
   posted_at: string | null
@@ -21,6 +22,7 @@ export type InstagramItem = {
   permalink: string
   caption: string
   mediaUrl: string
+  videoUrl: string | null
   isReel: boolean
 }
 
@@ -31,6 +33,7 @@ export async function getLatestInstagramPosts(): Promise<InstagramItem[]> {
     permalink: r.permalink ?? '#',
     caption: r.caption ?? '',
     mediaUrl: r.thumbnail_url ?? r.media_url,
+    videoUrl: r.video_url,
     isReel: r.is_reel,
   }))
 }

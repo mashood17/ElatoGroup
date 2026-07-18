@@ -110,6 +110,7 @@ export async function mockHomeApi(page: Page) {
         {
           id: 'ig-1',
           media_url: 'https://example.com/image.jpg',
+          video_url: null,
           permalink: 'https://instagram.com/elato.in',
           caption: 'Signature sundae, plated for a Friday evening.',
         },

@@ -186,12 +186,11 @@ Pending
 
 Status
 
-🟡 In Progress
+🟢 Done — automatic Graph API sync (backend service + admin "Instagram Integration" panel + `.github/workflows/instagram-sync.yml` scheduler)
 
 Pending
 
-- API integration
-- Final layout
+- Set `INSTAGRAM_GRAPH_TOKEN` / `INSTAGRAM_BUSINESS_ID` in Render and `BACKEND_SYNC_URL` / `SYNC_CRON_SECRET` GitHub repo secrets (see elato-backend/.env.example)
 
 ---
 
@@ -342,7 +341,7 @@ Current Buckets
 | Service | Status |
 |----------|--------|
 | WhatsApp | 🟡 |
-| Instagram | 🔴 |
+| Instagram | 🟡 (code done, needs Meta credentials) |
 | Booking.com | 🔴 |
 | Google Maps | 🔴 |
 
@@ -448,7 +447,7 @@ Pending
 
 - Final imagery pending.
 - Booking integration pending.
-- Instagram feed pending.
+- Instagram feed: code complete, waiting on real INSTAGRAM_GRAPH_TOKEN/INSTAGRAM_BUSINESS_ID + GitHub sync secrets to go live.
 - Google Reviews pending.
 
 ---

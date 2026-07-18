@@ -1,100 +1,144 @@
-import { useEffect, useState } from "react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Camera as InstagramIcon, ExternalLink, ImagePlus, Pencil, Plus, Trash2 } from "lucide-react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { Camera as InstagramIcon, ExternalLink, RefreshCw } from "lucide-react";
 import { instagramApi } from "../../api/resources";
-import {
-  Button,
-  Card,
-  CardBody,
-  CardHeader,
-  CardGridSkeleton,
-  ConfirmDialog,
-  EmptyState,
-  ErrorState,
-  Input,
-  Modal,
-  Textarea,
-} from "../../components/ui";
-import { useImageUpload } from "../media/useImageUpload";
-import { useAuth } from "../../context/AuthContext";
+import { Badge, Button, Card, CardBody, CardHeader, CardGridSkeleton, EmptyState, ErrorState } from "../../components/ui";
+import type { BadgeTone } from "../../components/ui/Badge";
 import { useToast } from "../../context/ToastContext";
 import { errorMessage } from "../../lib/query-client";
-import { formatDate } from "../../lib/utils";
-import type { InstagramPostOut } from "../../types/api";
+import { formatDateTime } from "../../lib/utils";
 
-const QUERY_KEY = ["instagram-posts"];
+const STATUS_QUERY_KEY = ["instagram-status"];
+const REELS_QUERY_KEY = ["instagram-reels"];
 
-/** Instagram reel management, embedded as a section on the Homepage page
- * (no dedicated nav entry) — paste the Reel URL and upload a cover image
- * yourself, nothing is auto-fetched from Instagram. */
+const CONNECTION_TONE: Record<"connected" | "not_connected" | "error", BadgeTone> = {
+  connected: "success",
+  not_connected: "neutral",
+  error: "danger",
+};
+
+/** Instagram Integration — read-only sync status plus a "Sync Now" button.
+ * Reels are imported automatically from the connected Instagram Business
+ * account via the Meta Graph API (see elato-backend/app/services/instagram_service.py);
+ * nothing here lets an admin create, edit, or paste in a reel by hand. */
 export function InstagramSection() {
-  const { hasRole } = useAuth();
-  const canDelete = hasRole("owner", "admin");
   const queryClient = useQueryClient();
   const { showToast } = useToast();
 
-  const { data, isLoading, isError, error, refetch } = useQuery({
-    queryKey: QUERY_KEY,
-    queryFn: () => instagramApi.list({ limit: 100, offset: 0 }),
+  const statusQuery = useQuery({
+    queryKey: STATUS_QUERY_KEY,
+    queryFn: () => instagramApi.getStatus(),
   });
 
-  const [formOpen, setFormOpen] = useState(false);
-  const [editing, setEditing] = useState<InstagramPostOut | null>(null);
-  const [deleteTarget, setDeleteTarget] = useState<InstagramPostOut | null>(null);
+  const reelsQuery = useQuery({
+    queryKey: REELS_QUERY_KEY,
+    queryFn: () => instagramApi.listReels({ limit: 100, offset: 0 }),
+  });
 
-  const invalidate = () => queryClient.invalidateQueries({ queryKey: QUERY_KEY });
-
-  const deleteMutation = useMutation({
-    mutationFn: (id: string) => instagramApi.remove(id),
-    onSuccess: () => {
-      showToast({ title: "Reel deleted", variant: "success" });
-      setDeleteTarget(null);
-      void invalidate();
+  const syncMutation = useMutation({
+    mutationFn: () => instagramApi.syncNow(),
+    onSuccess: (status) => {
+      queryClient.setQueryData(STATUS_QUERY_KEY, status);
+      void queryClient.invalidateQueries({ queryKey: REELS_QUERY_KEY });
+      showToast({
+        title: status.last_sync_status === "error" ? "Sync finished with an error" : "Sync complete",
+        description: status.last_sync_status === "error" ? (status.last_sync_error ?? undefined) : undefined,
+        variant: status.last_sync_status === "error" ? "error" : "success",
+      });
     },
-    onError: (err) => showToast({ title: "Couldn't delete reel", description: errorMessage(err), variant: "error" }),
+    onError: (err) => showToast({ title: "Couldn't run sync", description: errorMessage(err), variant: "error" }),
   });
+
+  const status = statusQuery.data;
+  const connectionState = !status?.connected ? "not_connected" : status.last_sync_status === "error" ? "error" : "connected";
+  const connectionLabel =
+    connectionState === "connected" ? "Connected" : connectionState === "error" ? "Connected — last sync failed" : "Not connected";
 
   return (
-    <div>
+    <div className="flex flex-col gap-4">
       <Card>
         <CardHeader
-          title="Instagram Reels"
-          description={data ? `${data.total} reel${data.total === 1 ? "" : "s"} shown on the public site` : undefined}
+          title="Instagram Integration"
+          description="Reels are imported automatically from your Instagram Business account. Upload new Reels on Instagram — nothing to do here except sync."
           actions={
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={() => {
-                setEditing(null);
-                setFormOpen(true);
-              }}
-            >
-              <Plus className="h-3.5 w-3.5" /> Add Reel
+            <Button size="sm" variant="outline" onClick={() => syncMutation.mutate()} isLoading={syncMutation.isPending}>
+              <RefreshCw className="h-3.5 w-3.5" /> Sync Now
             </Button>
           }
         />
         <CardBody>
-          {isLoading ? (
+          {statusQuery.isLoading ? (
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
+              {Array.from({ length: 5 }).map((_, i) => (
+                <div key={i} className="h-16 animate-skeleton rounded-lg bg-neutral-200" />
+              ))}
+            </div>
+          ) : statusQuery.isError ? (
+            <ErrorState description={errorMessage(statusQuery.error)} onRetry={() => void statusQuery.refetch()} />
+          ) : (
+            <dl className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
+              <div>
+                <dt className="text-xs text-neutral-500">Connection status</dt>
+                <dd className="mt-1">
+                  <Badge tone={CONNECTION_TONE[connectionState]}>{connectionLabel}</Badge>
+                </dd>
+              </div>
+              <div>
+                <dt className="text-xs text-neutral-500">Instagram account</dt>
+                <dd className="mt-1 text-sm font-medium text-neutral-900">
+                  {status?.account_username ? `@${status.account_username}` : "—"}
+                </dd>
+              </div>
+              <div>
+                <dt className="text-xs text-neutral-500">Last successful sync</dt>
+                <dd className="mt-1 text-sm font-medium text-neutral-900">{formatDateTime(status?.last_synced_at)}</dd>
+              </div>
+              <div>
+                <dt className="text-xs text-neutral-500">Imported reels</dt>
+                <dd className="mt-1 text-sm font-medium text-neutral-900">{status?.imported_reels_count ?? 0}</dd>
+              </div>
+              <div>
+                <dt className="text-xs text-neutral-500">Auto sync</dt>
+                <dd className="mt-1">
+                  <Badge tone={status?.auto_sync_enabled ? "success" : "neutral"}>
+                    {status?.auto_sync_enabled ? "Enabled" : "Not configured"}
+                  </Badge>
+                </dd>
+              </div>
+            </dl>
+          )}
+          {!statusQuery.isLoading && !statusQuery.isError && !status?.auto_sync_enabled && (
+            <p className="mt-4 rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-800">
+              INSTAGRAM_GRAPH_TOKEN / INSTAGRAM_BUSINESS_ID aren't configured on the backend yet — reels won't sync until they are.
+            </p>
+          )}
+          {!statusQuery.isLoading && !statusQuery.isError && status?.last_sync_status === "error" && status.last_sync_error && (
+            <p className="mt-4 rounded-lg bg-red-50 px-3 py-2 text-xs text-red-800">{status.last_sync_error}</p>
+          )}
+        </CardBody>
+      </Card>
+
+      <Card>
+        <CardHeader
+          title="Imported Reels"
+          description={reelsQuery.data ? `${reelsQuery.data.total} reel${reelsQuery.data.total === 1 ? "" : "s"} shown on the public site` : undefined}
+        />
+        <CardBody>
+          {reelsQuery.isLoading ? (
             <CardGridSkeleton count={8} />
-          ) : isError ? (
-            <ErrorState description={errorMessage(error)} onRetry={() => void refetch()} />
-          ) : !data || data.items.length === 0 ? (
+          ) : reelsQuery.isError ? (
+            <ErrorState description={errorMessage(reelsQuery.error)} onRetry={() => void reelsQuery.refetch()} />
+          ) : !reelsQuery.data || reelsQuery.data.items.length === 0 ? (
             <EmptyState
               icon={InstagramIcon}
               title="No reels yet"
-              description="Add a reel to feature it on the public site."
-              action={
-                <Button size="sm" onClick={() => setFormOpen(true)}>
-                  <Plus className="h-3.5 w-3.5" /> Add Reel
-                </Button>
-              }
+              description="Upload a Reel to your Instagram Business account, then hit Sync Now."
             />
           ) : (
             <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-              {data.items.map((post) => (
+              {reelsQuery.data.items.map((post) => (
                 <div key={post.id} className="group relative overflow-hidden rounded-xl border border-neutral-200 bg-neutral-50">
                   <div className="aspect-square w-full overflow-hidden bg-neutral-100">
-                    <img src={post.media_url} alt={post.caption ?? ""} className="h-full w-full object-cover" loading="lazy" />
+                    <img src={post.thumbnail_url ?? post.media_url} alt={post.caption ?? ""} className="h-full w-full object-cover" loading="lazy" />
                   </div>
                   {post.permalink && (
                     <a
@@ -110,33 +154,11 @@ export function InstagramSection() {
                   <div className="flex items-center justify-between gap-1 px-2.5 py-2">
                     <div className="min-w-0">
                       {post.caption && <p className="truncate text-xs text-neutral-600">{post.caption}</p>}
-                      <p className="text-[11px] text-neutral-400">{formatDate(post.posted_at)}</p>
+                      <p className="text-[11px] text-neutral-400">{formatDateTime(post.posted_at)}</p>
                     </div>
-                    <div className="flex shrink-0 items-center">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-7 w-7"
-                        aria-label="Edit reel"
-                        onClick={() => {
-                          setEditing(post);
-                          setFormOpen(true);
-                        }}
-                      >
-                        <Pencil className="h-3.5 w-3.5" />
-                      </Button>
-                      {canDelete && (
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-7 w-7"
-                          aria-label="Delete reel"
-                          onClick={() => setDeleteTarget(post)}
-                        >
-                          <Trash2 className="h-3.5 w-3.5 text-red-500" />
-                        </Button>
-                      )}
-                    </div>
+                    <Badge tone={post.import_status === "synced" ? "info" : "neutral"} className="shrink-0">
+                      {post.import_status === "synced" ? "Synced" : "Legacy"}
+                    </Badge>
                   </div>
                 </div>
               ))}
@@ -144,138 +166,6 @@ export function InstagramSection() {
           )}
         </CardBody>
       </Card>
-
-      <ReelFormModal
-        open={formOpen}
-        onClose={() => setFormOpen(false)}
-        post={editing}
-        onSaved={() => {
-          setFormOpen(false);
-          void invalidate();
-        }}
-      />
-
-      <ConfirmDialog
-        open={!!deleteTarget}
-        title="Delete this reel?"
-        onCancel={() => setDeleteTarget(null)}
-        onConfirm={() => deleteTarget && deleteMutation.mutate(deleteTarget.id)}
-        isLoading={deleteMutation.isPending}
-      />
     </div>
-  );
-}
-
-function ReelFormModal({
-  open,
-  onClose,
-  post,
-  onSaved,
-}: {
-  open: boolean;
-  onClose: () => void;
-  post: InstagramPostOut | null;
-  onSaved: () => void;
-}) {
-  const { showToast } = useToast();
-  const [permalink, setPermalink] = useState("");
-  const [caption, setCaption] = useState("");
-  const [newMediaId, setNewMediaId] = useState<string | null>(null);
-  const [newMediaUrl, setNewMediaUrl] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (open) {
-      setPermalink(post?.permalink ?? "");
-      setCaption(post?.caption ?? "");
-      setNewMediaId(null);
-      setNewMediaUrl(null);
-    }
-  }, [open, post]);
-
-  const { open: openPicker, isUploading, progress, inputElement } = useImageUpload("public-assets", (media) => {
-    setNewMediaId(media.id);
-    setNewMediaUrl(media.url);
-  });
-
-  const previewUrl = newMediaUrl ?? post?.media_url;
-  const canSubmit = !!permalink && (!!post || !!newMediaId);
-
-  const mutation = useMutation({
-    mutationFn: () => {
-      if (post) {
-        return instagramApi.update(post.id, {
-          permalink,
-          caption: caption || null,
-          ...(newMediaId ? { media_id: newMediaId } : {}),
-        });
-      }
-      if (!newMediaId) throw new Error("Upload a cover image first.");
-      return instagramApi.create({ permalink, media_id: newMediaId, caption: caption || null });
-    },
-    onSuccess: () => {
-      showToast({ title: post ? "Reel updated" : "Reel added", variant: "success" });
-      onSaved();
-    },
-    onError: (err) => showToast({ title: "Couldn't save reel", description: errorMessage(err), variant: "error" }),
-  });
-
-  return (
-    <Modal
-      open={open}
-      onClose={onClose}
-      title={post ? "Edit reel" : "Add Reel"}
-      footer={
-        <>
-          <Button variant="outline" size="sm" onClick={onClose}>
-            Cancel
-          </Button>
-          <Button size="sm" isLoading={mutation.isPending} onClick={() => mutation.mutate()} disabled={!canSubmit}>
-            Save
-          </Button>
-        </>
-      }
-    >
-      <form
-        className="flex flex-col gap-4"
-        onSubmit={(e) => {
-          e.preventDefault();
-          mutation.mutate();
-        }}
-      >
-        <Input
-          label="Reel URL"
-          required
-          value={permalink}
-          onChange={(e) => setPermalink(e.target.value)}
-          placeholder="https://www.instagram.com/reel/…"
-        />
-
-        <div className="flex flex-col gap-1.5">
-          <p className="text-xs font-medium text-neutral-700">
-            Cover image{!post && <span className="ml-0.5 text-accent-600">*</span>}
-          </p>
-          {inputElement}
-          <div className="flex items-center gap-3">
-            <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-neutral-200 bg-neutral-50">
-              {previewUrl ? (
-                <img src={previewUrl} alt="" className="h-full w-full object-cover" />
-              ) : (
-                <ImagePlus className="h-5 w-5 text-neutral-300" />
-              )}
-            </div>
-            <div className="flex flex-col gap-1.5">
-              <Button type="button" variant="outline" size="sm" onClick={openPicker} isLoading={isUploading}>
-                {previewUrl ? "Replace" : "Add Image"}
-              </Button>
-              {isUploading && (
-                <p className="text-xs text-neutral-400">Uploading{progress !== null ? ` — ${progress}%` : "…"}</p>
-              )}
-            </div>
-          </div>
-        </div>
-
-        <Textarea label="Caption" value={caption} onChange={(e) => setCaption(e.target.value)} />
-      </form>
-    </Modal>
   );
 }
