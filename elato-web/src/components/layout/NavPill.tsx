@@ -78,15 +78,9 @@ function NavPillItem({
 
   return (
     <li ref={ref} onMouseEnter={handleEnter} className="relative z-10">
-      {item.isRoute ? (
-        <Link to={item.href} onClick={(e) => onItemClick?.(item, e)}>
-          {content}
-        </Link>
-      ) : (
-        <a href={item.href} onClick={(e) => onItemClick?.(item, e)}>
-          {content}
-        </a>
-      )}
+      <Link to={item.href} onClick={(e) => onItemClick?.(item, e)}>
+        {content}
+      </Link>
     </li>
   )
 }

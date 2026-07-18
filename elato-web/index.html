@@ -6,6 +6,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>ELATŌ | Crafting Moments Worth Savoring</title>
     <meta name="description" content="ELATŌ — a premium dessert café, boutique stay, and celebration destination in Mangalore, India." />
+    <script>
+      // Every route below is a lazily-loaded chunk, so right after a reload
+      // the document is briefly just the nav + an empty fallback + footer.
+      // The browser's own automatic scroll restoration runs before that
+      // content streams in, clamps to the (still short) bottom, and never
+      // revisits it once the page grows — landing the user on the footer.
+      // Opting out here, as early as possible, hands restoration to the app
+      // (see ScrollPositionRestoration in src/App.tsx), which waits for the
+      // real content to mount before scrolling.
+      if ('scrollRestoration' in history) {
+        history.scrollRestoration = 'manual'
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>

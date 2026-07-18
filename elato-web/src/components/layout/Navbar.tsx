@@ -223,21 +223,15 @@ export function Navbar() {
                         />
                       </>
                     )
-                    const itemClassName = `group relative inline-block px-2 py-1 font-display text-[26px] font-semibold tracking-tight transition-all duration-300 ease-out hover:scale-[1.02] hover:text-ochre hover:drop-shadow-[0_0_18px_rgba(148,113,43,0.32)] active:scale-[1.02] ${
+                    const itemClassName = `group relative inline-block px-2 py-1 font-sans text-[22px] font-semibold tracking-tight transition-all duration-300 ease-out hover:scale-[1.02] hover:text-ochre hover:drop-shadow-[0_0_18px_rgba(148,113,43,0.32)] active:scale-[1.02] ${
                       item.isActive ? 'text-ochre' : 'text-ink'
                     }`
 
                     return (
                       <motion.div key={item.href} variants={itemVariants}>
-                        {item.isRoute ? (
-                          <Link to={item.href} className={itemClassName} onClick={() => setMenuOpen(false)}>
-                            {inner}
-                          </Link>
-                        ) : (
-                          <a href={item.href} className={itemClassName} onClick={() => setMenuOpen(false)}>
-                            {inner}
-                          </a>
-                        )}
+                        <Link to={item.href} className={itemClassName} onClick={() => setMenuOpen(false)}>
+                          {inner}
+                        </Link>
                       </motion.div>
                     )
                   })}
