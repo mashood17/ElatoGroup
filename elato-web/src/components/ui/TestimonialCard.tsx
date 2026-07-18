@@ -1,4 +1,4 @@
-import { motion, useReducedMotion } from 'framer-motion'
+import { motion, useReducedMotion, type Variants } from 'framer-motion'
 import { Quote } from 'lucide-react'
 import { cn } from '../../lib/cn'
 
@@ -37,34 +37,44 @@ export function Stars({ count, size = 16 }: { count: number; size?: number }) {
 
 /** Single review, presented directly on the section background — no card
  * box, no border, no avatar — quote, stars, and identity in one centered
- * editorial block. A slow idle float is the only always-on motion; the
- * fade/blur crossfade between reviews lives in ReviewsSection. */
+ * editorial block. Each element (quote icon, text, rating, identity) is its
+ * own motion node with no explicit initial/animate of its own, so it
+ * inherits the enter/center/exit variant + stagger timing driven by the
+ * AnimatePresence wrapper in ReviewsSection — the crossfade and the
+ * element-by-element reveal are one orchestrated transition, not two. */
 export function TestimonialCard({ item, className }: { item: TestimonialItem; className?: string }) {
   const reduceMotion = useReducedMotion()
   const reviewedDate = item.reviewDate ? formatReviewedDate(item.reviewDate) : null
 
-  return (
-    <motion.div
-      className={cn('mx-auto flex flex-col items-center text-center', className)}
-      animate={reduceMotion ? undefined : { y: [0, -5, 0] }}
-      transition={reduceMotion ? undefined : { duration: 7, ease: 'easeInOut', repeat: Infinity }}
-    >
-      <Quote className="h-5 w-5 text-[#E7CAA0]" fill="#E7CAA0" fillOpacity={0.6} aria-hidden="true" />
+  const itemFade: Variants = {
+    enter: { opacity: 0, y: reduceMotion ? 0 : 10 },
+    center: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 260, damping: 24 } },
+    exit: { opacity: 0, y: reduceMotion ? 0 : -6 },
+  }
 
-      <p className="mx-auto mt-5 max-w-[46ch] text-balance font-serif-italic text-[20px] italic leading-[1.75] text-secondary-900 sm:text-[24px] lg:max-w-[58ch]">
+  return (
+    <div className={cn('mx-auto flex flex-col items-center text-center', className)}>
+      <motion.div variants={itemFade}>
+        <Quote className="h-5 w-5 text-[#E7CAA0]" fill="#E7CAA0" fillOpacity={0.6} aria-hidden="true" />
+      </motion.div>
+
+      <motion.p
+        variants={itemFade}
+        className="mx-auto mt-6 max-w-[42ch] text-balance font-serif-italic text-[20px] italic leading-[1.8] text-secondary-900 sm:mt-7 sm:text-[24px] sm:leading-[1.75] lg:max-w-[58ch]"
+      >
         {item.text}
-      </p>
+      </motion.p>
 
       {item.rating != null && (
-        <div className="mt-5">
+        <motion.div variants={itemFade} className="mt-6">
           <Stars count={item.rating} />
-        </div>
+        </motion.div>
       )}
 
-      <p className="mt-4 text-sm font-semibold text-secondary-900">{item.author}</p>
-      {reviewedDate && (
-        <p className="mt-1 text-caption text-neutral-warm-500">Reviewed · {reviewedDate}</p>
-      )}
-    </motion.div>
+      <motion.div variants={itemFade} className="mt-5">
+        <p className="text-sm font-semibold text-secondary-900">{item.author}</p>
+        {reviewedDate && <p className="mt-1.5 text-caption text-neutral-warm-500">Reviewed · {reviewedDate}</p>}
+      </motion.div>
+    </div>
   )
 }

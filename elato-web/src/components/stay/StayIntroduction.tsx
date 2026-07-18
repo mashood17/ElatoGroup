@@ -1,4 +1,4 @@
-import { motion } from 'framer-motion'
+import { motion, useReducedMotion, type Variants } from 'framer-motion'
 import stayImage from '../../assets/stay/thestay.png'
 import sectionBackground from '../../assets/newbg/bg2.png'
 import sectionBackgroundMobile from '../../assets/newbg/bg-mb2.png'
@@ -8,19 +8,40 @@ import { sectionReveal, staggerContainer, viewportOnce } from '../../lib/motion'
 import { useSiteImage } from '../../lib/useSiteImage'
 import { useSectionExitFade } from '../../lib/useSectionExitFade'
 
+// Same cinematic left-entrance treatment as Home's About section image card.
+const imageViewport = { once: true, amount: 0.28 }
+
 export function StayIntroduction() {
   const imageSrc = useSiteImage('stay_intro_image', stayImage)
   const exitFade = useSectionExitFade<HTMLElement>()
+  const reduceMotion = useReducedMotion()
+
+  const imageReveal: Variants = {
+    hidden: {
+      opacity: 0,
+      x: reduceMotion ? 0 : -80,
+      scale: reduceMotion ? 1 : 0.96,
+      filter: reduceMotion ? 'blur(0px)' : 'blur(8px)',
+    },
+    visible: {
+      opacity: 1,
+      x: 0,
+      scale: 1,
+      filter: 'blur(0px)',
+      transition: { type: 'spring', duration: 0.9, bounce: 0 },
+    },
+  }
+
   return (
     <motion.section ref={exitFade.ref} style={exitFade.style} className="relative overflow-hidden py-16 lg:py-32">
       <SectionBackground image={sectionBackground} mobileImage={sectionBackgroundMobile} />
 
       <div className="container-elato relative grid grid-cols-1 items-center gap-12 lg:grid-cols-2 lg:items-stretch lg:gap-20">
         <motion.div
-          initial={{ opacity: 0, scale: 0.98 }}
-          whileInView={{ opacity: 1, scale: 1 }}
-          viewport={viewportOnce}
-          transition={{ duration: 0.7, ease: 'easeOut' }}
+          initial="hidden"
+          whileInView="visible"
+          viewport={imageViewport}
+          variants={imageReveal}
           className="order-3 lg:order-1 lg:col-start-1 lg:row-span-2 lg:row-start-1"
         >
           <div className="relative mx-auto aspect-4/5 w-full max-w-sm lg:max-w-none">

@@ -7,7 +7,6 @@ import { ItemDetailModal } from './menu/ItemDetailModal'
 import { getCategories, getMenuItems, searchMenuItems } from '../../lib/menuRepository'
 import type { Category, MenuItem } from '../../content/celebreContent'
 import { sectionReveal, viewportOnce } from '../../lib/motion'
-import { useSectionExitFade } from '../../lib/useSectionExitFade'
 import bgDesktop from '../../assets/newbg/bg2.png'
 import bgMobile from '../../assets/newbg/bg-mb2.png'
 
@@ -20,7 +19,6 @@ export function MenuSection() {
   const [openItemId, setOpenItemId] = useState<string | null>(null)
   const [loadError, setLoadError] = useState(false)
   const requestId = useRef(0)
-  const exitFade = useSectionExitFade<HTMLElement>()
 
   const loadMenu = () => {
     const id = ++requestId.current
@@ -71,7 +69,7 @@ export function MenuSection() {
   }, [menuItems])
 
   return (
-    <motion.section id="menu" ref={exitFade.ref} style={exitFade.style} className="relative overflow-hidden">
+    <motion.section id="menu" className="relative overflow-hidden">
       <div className="absolute inset-0 -z-10 bg-cover bg-center sm:hidden" style={{ backgroundImage: `url(${bgMobile})` }} aria-hidden="true" />
       <div className="absolute inset-0 -z-10 hidden bg-cover bg-center sm:block" style={{ backgroundImage: `url(${bgDesktop})` }} aria-hidden="true" />
 

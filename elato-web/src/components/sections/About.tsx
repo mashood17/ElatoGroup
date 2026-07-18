@@ -1,30 +1,71 @@
-import { motion, useReducedMotion, useScroll, useTransform, type Variants } from 'framer-motion'
+import {
+  motion,
+  useMotionValue,
+  useReducedMotion,
+  useScroll,
+  useSpring,
+  useTransform,
+  type Variants,
+} from 'framer-motion'
 import { Star } from 'lucide-react'
-import { useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import aboutImage from '../../assets/about/about.png'
 import sectionBackground from '../../assets/newbg/bg.jpg'
 import sectionBackgroundMobile from '../../assets/newbg/bg-mb.png'
 import { SectionBackground } from '../ui/SectionBackground'
 import { aboutContent, businessInfo } from '../../content/siteContent'
-import { viewportOnce, PARALLAX_MAX_PX } from '../../lib/motion'
+import { PARALLAX_MAX_PX } from '../../lib/motion'
 import { useAggregateRating } from '../../lib/useAggregateRating'
 import { useSiteImage } from '../../lib/useSiteImage'
-import { useSectionExitFade } from '../../lib/useSectionExitFade'
 
 const EASE_EDITORIAL = [0.16, 1, 0.3, 1] as const
+// Trigger the entrance once ~25-30% of the section is visible, and never replay it on subsequent scrolls.
+const aboutViewport = { once: true, amount: 0.28 }
 
 export function About() {
   const reduceMotion = useReducedMotion()
   const aggregateRating = useAggregateRating()
   const aboutImageSrc = useSiteImage('home_about_image', aboutImage)
+  const sectionRef = useRef<HTMLElement>(null)
   const imageRef = useRef<HTMLDivElement>(null)
-  const exitFade = useSectionExitFade<HTMLElement>()
+  const [canHover, setCanHover] = useState(false)
+
+  useEffect(() => {
+    setCanHover(window.matchMedia('(pointer: fine)').matches)
+  }, [])
+
   const { scrollYProgress } = useScroll({ target: imageRef, offset: ['start end', 'end start'] })
   const parallaxY = useTransform(
     scrollYProgress,
     [0, 1],
     reduceMotion ? [0, 0] : [-PARALLAX_MAX_PX / 2, PARALLAX_MAX_PX / 2],
   )
+
+  // Very subtle fade only as the section hands off to the next one — no
+  // scale/blur, just a gentle dip in opacity for continuity.
+  const { scrollYProgress: exitProgress } = useScroll({ target: sectionRef, offset: ['start start', 'end start'] })
+  const exitOpacity = useTransform(exitProgress, [0, 0.75, 1], reduceMotion ? [1, 1, 1] : [1, 1, 0.88])
+
+  // Tiny cursor-responsive parallax on the image frame — desktop (fine
+  // pointer) only, and skipped entirely under prefers-reduced-motion.
+  const hoverX = useMotionValue(0)
+  const hoverY = useMotionValue(0)
+  const hoverXSpring = useSpring(hoverX, { stiffness: 150, damping: 20 })
+  const hoverYSpring = useSpring(hoverY, { stiffness: 150, damping: 20 })
+
+  const onImageMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (reduceMotion || !canHover) return
+    const bounds = e.currentTarget.getBoundingClientRect()
+    const relX = (e.clientX - bounds.left) / bounds.width - 0.5
+    const relY = (e.clientY - bounds.top) / bounds.height - 0.5
+    hoverX.set(relX * 6)
+    hoverY.set(relY * 6)
+  }
+
+  const onImageMouseLeave = () => {
+    hoverX.set(0)
+    hoverY.set(0)
+  }
 
   // Single top-level orchestrator — every reveal below is driven by this one
   // whileInView trigger via variant propagation. Two independent whileInView
@@ -59,16 +100,23 @@ export function About() {
   }
 
   const imageReveal: Variants = {
-    hidden: { opacity: 0, y: reduceMotion ? 0 : 28, scale: reduceMotion ? 1 : 0.98 },
+    hidden: {
+      opacity: 0,
+      x: reduceMotion ? 0 : -80,
+      scale: reduceMotion ? 1 : 0.96,
+      filter: reduceMotion ? 'blur(0px)' : 'blur(8px)',
+    },
     visible: {
       opacity: 1,
-      y: 0,
+      x: 0,
       scale: 1,
+      filter: 'blur(0px)',
       transition: {
-        duration: 0.8,
-        ease: EASE_EDITORIAL,
-        delayChildren: reduceMotion ? 0 : 0.5,
-        staggerChildren: reduceMotion ? 0 : 0.15,
+        type: 'spring',
+        duration: 0.9,
+        bounce: 0,
+        delayChildren: reduceMotion ? 0 : 0.55,
+        staggerChildren: reduceMotion ? 0 : 0.12,
       },
     },
   }
@@ -79,15 +127,15 @@ export function About() {
       opacity: 1,
       y: 0,
       scale: 1,
-      transition: { duration: 0.6, ease: EASE_EDITORIAL },
+      transition: { type: 'spring', duration: 0.6, bounce: 0 },
     },
   }
 
   return (
     <motion.section
       id="about"
-      ref={exitFade.ref}
-      style={exitFade.style}
+      ref={sectionRef}
+      style={{ opacity: exitOpacity }}
       className="relative z-0 pb-20 pt-14 font-sans lg:py-32"
     >
       <SectionBackground image={sectionBackground} mobileImage={sectionBackgroundMobile} />
@@ -95,7 +143,7 @@ export function About() {
       <motion.div
         initial="hidden"
         whileInView="visible"
-        viewport={viewportOnce}
+        viewport={aboutViewport}
         variants={sectionContainer}
         className="container-elato relative grid grid-cols-1 gap-16 lg:grid-cols-2 lg:items-center lg:gap-20"
       >
@@ -117,7 +165,15 @@ export function About() {
             className="absolute -right-4 -top-4 z-0 h-[88%] w-[88%] rounded-2xl border border-[#9E7641]/30 lg:-right-6 lg:-top-6"
           />
 
-          <div ref={imageRef} className="relative z-10 overflow-hidden rounded-2xl shadow-elato-xl">
+          <motion.div
+            ref={imageRef}
+            onMouseMove={onImageMouseMove}
+            onMouseLeave={onImageMouseLeave}
+            whileHover={reduceMotion || !canHover ? undefined : { scale: 1.025, boxShadow: '0 34px 60px -20px rgba(158,118,65,0.45)' }}
+            transition={{ duration: 0.3, ease: EASE_EDITORIAL }}
+            style={{ x: hoverXSpring, y: hoverYSpring }}
+            className="relative z-10 overflow-hidden rounded-2xl shadow-elato-xl"
+          >
             <motion.img
               style={{ y: parallaxY, scale: 1.12 }}
               src={aboutImageSrc}
@@ -125,7 +181,7 @@ export function About() {
               className="aspect-[4/5] w-full object-cover lg:aspect-[5/6]"
               loading="lazy"
             />
-          </div>
+          </motion.div>
 
           {/* Floating stat badge — founder heritage */}
           <motion.div
@@ -189,10 +245,27 @@ export function About() {
           <motion.a
             variants={textReveal}
             href="#visit"
-            className="mt-8 inline-flex w-fit items-center gap-2 bg-[#9E7641] py-4 pl-8 pr-6 text-caption font-semibold text-[#E7CAA0] transition-opacity duration-300 ease-out hover:opacity-90 [clip-path:polygon(0_0,100%_0,100%_72%,86%_100%,0_100%)]"
+            whileHover={
+              reduceMotion
+                ? undefined
+                : {
+                    y: -3,
+                    scale: 1.02,
+                    backgroundColor: '#A8814A',
+                    boxShadow: '0 14px 28px -10px rgba(158,118,65,0.55)',
+                  }
+            }
+            whileTap={reduceMotion ? undefined : { scale: 0.98 }}
+            transition={{ duration: 0.28, ease: EASE_EDITORIAL }}
+            className="group mt-8 inline-flex w-fit items-center gap-2 bg-[#9E7641] py-4 pl-8 pr-6 text-caption font-semibold text-[#E7CAA0] [clip-path:polygon(0_0,100%_0,100%_72%,86%_100%,0_100%)]"
           >
             {aboutContent.ctaLabel}
-            <span aria-hidden="true">→</span>
+            <span
+              aria-hidden="true"
+              className="inline-block transition-transform duration-300 ease-out group-hover:translate-x-1.5"
+            >
+              →
+            </span>
           </motion.a>
         </motion.div>
       </motion.div>

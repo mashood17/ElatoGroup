@@ -1,4 +1,4 @@
-import { motion } from 'framer-motion'
+import { motion, useReducedMotion, type Variants } from 'framer-motion'
 import { Sofa, Maximize, BedDouble, Bath, ChefHat, ParkingCircle, Leaf, Wifi, type LucideIcon } from 'lucide-react'
 import stayHeroImage from '../../assets/services/stay.png'
 import stayImage from '../../assets/stay/thestay.png'
@@ -48,6 +48,25 @@ const fallbackStackCards = [
 export function Amenities() {
   const { status, images } = useStayGallery()
   const exitFade = useSectionExitFade<HTMLElement>()
+  const reduceMotion = useReducedMotion()
+
+  // Same cinematic entrance as Home's About section image card, mirrored to
+  // slide in from the right since the stacked photos sit on the right here.
+  const imageReveal: Variants = {
+    hidden: {
+      opacity: 0,
+      x: reduceMotion ? 0 : 80,
+      scale: reduceMotion ? 1 : 0.96,
+      filter: reduceMotion ? 'blur(0px)' : 'blur(8px)',
+    },
+    visible: {
+      opacity: 1,
+      x: 0,
+      scale: 1,
+      filter: 'blur(0px)',
+      transition: { type: 'spring', duration: 0.9, bounce: 0 },
+    },
+  }
 
   // Same admin-managed Stay gallery as "A Glimpse Inside" — rendered here as
   // the stacked cards. Falls back to the static images until photos load.
@@ -91,10 +110,21 @@ export function Amenities() {
                   <motion.li
                     key={amenity}
                     variants={sectionReveal}
-                    className="flex flex-col items-center gap-1 rounded-md border border-[#9e7641]/20 bg-primary-50 px-1.5 py-1.5 text-center shadow-elato-lg"
+                    whileHover={
+                      reduceMotion
+                        ? undefined
+                        : {
+                            y: -3,
+                            scale: 1.04,
+                            borderColor: 'rgba(158,118,65,0.55)',
+                            boxShadow: '0 14px 28px -12px rgba(158,118,65,0.45)',
+                          }
+                    }
+                    transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
+                    className="group flex flex-col items-center gap-1 rounded-md border border-[#9e7641]/20 bg-primary-50 px-1.5 py-1.5 text-center shadow-elato-lg"
                   >
-                    <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#9e7641]/10 text-[#9e7641]">
-                      <Icon className="h-2.5 w-2.5" strokeWidth={1.75} />
+                    <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#9e7641]/10 text-[#9e7641] transition-colors duration-300 ease-out group-hover:bg-[#9e7641]/20">
+                      <Icon className="h-2.5 w-2.5 transition-transform duration-300 ease-out group-hover:scale-110" strokeWidth={1.75} />
                     </span>
                     <span className="text-[9px] font-sans normal-case leading-tight tracking-normal text-[#9e7641]">
                       {amenity}
@@ -105,7 +135,7 @@ export function Amenities() {
             </ul>
           </motion.div>
 
-          <motion.div variants={sectionReveal} className="order-2 flex justify-center lg:order-2 lg:justify-start">
+          <motion.div variants={imageReveal} className="order-2 flex justify-center lg:order-2 lg:justify-start">
             <div className="h-80 w-80 sm:h-96 sm:w-96 lg:h-[28rem] lg:w-[28rem]">
               <Stack randomRotation sendToBackOnClick cards={stackCards} />
             </div>

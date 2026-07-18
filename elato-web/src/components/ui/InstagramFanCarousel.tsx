@@ -1,313 +1,291 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import gsap from 'gsap'
-import { Camera } from 'lucide-react'
+import {
+  animate,
+  motion,
+  useMotionValue,
+  useReducedMotion,
+  useSpring,
+  useTransform,
+  type MotionValue,
+  type PanInfo,
+} from 'framer-motion'
+import { ArrowUpRight, Camera } from 'lucide-react'
 import type { InstagramReel } from '../../content/instagramContent'
 
 interface InstagramFanCarouselProps {
   reels: InstagramReel[]
 }
 
-const DESKTOP_VISIBLE_SLOTS = 7
-const MOBILE_VISIBLE_SLOTS = 3
+const clamp = (n: number, min: number, max: number) => Math.min(max, Math.max(min, n))
+const wrapIndex = (n: number, total: number) => ((Math.round(n) % total) + total) % total
 
-const FAN_POSITIONS = [
-  { rot: -21, scale: 0.7756, x: -30, y: 7.3, zIndex: 1 },
-  { rot: -14, scale: 0.8498, x: -22, y: 4.0, zIndex: 2 },
-  { rot: -7, scale: 0.9346, x: -11, y: 1.3, zIndex: 3 },
-  { rot: 0, scale: 1.0, x: 0, y: 0.0, zIndex: 10 },
-  { rot: 7, scale: 0.9346, x: 11, y: 1.3, zIndex: 3 },
-  { rot: 14, scale: 0.8498, x: 22, y: 4.0, zIndex: 2 },
-  { rot: 21, scale: 0.7756, x: 30, y: 7.3, zIndex: 1 },
-]
-
-const prefersReducedMotion = () =>
-  typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
-
-function getRotationMultiplier(width: number) {
-  return width < 640 ? 0.14 : 1
+function shortestDelta(from: number, to: number, total: number) {
+  let diff = (to - from) % total
+  if (diff > total / 2) diff -= total
+  if (diff < -total / 2) diff += total
+  return diff
 }
 
-function getVisibleSlotCount(width: number) {
-  return width < 640 ? MOBILE_VISIBLE_SLOTS : DESKTOP_VISIBLE_SLOTS
+type Tier = 'mobile' | 'tablet' | 'desktop'
+
+const TIER_CONFIG: Record<Tier, { half: number; spacing: number; rotate: number; depth: number; yStep: number }> = {
+  mobile: { half: 1, spacing: 148, rotate: 9, depth: 56, yStep: 0 },
+  tablet: { half: 2, spacing: 228, rotate: 15, depth: 104, yStep: 9 },
+  desktop: { half: 2, spacing: 296, rotate: 19, depth: 138, yStep: 13 },
 }
 
-function getResponsiveMultiplier(width: number) {
-  if (width < 480) return 0.14
-  if (width < 640) return 0.2
-  if (width < 768) return 0.5
-  if (width < 1024) return 0.74
-  return 0.96
+// One shared spring drives `position`; every card derives its x/y/z/rotate/
+// scale/opacity from it via useTransform, so the whole stack glides as a
+// single motion instead of N independently-animated cards (same technique
+// as PerspectiveGallery) — GPU-cheap and buttery at 60fps.
+const SETTLE_SPRING = { type: 'spring', stiffness: 220, damping: 26, mass: 0.9 } as const
+
+function useViewportTier(): Tier {
+  const [tier, setTier] = useState<Tier>('desktop')
+  useEffect(() => {
+    const update = () => {
+      const w = window.innerWidth
+      setTier(w < 640 ? 'mobile' : w < 1024 ? 'tablet' : 'desktop')
+    }
+    update()
+    window.addEventListener('resize', update)
+    return () => window.removeEventListener('resize', update)
+  }, [])
+  return tier
 }
 
-/** Scales y-offsets and entry distances down when the viewport is too short for the ideal layout height. */
-function getHeightMultiplier(width: number) {
-  let idealPx: number
-  if (width < 480) idealPx = 26 * 16
-  else if (width < 640) idealPx = 28 * 16
-  else if (width < 768) idealPx = 30 * 16
-  else if (width < 1024) idealPx = 34 * 16
-  else idealPx = 38 * 16
-
-  const available = window.innerHeight * 0.72
-  const base = available >= idealPx ? 1 : available / idealPx
-  // Mobile cards sit flat in a row (no rainbow-curve y-offset); only
-  // desktop/tablet keep the fanned arc.
-  return width < 640 ? 0 : base
+interface SocialCardProps {
+  reel: InstagramReel
+  index: number
+  total: number
+  position: MotionValue<number>
+  cfg: (typeof TIER_CONFIG)['mobile']
+  isFocused: boolean
+  isInteractive: boolean
+  reduceMotion: boolean
+  tiltX: MotionValue<number>
+  tiltY: MotionValue<number>
+  imgX: MotionValue<number>
+  imgY: MotionValue<number>
+  onLinkClickCapture: (e: React.MouseEvent) => void
 }
 
-function getSlotConfig(totalCards: number, slot: number) {
-  if (totalCards >= DESKTOP_VISIBLE_SLOTS) return FAN_POSITIONS[slot]
-  const center = totalCards >> 1
-  const distance = totalCards > 1 ? (slot - center) / center : 0
-  const absDistance = Math.abs(distance)
-  return {
-    rot: distance * 21,
-    scale: 1.0 - 0.2244 * absDistance * absDistance,
-    x: distance * 30,
-    y: absDistance * absDistance * 7.3,
-    zIndex: 10 - Math.abs(slot - center),
-  }
-}
+function SocialCard({
+  reel,
+  index,
+  total,
+  position,
+  cfg,
+  isFocused,
+  isInteractive,
+  reduceMotion,
+  tiltX,
+  tiltY,
+  imgX,
+  imgY,
+  onLinkClickCapture,
+}: SocialCardProps) {
+  const distance = useTransform(position, (pos) => {
+    const d = index - pos
+    return total > 2 ? d - total * Math.round(d / total) : d
+  })
+  const absDistance = useTransform(distance, (d) => Math.abs(d))
+  const x = useTransform(distance, (d) => d * cfg.spacing)
+  const rotateYBase = useTransform(distance, (d) => clamp(d, -(cfg.half + 0.4), cfg.half + 0.4) * cfg.rotate)
+  const z = useTransform(absDistance, (ad) => -Math.min(ad, cfg.half + 0.4) * cfg.depth)
+  const scale = useTransform(absDistance, (ad) => 1 - clamp(ad, 0, cfg.half + 1) * 0.07)
+  const opacity = useTransform(absDistance, (ad) => clamp(1 - ad * 0.36, 0.16, 1))
+  const y = useTransform(absDistance, (ad) => clamp(ad, 0, cfg.half + 1) * cfg.yStep)
+  const zIndex = useTransform(absDistance, (ad) => Math.round(100 - ad * 10) + (isFocused ? 5 : 0))
 
-const ARROW_CLASSES =
-  'relative flex items-center justify-center rounded-full border border-primary-300 bg-surface-elevated/90 text-secondary-900/50 backdrop-blur-md shadow-elato-md cursor-pointer shrink-0 z-30 outline-none hover:border-secondary-500/40 hover:text-secondary-500 active:scale-95 transition-colors duration-300 focus-visible:ring-2 focus-visible:ring-secondary-500'
+  const rotateY = isFocused && !reduceMotion ? tiltY : rotateYBase
+  const rotateX = isFocused && !reduceMotion ? tiltX : 0
+
+  return (
+    <motion.a
+      href={reel.href}
+      target="_blank"
+      rel="noreferrer"
+      aria-label={`View ${reel.title} on Instagram`}
+      aria-hidden={!isInteractive}
+      tabIndex={isInteractive ? 0 : -1}
+      onClickCapture={onLinkClickCapture}
+      style={{
+        x,
+        y,
+        z,
+        rotateX,
+        rotateY,
+        scale,
+        opacity,
+        zIndex,
+        pointerEvents: isInteractive ? 'auto' : 'none',
+        willChange: 'transform',
+      }}
+      className="absolute inset-0 m-auto h-[clamp(25rem,17rem_+_24vw,29rem)] w-[clamp(15rem,68vw,18.5rem)] outline-none focus-visible:ring-2 focus-visible:ring-secondary-500 sm:h-[clamp(21.5rem,13rem_+_18vw,27.5rem)] sm:w-[clamp(16.5rem,40vw,19rem)] lg:w-[18.5rem]"
+    >
+      <div
+        className={`relative flex h-full w-full flex-col overflow-hidden rounded-[30px] border bg-[#140E09] transition-colors duration-500 ${
+          isFocused ? 'border-[#E7CAA0]/45' : 'border-[#E7CAA0]/15'
+        }`}
+        style={{
+          boxShadow: isFocused
+            ? '0 34px 70px -22px rgba(0,0,0,0.6), 0 0 0 1px rgba(231,202,160,0.12), inset 0 1px 0 rgba(255,255,255,0.08), 0 0 46px -14px rgba(231,202,160,0.5)'
+            : '0 20px 45px -24px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.04)',
+        }}
+      >
+        <motion.div
+          className="absolute inset-0"
+          style={isFocused && !reduceMotion ? { x: imgX, y: imgY, scale: 1.06 } : undefined}
+        >
+          {reel.video ? (
+            <video
+              src={reel.video}
+              poster={reel.image}
+              autoPlay
+              muted
+              loop
+              playsInline
+              preload="metadata"
+              className="absolute inset-0 h-full w-full object-cover"
+            />
+          ) : reel.image ? (
+            <img src={reel.image} alt="" loading="lazy" className="absolute inset-0 h-full w-full object-cover" />
+          ) : (
+            <div className="absolute inset-0 bg-gradient-to-br from-[#9E7641] via-[#B5905E] to-[#E7CAA0]" aria-hidden="true" />
+          )}
+        </motion.div>
+
+        {isFocused ? (
+          <>
+            <div className="absolute inset-x-0 bottom-0 h-[46%] bg-gradient-to-t from-[#140E09] via-[#140E09]/85 to-transparent" aria-hidden="true" />
+            <div className="absolute inset-x-0 bottom-0 border-t border-white/10 bg-[#140E09]/50 p-5 backdrop-blur-xl sm:p-6">
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <h3 className="line-clamp-2 text-lg font-semibold leading-snug text-[#E7CAA0] sm:text-xl">{reel.title}</h3>
+                  <p className="mt-1.5 line-clamp-2 text-[13px] leading-snug text-primary-100/80">{reel.description}</p>
+                </div>
+                <ArrowUpRight className="mt-1 h-4 w-4 shrink-0 text-[#E7CAA0]/70" aria-hidden="true" />
+              </div>
+              <div className="mt-3 flex items-center text-[11px] text-[#E7CAA0]/60">
+                <span className="flex items-center gap-1.5">
+                  <Camera className="h-3 w-3 shrink-0" aria-hidden="true" />
+                  {reel.isLive ? 'On Instagram' : 'Coming soon'}
+                </span>
+              </div>
+            </div>
+          </>
+        ) : (
+          <>
+            <div className="absolute inset-0 bg-gradient-to-t from-[#140E09]/90 via-[#140E09]/25 to-transparent" aria-hidden="true" />
+            <div className="absolute inset-x-0 bottom-0 flex flex-col gap-1 p-4">
+              <h3 className="line-clamp-1 text-sm font-semibold leading-snug text-[#E7CAA0]/90">{reel.title}</h3>
+              <span className="flex items-center gap-1.5 text-[11px] text-[#E7CAA0]/60">
+                <Camera className="h-3 w-3 shrink-0" aria-hidden="true" />
+                {reel.isLive ? 'On Instagram' : 'Coming soon'}
+              </span>
+            </div>
+          </>
+        )}
+      </div>
+    </motion.a>
+  )
+}
 
 /**
- * Instagram's own 3D fan-stack carousel — same GSAP fan-position engine as
- * Celebré's `CardFanCarousel`, deliberately forked rather than shared: the
- * card content/appearance here (image-first, focused-card glass caption
- * panel with a page counter) is Instagram-specific and unrelated to
- * Celebré's specials cards, so this stays an isolated, swappable component
- * rather than adding branching to a component another page already depends
- * on (same isolation principle CardFanCarousel itself documents).
- *
- * Every card is a full-bleed image (`absolute inset-0 object-cover`) so
- * the focused vs. side-card difference is purely in the bottom overlay's
- * content, not its layout height — side cards get a plain gradient scrim
- * with two short lines; the current center card (tracked via `centerIndex`,
- * compared directly against each card's own array index — not the GSAP
- * "slot", which only exists inside the animation effect) gets a taller
- * frosted/blurred panel with the title, full caption and an "n / total"
- * counter, echoing the reference's expanded info card without inventing
- * data (no address/coordinates/Expand — Instagram reels don't have that).
+ * Instagram's premium 3D-stack carousel — a single shared `position` spring
+ * (see SETTLE_SPRING) drives every card's depth/rotation/scale/opacity via
+ * useTransform, the same architecture as `PerspectiveGallery`, deliberately
+ * forked rather than shared: the focused-card caption panel, live-reel
+ * video, drag-to-swipe and cursor parallax here are Instagram-specific.
  */
 export function InstagramFanCarousel({ reels }: InstagramFanCarouselProps) {
-  const containerRef = useRef<HTMLDivElement>(null)
-  const isAnimating = useRef(false)
-  const hasEntered = useRef(false)
-  const directionRef = useRef<'left' | 'right' | null>(null)
-  const prevVisible = useRef<Set<number>>(new Set())
-  const touchStart = useRef<{ x: number; y: number } | null>(null)
+  const reduceMotionPref = useReducedMotion()
+  const reduceMotion = Boolean(reduceMotionPref)
+  const tier = useViewportTier()
+  const cfg = TIER_CONFIG[tier]
 
-  const totalCards = reels.length
-  const [centerIndex, setCenterIndex] = useState(totalCards >> 1)
+  const total = reels.length
+  const initialIndex = total > 0 ? total >> 1 : 0
+  const position = useMotionValue(initialIndex)
+  const [currentIndex, setCurrentIndex] = useState(initialIndex)
+  const suppressClickRef = useRef(false)
 
-  // Always slot-by-rotational-distance-from-center (never a fixed identity
-  // map) — the number of *visible* slots is always
-  // min(totalCards, getVisibleSlotCount(width)) (3 on mobile, 7 otherwise),
-  // so on mobile a 6-reel set still only ever shows 3 at once, sliding the
-  // rest in/out exactly like the desktop >7-card window does. Even when
-  // every card fits on screen at once, each card's *slot* still shifts by
-  // one on every cycle() call, so the whole fan physically reshuffles
-  // around the new center on each arrow click instead of just swapping
-  // which card looks focused in place.
-  const getVisibleMap = useCallback(
-    (center: number) => {
-      const map = new Map<number, number>()
-      const visibleCount = Math.min(totalCards, getVisibleSlotCount(window.innerWidth))
-      const half = Math.floor(visibleCount / 2)
-      for (let slot = 0; slot < visibleCount; slot++) {
-        map.set((((center + slot - half) % totalCards) + totalCards) % totalCards, slot)
-      }
-      return map
+  const tiltXRaw = useMotionValue(0)
+  const tiltYRaw = useMotionValue(0)
+  const tiltX = useSpring(tiltXRaw, { stiffness: 200, damping: 24 })
+  const tiltY = useSpring(tiltYRaw, { stiffness: 200, damping: 24 })
+  const imgXRaw = useMotionValue(0)
+  const imgYRaw = useMotionValue(0)
+  const imgX = useSpring(imgXRaw, { stiffness: 160, damping: 22 })
+  const imgY = useSpring(imgYRaw, { stiffness: 160, damping: 22 })
+
+  const commitDelta = useCallback(
+    (delta: number) => {
+      if (total <= 1) return
+      const target = Math.round(position.get()) + delta
+      setCurrentIndex(wrapIndex(target, total))
+      animate(position, target, reduceMotion ? { duration: 0.01 } : SETTLE_SPRING)
     },
-    [totalCards],
+    [total, position, reduceMotion],
   )
 
-  const cycle = useCallback(
-    (direction: 'left' | 'right') => {
-      if (isAnimating.current || totalCards <= 1) return
-      isAnimating.current = true
-      directionRef.current = direction
-      setCenterIndex((prev) => (direction === 'right' ? (prev + 1) % totalCards : (prev - 1 + totalCards) % totalCards))
+  const goTo = useCallback(
+    (i: number) => {
+      if (total <= 1) return
+      const delta = shortestDelta(Math.round(position.get()), i, total)
+      if (delta !== 0) commitDelta(delta)
     },
-    [totalCards],
+    [total, position, commitDelta],
   )
 
-  useEffect(() => {
-    const container = containerRef.current
-    if (!container || !totalCards) return
+  const onKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'ArrowLeft') commitDelta(-1)
+    else if (e.key === 'ArrowRight') commitDelta(1)
+  }
 
-    const cardElements = Array.from(container.querySelectorAll<HTMLElement>('.fan-card'))
-    if (!cardElements.length) return
-
-    const reduceMotion = prefersReducedMotion()
-    const visibleMap = getVisibleMap(centerIndex)
-    const previouslyVisible = prevVisible.current
-    const direction = directionRef.current
-    const isFirstMount = !hasEntered.current
-    const multiplier = getResponsiveMultiplier(window.innerWidth)
-    const hMult = getHeightMultiplier(window.innerWidth)
-    const rotMult = getRotationMultiplier(window.innerWidth)
-    const slotCount = Math.min(totalCards, getVisibleSlotCount(window.innerWidth))
-    const config = (slot: number) => getSlotConfig(slotCount, slot)
-
-    if (isFirstMount) isAnimating.current = true
-
-    let completedCount = 0
-    const visibleCount = visibleMap.size
-    const onCardDone = () => {
-      if (++completedCount >= visibleCount) {
-        isAnimating.current = false
-        if (isFirstMount) hasEntered.current = true
-      }
+  const onDragEnd = (_e: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
+    const { offset, velocity } = info
+    if (Math.abs(offset.x) > 56 || Math.abs(velocity.x) > 480) {
+      commitDelta(offset.x < 0 ? 1 : -1)
     }
+    window.setTimeout(() => {
+      suppressClickRef.current = false
+    }, 120)
+  }
 
-    cardElements.forEach((card, cardIndex) => {
-      const slot = visibleMap.get(cardIndex)
-      const wasVisible = previouslyVisible.has(cardIndex)
+  const onDrag = (_e: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
+    if (Math.abs(info.offset.x) > 8) suppressClickRef.current = true
+  }
 
-      if (slot !== undefined) {
-        const { x, y, rot, scale, zIndex } = config(slot)
-        const target = {
-          x: `${x * multiplier}rem`,
-          y: `${y * hMult}rem`,
-          rotation: rot * rotMult,
-          scale,
-          opacity: 1,
-          zIndex,
-        }
-
-        if (reduceMotion) {
-          gsap.set(card, target)
-          onCardDone()
-        } else if (isFirstMount) {
-          gsap.set(card, { x: 0, y: `${10 * hMult}rem`, rotation: 0, scale: 0.5, opacity: 0 })
-          gsap.to(card, { ...target, duration: 1.1, ease: 'elastic.out(1.05,.78)', delay: 0.15 + slot * 0.05, onComplete: onCardDone })
-        } else if (!wasVisible) {
-          const enterX = direction === 'right' ? 40 : -40
-          gsap.set(card, { x: `${enterX}rem`, y: `${y * hMult}rem`, rotation: direction === 'right' ? 30 : -30, scale: 0.5, opacity: 0 })
-          gsap.to(card, { ...target, duration: 0.55, ease: 'power2.out', onComplete: onCardDone })
-        } else {
-          gsap.to(card, { ...target, duration: 0.45, ease: 'power2.out', onComplete: onCardDone })
-        }
-      } else if (wasVisible) {
-        const exitX = direction === 'right' ? -40 : 40
-        if (reduceMotion) {
-          gsap.set(card, { opacity: 0, zIndex: 0 })
-        } else {
-          gsap.to(card, { x: `${exitX}rem`, opacity: 0, scale: 0.5, rotation: direction === 'right' ? -30 : 30, duration: 0.35, ease: 'power2.in', zIndex: 0 })
-        }
-      } else if (isFirstMount) {
-        gsap.set(card, { opacity: 0, scale: 0.3, x: 0, y: 0, zIndex: 0 })
-      }
-    })
-
-    prevVisible.current = new Set(visibleMap.keys())
-
-    if (reduceMotion) return
-
-    // Desktop-only hover interactions — no-ops on touch devices.
-    const visibleEntries: { el: HTMLElement; slot: number }[] = []
-    cardElements.forEach((el, i) => {
-      const slot = visibleMap.get(i)
-      if (slot !== undefined) visibleEntries.push({ el, slot })
-    })
-    visibleEntries.sort((a, b) => a.slot - b.slot)
-
-    let activeSlot: number | null = null
-    let leaveTimer: ReturnType<typeof setTimeout> | null = null
-    const centerSlot = visibleEntries.length >> 1
-
-    const updateHoverLayout = (hoveredSlot: number | null) => {
-      const mult = getResponsiveMultiplier(window.innerWidth)
-      const hM = getHeightMultiplier(window.innerWidth)
-
-      visibleEntries.forEach(({ el, slot }) => {
-        const base = config(slot)
-        let targetX = base.x * mult
-        let targetY = base.y * hM
-        let targetRot = base.rot
-        let targetScale = base.scale
-        let delay = 0
-
-        if (hoveredSlot !== null) {
-          const distance = Math.abs(slot - hoveredSlot)
-          delay = distance * 0.02
-
-          if (slot === hoveredSlot) {
-            targetY -= 2 * hM
-            targetScale *= 1.06
-          } else {
-            const normalized = centerSlot > 0 ? (slot - centerSlot) / centerSlot : 0
-            const pushStrength = 8 * (1 - Math.abs(normalized)) * (1 + 0.2 * Math.max(0, 3 - distance))
-
-            if (slot < hoveredSlot) {
-              targetX -= pushStrength * mult
-              targetRot -= 3 / (distance + 1)
-            } else {
-              targetX += pushStrength * mult
-              targetRot += 3 / (distance + 1)
-            }
-          }
-        } else {
-          delay = Math.abs(slot - centerSlot) * 0.02
-        }
-
-        gsap.to(el, {
-          x: `${targetX}rem`,
-          y: `${targetY}rem`,
-          rotation: targetRot,
-          scale: targetScale,
-          duration: 0.45,
-          delay,
-          ease: 'elastic.out(1,.75)',
-          overwrite: 'auto',
-        })
-        gsap.set(el, { zIndex: base.zIndex })
-      })
+  const onLinkClickCapture = (e: React.MouseEvent) => {
+    if (suppressClickRef.current) {
+      e.preventDefault()
+      e.stopPropagation()
     }
+  }
 
-    const enterHandlers = visibleEntries.map(({ el, slot }) => {
-      const handler = () => {
-        if (isAnimating.current) return
-        if (leaveTimer) {
-          clearTimeout(leaveTimer)
-          leaveTimer = null
-        }
-        if (activeSlot !== slot) {
-          activeSlot = slot
-          updateHoverLayout(slot)
-        }
-      }
-      el.addEventListener('mouseenter', handler)
-      return { el, handler }
-    })
+  const isPointerFine = useRef(typeof window !== 'undefined' && window.matchMedia('(pointer: fine)').matches)
 
-    const onMouseLeave = () => {
-      if (isAnimating.current) return
-      if (leaveTimer) clearTimeout(leaveTimer)
-      leaveTimer = setTimeout(() => {
-        activeSlot = null
-        updateHoverLayout(null)
-      }, 50)
-    }
-    container.addEventListener('mouseleave', onMouseLeave)
+  const onMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (reduceMotion || !isPointerFine.current) return
+    const bounds = e.currentTarget.getBoundingClientRect()
+    const relX = (e.clientX - bounds.left) / bounds.width - 0.5
+    const relY = (e.clientY - bounds.top) / bounds.height - 0.5
+    tiltYRaw.set(relX * 7)
+    tiltXRaw.set(-relY * 6)
+    imgXRaw.set(-relX * 10)
+    imgYRaw.set(-relY * 8)
+  }
 
-    const onResize = () => {
-      if (!isAnimating.current) updateHoverLayout(activeSlot)
-    }
-    window.addEventListener('resize', onResize)
+  const onMouseLeave = () => {
+    tiltXRaw.set(0)
+    tiltYRaw.set(0)
+    imgXRaw.set(0)
+    imgYRaw.set(0)
+  }
 
-    return () => {
-      enterHandlers.forEach(({ el, handler }) => el.removeEventListener('mouseenter', handler))
-      container.removeEventListener('mouseleave', onMouseLeave)
-      window.removeEventListener('resize', onResize)
-      if (leaveTimer) clearTimeout(leaveTimer)
-    }
-  }, [centerIndex, totalCards, getVisibleMap])
-
-  if (!totalCards) return null
+  if (!total) return null
 
   const chevron = (direction: 'left' | 'right') => (
     <svg className="relative z-[2] h-4 w-4 sm:h-5 sm:w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -315,108 +293,103 @@ export function InstagramFanCarousel({ reels }: InstagramFanCarouselProps) {
     </svg>
   )
 
-  const onTouchStart = (e: React.TouchEvent) => {
-    const t = e.touches[0]
-    touchStart.current = { x: t.clientX, y: t.clientY }
-  }
-
-  const onTouchEnd = (e: React.TouchEvent) => {
-    if (!touchStart.current) return
-    const t = e.changedTouches[0]
-    const dx = t.clientX - touchStart.current.x
-    const dy = t.clientY - touchStart.current.y
-    touchStart.current = null
-    if (Math.abs(dx) < 32 || Math.abs(dx) < Math.abs(dy)) return
-    cycle(dx < 0 ? 'right' : 'left')
-  }
-
   return (
     <div className="flex w-full flex-col items-center">
       <div className="flex w-full items-center justify-center overflow-x-clip px-3 sm:overflow-visible sm:px-0">
         <div
-          ref={containerRef}
-          onTouchStart={totalCards > 1 ? onTouchStart : undefined}
-          onTouchEnd={totalCards > 1 ? onTouchEnd : undefined}
-          className="fan-layout relative flex h-[clamp(30rem,18rem_+_24vw,38rem)] w-full max-w-[84rem] touch-pan-y items-center justify-center"
+          role="group"
+          aria-roledescription="carousel"
+          aria-label="ELATŌ Instagram reels"
+          tabIndex={0}
+          onKeyDown={onKeyDown}
+          onMouseMove={onMouseMove}
+          onMouseLeave={onMouseLeave}
+          className="relative flex h-[clamp(31rem,20rem_+_26vw,36.5rem)] w-full max-w-[84rem] items-center justify-center outline-none sm:h-[clamp(28rem,17rem_+_22vw,35rem)]"
+          style={{ perspective: '1600px' }}
         >
-          {reels.map((reel, i) => {
-            const isFocused = i === centerIndex
+          <motion.div
+            aria-hidden="true"
+            className="pointer-events-none absolute left-1/2 top-1/2 h-[62%] w-[58%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#E7CAA0]/20 blur-[70px]"
+            style={{ zIndex: 0 }}
+            animate={reduceMotion ? undefined : { opacity: [0.4, 0.65, 0.4], scale: [1, 1.05, 1] }}
+            transition={reduceMotion ? undefined : { duration: 4.2, repeat: Infinity, ease: 'easeInOut' }}
+          />
 
-            const card = (
-              <div className="relative flex h-full w-full flex-col overflow-hidden rounded-[28px] border border-[#E7CAA0]/30 bg-[#140E09] shadow-elato-lg">
-                {reel.video ? (
-                  <video
-                    src={reel.video}
-                    poster={reel.image}
-                    autoPlay
-                    muted
-                    loop
-                    playsInline
-                    preload="metadata"
-                    className="absolute inset-0 h-full w-full object-cover"
-                  />
-                ) : reel.image ? (
-                  <img src={reel.image} alt="" loading="lazy" className="absolute inset-0 h-full w-full object-cover" />
-                ) : (
-                  <div className="absolute inset-0 bg-gradient-to-br from-[#9E7641] via-[#B5905E] to-[#E7CAA0]" aria-hidden="true" />
-                )}
-
-                {isFocused ? (
-                  <>
-                    <div className="absolute inset-x-0 bottom-0 h-[42%] bg-gradient-to-t from-[#140E09] via-[#140E09]/85 to-transparent" aria-hidden="true" />
-                    <div className="absolute inset-x-0 bottom-0 border-t border-white/10 bg-[#140E09]/55 p-5 backdrop-blur-xl sm:p-6">
-                      <h3 className="line-clamp-2 text-lg font-semibold leading-snug text-[#E7CAA0] sm:text-xl">{reel.title}</h3>
-                    </div>
-                  </>
-                ) : (
-                  <>
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#140E09]/90 via-[#140E09]/20 to-transparent" aria-hidden="true" />
-                    <div className="absolute inset-x-0 bottom-0 flex flex-col gap-1 p-4">
-                      <h3 className="line-clamp-1 text-sm font-semibold leading-snug text-[#E7CAA0]">{reel.title}</h3>
-                      <span className="flex items-center gap-1.5 text-[11px] text-[#E7CAA0]/70">
-                        <Camera className="h-3 w-3 shrink-0" aria-hidden="true" />
-                        {reel.isLive ? 'On Instagram' : 'Coming soon'}
-                      </span>
-                    </div>
-                  </>
-                )}
-              </div>
-            )
-
-            return (
-              <a
-                key={reel.id}
-                href={reel.href}
-                target="_blank"
-                rel="noreferrer"
-                aria-label={`View ${reel.title} on Instagram`}
-                className="fan-card absolute inset-0 m-auto h-[clamp(24rem,13rem_+_17vw,27rem)] w-[clamp(15rem,9.5rem_+_11vw,19rem)] outline-none focus-visible:ring-2 focus-visible:ring-secondary-500"
-              >
-                {card}
-              </a>
-            )
-          })}
+          <motion.div
+            className="relative h-full w-full touch-pan-y"
+            drag={total > 1 ? 'x' : false}
+            dragConstraints={{ left: 0, right: 0 }}
+            dragElastic={0.2}
+            dragMomentum={false}
+            onDrag={onDrag}
+            onDragEnd={onDragEnd}
+          >
+            {reels.map((reel, i) => {
+              const gap = shortestDelta(currentIndex, i, total)
+              if (Math.abs(gap) > cfg.half + 2) return null
+              return (
+                <SocialCard
+                  key={reel.id}
+                  reel={reel}
+                  index={i}
+                  total={total}
+                  position={position}
+                  cfg={cfg}
+                  isFocused={i === currentIndex}
+                  isInteractive={Math.abs(gap) <= cfg.half}
+                  reduceMotion={reduceMotion}
+                  tiltX={tiltX}
+                  tiltY={tiltY}
+                  imgX={imgX}
+                  imgY={imgY}
+                  onLinkClickCapture={onLinkClickCapture}
+                />
+              )
+            })}
+          </motion.div>
         </div>
       </div>
 
-      {totalCards > 1 && (
-        <div className="z-30 mt-5 flex items-center justify-center gap-4 md:-mt-20">
-          <button className={`${ARROW_CLASSES} h-10 w-10 md:h-12 md:w-12`} onClick={() => cycle('left')} aria-label="Previous reel">
+      {total > 1 && (
+        <div className="z-30 mt-6 flex items-center justify-center gap-5 lg:-mt-16">
+          <motion.button
+            whileHover={{ scale: 1.06 }}
+            whileTap={{ scale: 0.92 }}
+            transition={{ type: 'spring', stiffness: 400, damping: 22 }}
+            className="relative flex h-11 w-11 shrink-0 cursor-pointer items-center justify-center rounded-full border border-[#9e7641]/35 bg-white/[0.06] text-[#9e7641] shadow-[0_8px_24px_-10px_rgba(0,0,0,0.5)] outline-none backdrop-blur-xl transition-colors duration-300 hover:border-[#9e7641]/60 hover:bg-white/[0.12] focus-visible:ring-2 focus-visible:ring-secondary-500 md:h-14 md:w-14"
+            onClick={() => commitDelta(-1)}
+            aria-label="Previous reel"
+          >
             {chevron('left')}
-          </button>
+          </motion.button>
+
           <div className="flex items-center gap-2">
             {reels.map((_, i) => (
-              <span
+              <motion.button
                 key={i}
-                className={`h-2 w-2 rounded-full transition-all duration-300 ${
-                  i === centerIndex ? 'scale-[1.3] bg-secondary-500' : 'bg-primary-300'
-                }`}
+                onClick={() => goTo(i)}
+                aria-label={`Go to reel ${i + 1}`}
+                aria-current={i === currentIndex}
+                className="h-2 cursor-pointer rounded-full outline-none focus-visible:ring-2 focus-visible:ring-secondary-500"
+                animate={{
+                  width: i === currentIndex ? 26 : 8,
+                  backgroundColor: i === currentIndex ? '#E7CAA0' : 'rgba(231,202,160,0.3)',
+                }}
+                transition={{ type: 'spring', stiffness: 400, damping: 32 }}
               />
             ))}
           </div>
-          <button className={`${ARROW_CLASSES} h-10 w-10 md:h-12 md:w-12`} onClick={() => cycle('right')} aria-label="Next reel">
+
+          <motion.button
+            whileHover={{ scale: 1.06 }}
+            whileTap={{ scale: 0.92 }}
+            transition={{ type: 'spring', stiffness: 400, damping: 22 }}
+            className="relative flex h-11 w-11 shrink-0 cursor-pointer items-center justify-center rounded-full border border-[#9e7641]/35 bg-white/[0.06] text-[#9e7641] shadow-[0_8px_24px_-10px_rgba(0,0,0,0.5)] outline-none backdrop-blur-xl transition-colors duration-300 hover:border-[#9e7641]/60 hover:bg-white/[0.12] focus-visible:ring-2 focus-visible:ring-secondary-500 md:h-14 md:w-14"
+            onClick={() => commitDelta(1)}
+            aria-label="Next reel"
+          >
             {chevron('right')}
-          </button>
+          </motion.button>
         </div>
       )}
     </div>

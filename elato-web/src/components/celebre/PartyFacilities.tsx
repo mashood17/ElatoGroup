@@ -1,4 +1,4 @@
-import { motion } from 'framer-motion'
+import { motion, useReducedMotion, type Variants } from 'framer-motion'
 import { sectionReveal, viewportOnce } from '../../lib/motion'
 import { useSiteImage } from '../../lib/useSiteImage'
 import { useSectionExitFade } from '../../lib/useSectionExitFade'
@@ -9,6 +9,9 @@ import bgMobile from '../../assets/newbg/bg-mb.png'
 // site_content key that the admin's Celebré → Small Gatherings image slot
 // writes to. Falls back to the bundled static asset when unset.
 const GATHERINGS_IMAGE_KEY = 'celebre_gatherings_image'
+
+// Same cinematic left-entrance treatment as Home's About section image card.
+const imageViewport = { once: true, amount: 0.28 }
 
 const partyContent = {
   overline: 'Small Gatherings',
@@ -25,6 +28,39 @@ const partyContent = {
 export function PartyFacilities() {
   const gatheringImage = useSiteImage(GATHERINGS_IMAGE_KEY, gatheringImg)
   const exitFade = useSectionExitFade<HTMLElement>()
+  const reduceMotion = useReducedMotion()
+
+  const imageReveal: Variants = {
+    hidden: {
+      opacity: 0,
+      x: reduceMotion ? 0 : -80,
+      scale: reduceMotion ? 1 : 0.96,
+      filter: reduceMotion ? 'blur(0px)' : 'blur(8px)',
+    },
+    visible: {
+      opacity: 1,
+      x: 0,
+      scale: 1,
+      filter: 'blur(0px)',
+      transition: {
+        type: 'spring',
+        duration: 0.9,
+        bounce: 0,
+        delayChildren: reduceMotion ? 0 : 0.55,
+        staggerChildren: reduceMotion ? 0 : 0.12,
+      },
+    },
+  }
+
+  const badgeReveal: Variants = {
+    hidden: { opacity: 0, y: reduceMotion ? 0 : 16, scale: reduceMotion ? 1 : 0.95 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      scale: 1,
+      transition: { type: 'spring', duration: 0.6, bounce: 0 },
+    },
+  }
 
   return (
     <motion.section ref={exitFade.ref} style={exitFade.style} className="relative overflow-hidden py-16 lg:py-32">
@@ -58,7 +94,13 @@ export function PartyFacilities() {
           </ul>
         </motion.div>
 
-        <div className="relative order-2 mx-auto mt-6 w-full max-w-sm lg:order-1 lg:mt-0 lg:max-w-none">
+        <motion.div
+          initial="hidden"
+          whileInView="visible"
+          viewport={imageViewport}
+          variants={imageReveal}
+          className="relative order-2 mx-auto mt-6 w-full max-w-sm lg:order-1 lg:mt-0 lg:max-w-none"
+        >
           <div className="pointer-events-none absolute -left-3 -top-3 h-full w-full rounded-2xl border border-secondary-500/25" aria-hidden="true" />
 
           <div className="pointer-events-none absolute -right-2 -top-4 grid grid-cols-5 gap-1.5" aria-hidden="true">
@@ -67,22 +109,22 @@ export function PartyFacilities() {
             ))}
           </div>
 
-          <motion.div
-            initial={{ opacity: 0, scale: 0.98 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={viewportOnce}
-            transition={{ duration: 0.7, ease: 'easeOut' }}
-            className="relative aspect-square w-full overflow-hidden rounded-2xl shadow-elato-lg"
-          >
+          <div className="relative aspect-square w-full overflow-hidden rounded-2xl shadow-elato-lg">
             <img src={gatheringImage} alt="A small gathering at Celebré" className="h-full w-full object-cover" />
-          </motion.div>
-
-          <div className="absolute -top-4 right-4 rounded-lg bg-surface-elevated px-5 py-3 shadow-elato-lg sm:right-6">
-            <p className="text-caption text-secondary-500">{partyContent.capacityLabel}</p>
-            <p className="text-h3 mt-1 text-secondary-900">{partyContent.capacityValue}</p>
           </div>
 
-          <div className="absolute -bottom-4 left-4 flex items-center gap-2 rounded-lg bg-surface-elevated px-4 py-3 shadow-elato-lg sm:left-6">
+          <motion.div
+            variants={badgeReveal}
+            className="absolute -top-4 right-4 rounded-lg bg-surface-elevated px-5 py-3 shadow-elato-lg sm:right-6"
+          >
+            <p className="text-caption text-secondary-500">{partyContent.capacityLabel}</p>
+            <p className="text-h3 mt-1 text-secondary-900">{partyContent.capacityValue}</p>
+          </motion.div>
+
+          <motion.div
+            variants={badgeReveal}
+            className="absolute -bottom-4 left-4 flex items-center gap-2 rounded-lg bg-surface-elevated px-4 py-3 shadow-elato-lg sm:left-6"
+          >
             <svg className="h-5 w-5 shrink-0 text-secondary-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
               <rect x="3" y="5" width="18" height="16" rx="2" />
               <path d="M3 10h18M8 3v4M16 3v4" />
@@ -90,8 +132,8 @@ export function PartyFacilities() {
             <span className="text-caption whitespace-nowrap normal-case tracking-normal text-secondary-900">
               {partyContent.occasions.length}+ Occasion Types
             </span>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
       </div>
     </motion.section>
   )
