@@ -13,6 +13,7 @@ import { persistEnquiry } from '../../lib/enquiryRepository'
 import { trackEvent } from '../../lib/analytics'
 import sectionBackground from '../../assets/newbg/bg2.png'
 import sectionBackgroundMobile from '../../assets/newbg/bg-mb2.png'
+import mapCover from '../../assets/visit/map.png'
 
 const purposes = ['Stay', 'Celebré', 'Events', 'General'] as const
 
@@ -138,10 +139,19 @@ export function VisitSection() {
                     type="button"
                     onClick={() => setMapActive(true)}
                     aria-label="Load an interactive map of ELATŌ CELEBRÉ, Panemangalore"
-                    className="flex h-full w-full flex-col items-center justify-center gap-3 transition-colors duration-300 ease-out hover:bg-[#E7CAA0]/15"
+                    className="relative flex h-full w-full items-end justify-center overflow-hidden"
                   >
-                    <MapPin className="h-8 w-8 text-[#9E7641]" aria-hidden="true" />
-                    <span className="text-body font-semibold text-[#9E7641]">Tap to view interactive map</span>
+                    <img
+                      src={mapCover}
+                      alt=""
+                      aria-hidden="true"
+                      className="absolute inset-0 h-full w-full object-cover"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-secondary-900/60 via-secondary-900/10 to-transparent transition-colors duration-300 ease-out group-hover:from-secondary-900/70" />
+                    <span className="relative z-10 mb-5 flex items-center gap-2 rounded-full bg-surface-elevated/90 px-4 py-2 text-body font-semibold text-[#9E7641] shadow-elato-sm backdrop-blur-sm">
+                      <MapPin className="h-4 w-4" aria-hidden="true" />
+                      Tap to view interactive map
+                    </span>
                   </button>
                 ) : (
                   // No-API-key embed — swap for the Places API "Embed" variant
@@ -197,7 +207,7 @@ export function VisitSection() {
               </div>
             </motion.div>
 
-            <div className="flex flex-wrap gap-4">
+            <div className="flex flex-col items-center gap-4 lg:flex-row lg:justify-center">
               <Button
                 as="a"
                 variant="whatsapp"
@@ -205,7 +215,7 @@ export function VisitSection() {
                 target="_blank"
                 rel="noreferrer"
                 onClick={() => trackEvent('whatsapp_click', 'home')}
-                className="transition-transform duration-200 ease-out hover:-translate-y-0.5"
+                className="w-full max-w-xs transition-transform duration-200 ease-out hover:-translate-y-0.5 lg:w-auto lg:max-w-none"
               >
                 Chat on WhatsApp
               </Button>
@@ -215,7 +225,7 @@ export function VisitSection() {
                 href={businessInfo.instagramUrl}
                 target="_blank"
                 rel="noreferrer"
-                className="transition-transform duration-200 ease-out hover:-translate-y-0.5"
+                className="w-full max-w-xs transition-transform duration-200 ease-out hover:-translate-y-0.5 lg:w-auto lg:max-w-none"
               >
                 Follow on Instagram
               </Button>
