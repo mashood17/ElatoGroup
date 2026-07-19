@@ -94,6 +94,15 @@ def request_password_reset(email: str) -> None:
     )
 
 
+def change_password(admin_id: str, current_password: str, new_password: str) -> None:
+    admin = admin_repository.get_by_id(admin_id)
+    if not admin or not verify_password(current_password, admin["password_hash"]):
+        raise UnauthorizedError("Current password is incorrect.")
+
+    admin_repository.update(admin_id, {"password_hash": hash_password(new_password)})
+    refresh_token_repository.revoke_all_for_admin(admin_id)
+
+
 def confirm_password_reset(token: str, new_password: str) -> None:
     stored = password_reset_repository.find_valid(token)
     if not stored:

@@ -1,13 +1,19 @@
 import { useState } from "react";
 import { NavLink } from "react-router-dom";
-import { ChevronUp, LogOut, X } from "lucide-react";
+import { useMutation } from "@tanstack/react-query";
+import { ChevronUp, Eye, EyeOff, KeyRound, LogOut, X } from "lucide-react";
 import { NAV_ITEMS } from "./nav-items";
+import { authApi } from "../../api/auth";
 import { useAuth } from "../../context/AuthContext";
+import { useToast } from "../../context/ToastContext";
+import { errorMessage } from "../../lib/query-client";
 import { cn } from "../../lib/utils";
+import { Button, Input, Modal } from "../ui";
 
 export function Sidebar({ mobileOpen, onMobileClose }: { mobileOpen: boolean; onMobileClose: () => void }) {
   const { admin, hasRole, logout } = useAuth();
   const [profileOpen, setProfileOpen] = useState(false);
+  const [passwordModalOpen, setPasswordModalOpen] = useState(false);
 
   const visibleItems = NAV_ITEMS.filter((item) => !item.roles || (admin && hasRole(...item.roles)));
   const sections = [...new Set(visibleItems.map((item) => item.section))];
@@ -81,6 +87,17 @@ export function Sidebar({ mobileOpen, onMobileClose }: { mobileOpen: boolean; on
                 </div>
                 <button
                   type="button"
+                  onClick={() => {
+                    setProfileOpen(false);
+                    setPasswordModalOpen(true);
+                  }}
+                  className="flex w-full items-center gap-2 border-t border-neutral-100 px-3.5 py-2.5 text-sm font-medium text-neutral-700 transition-colors hover:bg-neutral-50"
+                >
+                  <KeyRound className="h-4 w-4" />
+                  Change password
+                </button>
+                <button
+                  type="button"
                   onClick={() => void logout()}
                   className="flex w-full items-center gap-2 border-t border-neutral-100 px-3.5 py-2.5 text-sm font-medium text-red-600 transition-colors hover:bg-red-50"
                 >
@@ -107,6 +124,115 @@ export function Sidebar({ mobileOpen, onMobileClose }: { mobileOpen: boolean; on
           </button>
         </div>
       </aside>
+
+      <ChangePasswordModal open={passwordModalOpen} onClose={() => setPasswordModalOpen(false)} onChanged={logout} />
     </>
+  );
+}
+
+function ChangePasswordModal({
+  open,
+  onClose,
+  onChanged,
+}: {
+  open: boolean;
+  onClose: () => void;
+  onChanged: () => void;
+}) {
+  const { showToast } = useToast();
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [showCurrent, setShowCurrent] = useState(false);
+  const [showNew, setShowNew] = useState(false);
+
+  const reset = () => {
+    setCurrentPassword("");
+    setNewPassword("");
+    setShowCurrent(false);
+    setShowNew(false);
+  };
+
+  const mutation = useMutation({
+    mutationFn: () => authApi.changePassword({ current_password: currentPassword, new_password: newPassword }),
+    onSuccess: () => {
+      showToast({ title: "Password changed", description: "Sign in again with your new password.", variant: "success" });
+      reset();
+      onClose();
+      void onChanged();
+    },
+    onError: (err) => showToast({ title: "Couldn't change password", description: errorMessage(err), variant: "error" }),
+  });
+
+  const canSubmit = currentPassword.length > 0 && newPassword.length >= 8;
+
+  return (
+    <Modal
+      open={open}
+      onClose={() => {
+        reset();
+        onClose();
+      }}
+      title="Change password"
+      footer={
+        <>
+          <Button variant="outline" size="sm" onClick={onClose}>
+            Cancel
+          </Button>
+          <Button size="sm" isLoading={mutation.isPending} onClick={() => mutation.mutate()} disabled={!canSubmit}>
+            Save
+          </Button>
+        </>
+      }
+    >
+      <form
+        className="flex flex-col gap-4"
+        onSubmit={(e) => {
+          e.preventDefault();
+          mutation.mutate();
+        }}
+      >
+        <div className="relative">
+          <Input
+            label="Current password"
+            type={showCurrent ? "text" : "password"}
+            autoComplete="current-password"
+            required
+            value={currentPassword}
+            onChange={(e) => setCurrentPassword(e.target.value)}
+            className="pr-10"
+          />
+          <button
+            type="button"
+            onClick={() => setShowCurrent((v) => !v)}
+            tabIndex={-1}
+            aria-label={showCurrent ? "Hide password" : "Show password"}
+            className="absolute right-3 top-[34px] text-neutral-400 hover:text-neutral-600"
+          >
+            {showCurrent ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+          </button>
+        </div>
+        <div className="relative">
+          <Input
+            label="New password"
+            type={showNew ? "text" : "password"}
+            autoComplete="new-password"
+            required
+            value={newPassword}
+            onChange={(e) => setNewPassword(e.target.value)}
+            hint="At least 8 characters."
+            className="pr-10"
+          />
+          <button
+            type="button"
+            onClick={() => setShowNew((v) => !v)}
+            tabIndex={-1}
+            aria-label={showNew ? "Hide password" : "Show password"}
+            className="absolute right-3 top-[34px] text-neutral-400 hover:text-neutral-600"
+          >
+            {showNew ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+          </button>
+        </div>
+      </form>
+    </Modal>
   );
 }

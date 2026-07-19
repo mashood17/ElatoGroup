@@ -72,6 +72,11 @@ export interface AdminUpdateRequest {
   password?: string | null;
 }
 
+export interface ChangePasswordRequest {
+  current_password: string;
+  new_password: string;
+}
+
 // ---------------------------------------------------------------------------
 // category.py
 // ---------------------------------------------------------------------------

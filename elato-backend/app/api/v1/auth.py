@@ -4,6 +4,7 @@ from app.core.dependencies import CurrentAdmin, get_current_admin
 from app.schemas.auth import (
     AccessTokenResponse,
     AdminOut,
+    ChangePasswordRequest,
     LoginRequest,
     LogoutRequest,
     PasswordResetConfirmSchema,
@@ -31,6 +32,11 @@ def refresh(payload: RefreshRequest):
 @router.post("/logout", status_code=204)
 def logout(payload: LogoutRequest, admin: CurrentAdmin = Depends(get_current_admin)):
     auth_service.logout(payload.refresh_token, admin.id, payload.everywhere)
+
+
+@router.post("/change-password", status_code=204)
+def change_password(payload: ChangePasswordRequest, admin: CurrentAdmin = Depends(get_current_admin)):
+    auth_service.change_password(admin.id, payload.current_password, payload.new_password)
 
 
 @router.post("/password-reset-request", status_code=204)

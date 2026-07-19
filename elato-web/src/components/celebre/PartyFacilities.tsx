@@ -2,12 +2,12 @@ import { motion, useReducedMotion, type Variants } from 'framer-motion'
 import { sectionReveal, viewportOnce } from '../../lib/motion'
 import { useSiteImage } from '../../lib/useSiteImage'
 import { useSectionExitFade } from '../../lib/useSectionExitFade'
-import gatheringImg from '../../assets/about/gathering.webp'
+import { SiteImage } from '../ui/SiteImage'
 import bgDesktop from '../../assets/newbg/bg.webp'
 import bgMobile from '../../assets/newbg/bg-mb.webp'
 
 // site_content key that the admin's Celebré → Small Gatherings image slot
-// writes to. Falls back to the bundled static asset when unset.
+// writes to. No bundled static fallback — renders a placeholder until set.
 const GATHERINGS_IMAGE_KEY = 'celebre_gatherings_image'
 
 // Same cinematic left-entrance treatment as Home's About section image card.
@@ -26,7 +26,7 @@ const partyContent = {
 }
 
 export function PartyFacilities() {
-  const gatheringImage = useSiteImage(GATHERINGS_IMAGE_KEY, gatheringImg)
+  const gatheringImage = useSiteImage(GATHERINGS_IMAGE_KEY, '')
   const exitFade = useSectionExitFade<HTMLElement>()
   const reduceMotion = useReducedMotion()
 
@@ -86,7 +86,7 @@ export function PartyFacilities() {
             {partyContent.occasions.map((o) => (
               <li
                 key={o}
-                className="text-caption rounded-full border border-primary-100 bg-[#e7caa0] px-4 py-2 normal-case tracking-normal text-secondary-900"
+                className="text-caption cursor-default rounded-full border border-primary-100 bg-[#e7caa0] px-4 py-2 normal-case tracking-normal text-secondary-900 transition-all duration-300 ease-out hover:-translate-y-1 hover:border-[#9e7641] hover:bg-[#9e7641] hover:text-[#e7caa0] hover:shadow-elato-md"
               >
                 {o}
               </li>
@@ -110,7 +110,7 @@ export function PartyFacilities() {
           </div>
 
           <div className="relative aspect-square w-full overflow-hidden rounded-2xl shadow-elato-lg">
-            <img src={gatheringImage} alt="A small gathering at Celebré" className="h-full w-full object-cover" />
+            <SiteImage src={gatheringImage} alt="A small gathering at Celebré" className="h-full w-full object-cover" />
           </div>
 
           <motion.div

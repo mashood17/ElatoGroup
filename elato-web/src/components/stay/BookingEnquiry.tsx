@@ -2,10 +2,10 @@ import { useState, type FormEvent } from 'react'
 import { motion } from 'framer-motion'
 import { User, Phone, Mail, CalendarDays, Users, MessageSquare, MessageCircle, type LucideIcon } from 'lucide-react'
 import { Button } from '../ui/Button'
-import enquiryImage from '../../assets/stay/enquiry.webp'
 import sectionBackground from '../../assets/newbg/bg.webp'
 import sectionBackgroundMobile from '../../assets/newbg/bg-mb.webp'
 import { SectionBackground } from '../ui/SectionBackground'
+import { SiteImage } from '../ui/SiteImage'
 import { businessInfo } from '../../content/siteContent'
 import { STAY_GUEST_MIN, STAY_GUEST_MAX } from '../../content/stayContent'
 import { buildWhatsAppLink } from '../../lib/whatsapp'
@@ -38,7 +38,7 @@ export function BookingEnquiry() {
   const [errors, setErrors] = useState<Errors>({})
   const [submitting, setSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
-  const reserveImage = useSiteImage('stay_reserve_image', enquiryImage)
+  const reserveImage = useSiteImage('stay_reserve_image', '')
   const exitFade = useSectionExitFade<HTMLElement>()
 
   const validate = (): Errors => {
@@ -104,10 +104,9 @@ export function BookingEnquiry() {
               aria-hidden="true"
             />
             <div className="relative h-full w-full overflow-hidden rounded-[36px] rounded-bl-[110px] border-[10px] border-secondary-900 ring-4 ring-surface-elevated shadow-elato-lg lg:rounded-[48px] lg:rounded-bl-[150px] lg:border-[14px]">
-              <img
+              <SiteImage
                 src={reserveImage}
                 alt="ELATŌ Stay — the premium 2BHK apartment"
-                loading="lazy"
                 className="h-full w-full object-cover"
               />
               <div

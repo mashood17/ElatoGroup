@@ -2,10 +2,10 @@ import { useState, type FormEvent } from 'react'
 import { motion } from 'framer-motion'
 import { User, Phone, Mail, PartyPopper, CalendarDays, Users, MessageSquare, MessageCircle, type LucideIcon } from 'lucide-react'
 import { Button } from '../ui/Button'
-import eventsImage from '../../assets/stay/enquiry.webp'
 import sectionBackground from '../../assets/newbg/bg2.webp'
 import sectionBackgroundMobile from '../../assets/newbg/bg-mb2.webp'
 import { SectionBackground } from '../ui/SectionBackground'
+import { SiteImage } from '../ui/SiteImage'
 import { businessInfo } from '../../content/siteContent'
 import { buildWhatsAppLink } from '../../lib/whatsapp'
 import { sectionReveal, viewportOnce } from '../../lib/motion'
@@ -51,7 +51,7 @@ export function EventsEnquiry() {
   const [errors, setErrors] = useState<Errors>({})
   const [submitting, setSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
-  const planImage = useSiteImage('events_plan_image', eventsImage)
+  const planImage = useSiteImage('events_plan_image', '')
   const exitFade = useSectionExitFade<HTMLElement>()
 
   const validate = (): Errors => ({
@@ -269,10 +269,9 @@ export function EventsEnquiry() {
             aria-hidden="true"
           />
           <div className="relative h-full w-full overflow-hidden rounded-[36px] rounded-br-[110px] border-[10px] border-secondary-900 ring-4 ring-surface-elevated shadow-elato-lg lg:rounded-[48px] lg:rounded-br-[150px] lg:border-[14px]">
-            <img
+            <SiteImage
               src={planImage}
               alt="An event hosted at ELATŌ"
-              loading="lazy"
               className="h-full w-full object-cover"
             />
             <div

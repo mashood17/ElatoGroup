@@ -9,10 +9,10 @@ import {
 } from 'framer-motion'
 import { Star } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
-import aboutImage from '../../assets/about/about.webp'
 import sectionBackground from '../../assets/newbg/bg.webp'
 import sectionBackgroundMobile from '../../assets/newbg/bg-mb.webp'
 import { SectionBackground } from '../ui/SectionBackground'
+import { SiteImage } from '../ui/SiteImage'
 import { aboutContent, businessInfo } from '../../content/siteContent'
 import { PARALLAX_MAX_PX } from '../../lib/motion'
 import { useAggregateRating } from '../../lib/useAggregateRating'
@@ -25,7 +25,7 @@ const aboutViewport = { once: true, amount: 0.28 }
 export function About() {
   const reduceMotion = useReducedMotion()
   const aggregateRating = useAggregateRating()
-  const aboutImageSrc = useSiteImage('home_about_image', aboutImage)
+  const aboutImageSrc = useSiteImage('home_about_image', '')
   const sectionRef = useRef<HTMLElement>(null)
   const imageRef = useRef<HTMLDivElement>(null)
   const [canHover, setCanHover] = useState(false)
@@ -174,13 +174,20 @@ export function About() {
             style={{ x: hoverXSpring, y: hoverYSpring }}
             className="relative z-10 overflow-hidden rounded-2xl shadow-elato-xl"
           >
-            <motion.img
-              style={{ y: parallaxY, scale: 1.12 }}
-              src={aboutImageSrc}
-              alt="ELATŌ's handcrafted desserts and premium hospitality experience"
-              className="aspect-[4/5] w-full object-cover lg:aspect-[5/6]"
-              loading="lazy"
-            />
+            {aboutImageSrc ? (
+              <motion.img
+                style={{ y: parallaxY, scale: 1.12 }}
+                src={aboutImageSrc}
+                alt="ELATŌ's handcrafted desserts and premium hospitality experience"
+                className="aspect-[4/5] w-full object-cover lg:aspect-[9/8]"
+                loading="lazy"
+              />
+            ) : (
+              <SiteImage
+                alt="ELATŌ's handcrafted desserts and premium hospitality experience"
+                className="aspect-[4/5] w-full lg:aspect-[9/8]"
+              />
+            )}
           </motion.div>
 
           {/* Floating stat badge — founder heritage */}

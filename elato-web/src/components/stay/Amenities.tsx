@@ -1,10 +1,9 @@
 import { motion, useReducedMotion, type Variants } from 'framer-motion'
 import { Sofa, Maximize, BedDouble, Bath, ChefHat, ParkingCircle, Leaf, Wifi, type LucideIcon } from 'lucide-react'
-import stayHeroImage from '../../assets/services/stay.webp'
-import stayImage from '../../assets/stay/thestay.webp'
 import sectionBackground from '../../assets/newbg/bg.webp'
 import sectionBackgroundMobile from '../../assets/newbg/bg-mb.webp'
 import { SectionBackground } from '../ui/SectionBackground'
+import { SiteImage } from '../ui/SiteImage'
 import Stack from '../ui/Stack'
 import { amenities } from '../../content/stayContent'
 import { useStayGallery } from '../../lib/useStayGallery'
@@ -22,27 +21,12 @@ const amenityIcons: Record<string, LucideIcon> = {
   'Free Wi-Fi': Wifi,
 }
 
-// Static fallback shown while the admin-managed gallery loads or if no photos
+// Placeholder shown while the admin-managed gallery loads or if no photos
 // have been added yet — keeps the stacked-cards visual intact.
 const fallbackStackCards = [
-  <img
-    key="1"
-    src={stayHeroImage}
-    alt="ELATŌ Stay — the living space"
-    className="box-border h-full w-full border-[6px] border-[#9e7641] object-cover"
-  />,
-  <img
-    key="2"
-    src={stayImage}
-    alt="ELATŌ Stay — the apartment interior"
-    className="box-border h-full w-full border-[6px] border-[#9e7641] object-cover object-top"
-  />,
-  <img
-    key="3"
-    src={stayHeroImage}
-    alt="ELATŌ Stay — the property"
-    className="box-border h-full w-full border-[6px] border-[#9e7641] object-cover object-bottom"
-  />,
+  <SiteImage key="1" alt="ELATŌ Stay — the living space" className="box-border h-full w-full border-[6px] border-[#9e7641]" />,
+  <SiteImage key="2" alt="ELATŌ Stay — the apartment interior" className="box-border h-full w-full border-[6px] border-[#9e7641]" />,
+  <SiteImage key="3" alt="ELATŌ Stay — the property" className="box-border h-full w-full border-[6px] border-[#9e7641]" />,
 ]
 
 export function Amenities() {

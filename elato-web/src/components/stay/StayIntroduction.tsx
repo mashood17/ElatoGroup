@@ -1,8 +1,8 @@
 import { motion, useReducedMotion, type Variants } from 'framer-motion'
-import stayImage from '../../assets/stay/thestay.webp'
 import sectionBackground from '../../assets/newbg/bg2.webp'
 import sectionBackgroundMobile from '../../assets/newbg/bg-mb2.webp'
 import { SectionBackground } from '../ui/SectionBackground'
+import { SiteImage } from '../ui/SiteImage'
 import { introduction, stayInfo } from '../../content/stayContent'
 import { sectionReveal, staggerContainer, viewportOnce } from '../../lib/motion'
 import { useSiteImage } from '../../lib/useSiteImage'
@@ -12,7 +12,7 @@ import { useSectionExitFade } from '../../lib/useSectionExitFade'
 const imageViewport = { once: true, amount: 0.28 }
 
 export function StayIntroduction() {
-  const imageSrc = useSiteImage('stay_intro_image', stayImage)
+  const imageSrc = useSiteImage('stay_intro_image', '')
   const exitFade = useSectionExitFade<HTMLElement>()
   const reduceMotion = useReducedMotion()
 
@@ -50,10 +50,9 @@ export function StayIntroduction() {
               aria-hidden="true"
             />
             <div className="relative h-full w-full overflow-hidden rounded-[36px] rounded-bl-[110px] border-[10px] border-secondary-900 ring-4 ring-surface-elevated shadow-elato-lg lg:rounded-[48px] lg:rounded-bl-[150px] lg:border-[14px]">
-              <img
+              <SiteImage
                 src={imageSrc}
                 alt="ELATŌ Stay — the premium 2BHK apartment"
-                loading="lazy"
                 className="h-full w-full object-cover"
               />
             </div>

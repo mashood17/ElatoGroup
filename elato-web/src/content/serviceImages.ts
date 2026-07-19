@@ -1,26 +1,21 @@
 /**
- * Single wiring point for Services section imagery. Swap these three
- * imports for real photography (dropped into src/assets/services/) and
- * every card updates — no other file needs to change.
- *
- * Each experience has exactly one image, keyed by `serviceImageKeys` below —
- * the Home "Discover ELATŌ" card and that experience's destination-page hero
- * both read the same `site_content` key (via `useSiteImage`/`useSiteImages`)
- * and the same static fallback here. That's what makes the shared-element
- * transition end on the exact same asset it started on: there is nothing to
- * swap, because card and hero were never two different images.
+ * Single wiring point for Services section imagery. Each experience has
+ * exactly one image, keyed by `serviceImageKeys` below — the Home "Discover
+ * ELATŌ" card and that experience's destination-page hero both read the same
+ * `site_content` key (via `useSiteImage`/`useSiteImages`) and swap in the
+ * admin-uploaded photo. There is no bundled static fallback: until the admin
+ * uploads one, consumers (`ServiceCard`, `PremiumHero`) render their own
+ * placeholder. That's also what makes the shared-element transition end on
+ * the exact same asset it started on — card and hero were never two
+ * different images.
  */
-
-import celebrePlaceholder from '../assets/services/celebre.webp'
-import stayPlaceholder from '../assets/services/stay.webp'
-import eventsPlaceholder from '../assets/services/events.webp'
 
 export type ServiceId = 'celebre' | 'stay' | 'events'
 
 export const serviceImages: Record<ServiceId, string> = {
-  celebre: celebrePlaceholder,
-  stay: stayPlaceholder,
-  events: eventsPlaceholder,
+  celebre: '',
+  stay: '',
+  events: '',
 }
 
 /** The `site_content` key each experience's shared image is stored under. */

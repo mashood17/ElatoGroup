@@ -54,3 +54,8 @@ class AdminCreateRequest(BaseModel):
 class AdminUpdateRequest(BaseModel):
     role: str | None = Field(default=None, pattern="^(owner|admin|editor)$")
     password: str | None = Field(default=None, min_length=8)
+
+
+class ChangePasswordRequest(BaseModel):
+    current_password: str = Field(min_length=1)
+    new_password: str = Field(min_length=8)

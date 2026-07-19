@@ -332,7 +332,7 @@ export default function CardFanCarousel({ cards }: CardFanCarouselProps) {
           {cards.map((card) => {
             const inner = (
               <div className="flex h-full w-full flex-col overflow-hidden rounded-lg bg-surface-elevated shadow-elato-lg sm:rounded-xl">
-                <div className={`h-[58%] w-full shrink-0 overflow-hidden bg-gradient-to-br ${card.gradientClass}`} aria-hidden="true">
+                <div className={`h-[72%] w-full shrink-0 overflow-hidden bg-gradient-to-br ${card.gradientClass}`} aria-hidden="true">
                   {card.imageUrl && (
                     <img src={card.imageUrl} alt="" loading="lazy" className="h-full w-full object-cover" />
                   )}
