@@ -17,6 +17,7 @@ import { aboutContent, businessInfo } from '../../content/siteContent'
 import { PARALLAX_MAX_PX } from '../../lib/motion'
 import { useAggregateRating } from '../../lib/useAggregateRating'
 import { useSiteImage } from '../../lib/useSiteImage'
+import { useSectionExitFade } from '../../lib/useSectionExitFade'
 
 const EASE_EDITORIAL = [0.16, 1, 0.3, 1] as const
 // Trigger the entrance once ~25-30% of the section is visible, and never replay it on subsequent scrolls.
@@ -26,9 +27,11 @@ export function About() {
   const reduceMotion = useReducedMotion()
   const aggregateRating = useAggregateRating()
   const aboutImageSrc = useSiteImage('home_about_image', '')
-  const sectionRef = useRef<HTMLElement>(null)
   const imageRef = useRef<HTMLDivElement>(null)
   const [canHover, setCanHover] = useState(false)
+  // Same fade-only exit every other Home section uses, for a consistent
+  // handoff feel scrolling through the whole page — no scale, no blur.
+  const exitFade = useSectionExitFade<HTMLElement>()
 
   useEffect(() => {
     setCanHover(window.matchMedia('(pointer: fine)').matches)
@@ -38,13 +41,8 @@ export function About() {
   const parallaxY = useTransform(
     scrollYProgress,
     [0, 1],
-    reduceMotion ? [0, 0] : [-PARALLAX_MAX_PX / 2, PARALLAX_MAX_PX / 2],
+    reduceMotion ? [0, 0] : [-PARALLAX_MAX_PX / 3, PARALLAX_MAX_PX / 3],
   )
-
-  // Very subtle fade only as the section hands off to the next one — no
-  // scale/blur, just a gentle dip in opacity for continuity.
-  const { scrollYProgress: exitProgress } = useScroll({ target: sectionRef, offset: ['start start', 'end start'] })
-  const exitOpacity = useTransform(exitProgress, [0, 0.75, 1], reduceMotion ? [1, 1, 1] : [1, 1, 0.88])
 
   // Tiny cursor-responsive parallax on the image frame — desktop (fine
   // pointer) only, and skipped entirely under prefers-reduced-motion.
@@ -104,7 +102,7 @@ export function About() {
       opacity: 0,
       x: reduceMotion ? 0 : -80,
       scale: reduceMotion ? 1 : 0.96,
-      filter: reduceMotion ? 'blur(0px)' : 'blur(8px)',
+      filter: reduceMotion ? 'blur(0px)' : 'blur(4px)',
     },
     visible: {
       opacity: 1,
@@ -134,8 +132,8 @@ export function About() {
   return (
     <motion.section
       id="about"
-      ref={sectionRef}
-      style={{ opacity: exitOpacity }}
+      ref={exitFade.ref}
+      style={{ opacity: exitFade.style.opacity }}
       className="relative z-0 pb-20 pt-14 font-sans lg:py-32"
     >
       <SectionBackground image={sectionBackground} mobileImage={sectionBackgroundMobile} />

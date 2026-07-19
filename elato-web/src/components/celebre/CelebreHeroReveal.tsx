@@ -18,9 +18,12 @@ export function CelebreHeroReveal() {
     offset: ['start start', 'end start'],
   })
 
-  const heroScale = useTransform(scrollYProgress, [0, 1], [1, 0.78])
-  const heroRotate = useTransform(scrollYProgress, [0, 1], [0, -18])
-  const heroY = useTransform(scrollYProgress, [0, 1], [0, -80])
+  // See HeroServicesReveal.tsx for why these three ranges were narrowed —
+  // same reasoning, kept identical across all four hero-reveal files so the
+  // pin behavior still feels uniform site-wide.
+  const heroScale = useTransform(scrollYProgress, [0, 1], [1, 0.94])
+  const heroRotate = useTransform(scrollYProgress, [0, 1], [0, -5])
+  const heroY = useTransform(scrollYProgress, [0, 1], [0, -35])
 
   if (reduceMotion) {
     return (

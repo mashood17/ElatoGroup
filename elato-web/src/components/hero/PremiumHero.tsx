@@ -1,6 +1,6 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { motion, useReducedMotion, type Variants } from 'framer-motion'
-import { PremiumHeroLogo3D } from './PremiumHeroLogo3D'
+import { PremiumHeroLogo } from './PremiumHeroLogo'
 import { usePageTransition, FADE_MS } from '../../lib/pageTransition'
 import { useInView } from '../../lib/useInView'
 import heroBackground from '../../assets/newbg/bg.webp'
@@ -12,8 +12,8 @@ export type PremiumHeroProps = {
   id: string
   logoSrc: string
   logoAlt: string
-  logoAspect: number
-  macronRect: [number, number, number, number]
+  logoWidth: number
+  logoHeight: number
   sectionName: string
   tagline: string
   imageAlt: string
@@ -39,9 +39,9 @@ export type PremiumHeroProps = {
  * copy" left rail against a floating photo showcase on the right, built to
  * feel like a premium hospitality brand's title card (Aman / Four Seasons
  * register) rather than the empty centered hero this replaces. The Home
- * Hero itself (`HomeHero.tsx`, `HeroLogo3D.tsx`, `LogoScene.tsx`) is
- * locked/approved and was not touched to build this — this is a separate,
- * parallel implementation, not a refactor of Home's files.
+ * Hero itself (`HomeHero.tsx`) is locked/approved and was not touched to
+ * build this — this is a separate, parallel implementation, not a refactor
+ * of Home's files.
  *
  * Below `lg`, the two columns collapse into a single centered stack (logo,
  * tagline, then the image card) so the composition still reads cleanly on
@@ -51,8 +51,8 @@ export function PremiumHero({
   id,
   logoSrc,
   logoAlt,
-  logoAspect,
-  macronRect,
+  logoWidth,
+  logoHeight,
   sectionName,
   tagline,
   imageAlt,
@@ -89,7 +89,7 @@ export function PremiumHero({
   }, [])
 
   // Cold direct loads (typed URL, refresh, navbar link) keep the original
-  // cinematic delay so the tagline/image arrive after the 3D wordmark
+  // cinematic delay so the tagline/image arrive after the wordmark
   // animation has had its moment — entirely unchanged.
   //
   // Arriving from a "Discover ELATŌ" card click is different: the real
@@ -195,11 +195,11 @@ export function PremiumHero({
             on mobile, left-aligned from `lg:` up.
           */}
           <div className="flex w-[300px] flex-col items-center gap-3 text-center sm:w-[340px] sm:gap-4 md:w-[440px] lg:w-full lg:items-start lg:text-left [@media(max-height:600px)_and_(max-width:900px)]:w-[190px]">
-            <PremiumHeroLogo3D
+            <PremiumHeroLogo
               src={logoSrc}
               alt={logoAlt}
-              aspect={logoAspect}
-              macronRect={macronRect}
+              width={logoWidth}
+              height={logoHeight}
               className="w-full"
             />
 
@@ -233,6 +233,7 @@ export function PremiumHero({
             badgeDelay={badgeDelay}
             revealNow={revealNow}
             imageContainerRef={heroImageRef}
+            heroInView={heroInView}
           />
         </motion.div>
       </div>
@@ -254,6 +255,8 @@ type HeroShowcaseCardProps = {
   revealNow: boolean
   /** The real photo container — measured and reported to the page-transition context so the flying clone knows exactly where to land. */
   imageContainerRef: React.RefObject<HTMLDivElement | null>
+  /** Pauses the card's continuous float loop once the hero has scrolled out of view — same signal already used to pause the Ken Burns background. */
+  heroInView: boolean
 }
 
 /**
@@ -278,11 +281,17 @@ function HeroShowcaseCard({
   badgeDelay,
   revealNow,
   imageContainerRef,
+  heroInView,
 }: HeroShowcaseCardProps) {
   return (
     <motion.div
       className="group relative"
-      animate={reduceMotion ? undefined : { y: [0, -14, 0] }}
+      // Float distance trimmed again (14px -> 8px -> 5px, still a clearly-
+      // felt gentle drift) and paused once the hero scrolls out of view —
+      // previously this ran on a 7s infinite loop for the rest of the page
+      // visit regardless of scroll position, unlike the Ken Burns
+      // background right next to it, which already freezes off-screen.
+      animate={reduceMotion || !heroInView ? undefined : { y: [0, -5, 0] }}
       whileHover={reduceMotion ? undefined : { scale: 1.02 }}
       transition={
         reduceMotion

@@ -117,11 +117,11 @@ export function Navbar() {
       <header
         className={`fixed inset-x-0 top-0 z-50 transition-all duration-200 ease-out ${
           scrolled
-            ? 'bg-surface-base/92 shadow-elato-sm backdrop-blur-md'
+            ? 'bg-surface-base/92 shadow-elato-sm backdrop-blur-[4px]'
             : 'bg-transparent'
         } ${
           menuOpen
-            ? 'max-lg:border-b max-lg:border-ochre/20 max-lg:bg-gradient-to-b max-lg:from-sand-light/55 max-lg:via-sand-light/42 max-lg:to-sand-light/32 max-lg:shadow-[0_12px_36px_-16px_rgba(58,46,30,0.22)] max-lg:backdrop-blur-[16px] max-lg:backdrop-saturate-[150%]'
+            ? 'max-lg:border-b max-lg:border-ochre/20 max-lg:bg-gradient-to-b max-lg:from-sand-light/55 max-lg:via-sand-light/42 max-lg:to-sand-light/32 max-lg:shadow-[0_12px_36px_-16px_rgba(58,46,30,0.22)] max-lg:backdrop-blur-[6px] max-lg:backdrop-saturate-[120%]'
             : ''
         }`}
       >
@@ -190,7 +190,7 @@ export function Navbar() {
               animate="visible"
               exit="hidden"
               variants={panelVariants}
-              className="fixed inset-0 top-20 z-40 overflow-hidden border border-ochre/20 bg-gradient-to-b from-sand-light/40 via-sand-light/28 to-sand/24 shadow-[inset_0_1px_0_rgba(255,252,240,0.4),0_20px_56px_-18px_rgba(58,46,30,0.25)] backdrop-blur-[14px] backdrop-saturate-[145%] lg:hidden"
+              className="fixed inset-0 top-20 z-40 overflow-hidden border border-ochre/20 bg-gradient-to-b from-sand-light/40 via-sand-light/28 to-sand/24 shadow-[inset_0_1px_0_rgba(255,252,240,0.4),0_20px_56px_-18px_rgba(58,46,30,0.25)] backdrop-blur-[6px] backdrop-saturate-[115%] lg:hidden"
             >
               {/* Ambient floating gradients, tilted very slightly by device motion */}
               <motion.div
@@ -198,9 +198,9 @@ export function Navbar() {
                 className="pointer-events-none absolute inset-0"
                 style={{ x: springTiltX, y: springTiltY }}
               >
-                <div className="mobile-nav-blob-a absolute -left-20 -top-16 h-64 w-64 rounded-full bg-ochre/15 blur-[70px]" />
-                <div className="mobile-nav-blob-b absolute -right-16 top-1/3 h-72 w-72 rounded-full bg-tan/22 blur-[80px]" />
-                <div className="mobile-nav-blob-c absolute bottom-0 left-1/4 h-56 w-56 rounded-full bg-sand/28 blur-[70px]" />
+                <div className="mobile-nav-blob-a absolute -left-20 -top-16 h-64 w-64 rounded-full bg-ochre/15 blur-[30px]" />
+                <div className="mobile-nav-blob-b absolute -right-16 top-1/3 h-72 w-72 rounded-full bg-tan/22 blur-[34px]" />
+                <div className="mobile-nav-blob-c absolute bottom-0 left-1/4 h-56 w-56 rounded-full bg-sand/28 blur-[30px]" />
               </motion.div>
 
               {/* Occasional soft light reflection sweeping across the glass */}

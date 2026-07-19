@@ -11,6 +11,7 @@ import {
 } from 'framer-motion'
 import { ArrowUpRight, Camera } from 'lucide-react'
 import type { InstagramReel } from '../../content/instagramContent'
+import { useInView } from '../../lib/useInView'
 
 interface InstagramFanCarouselProps {
   reels: InstagramReel[]
@@ -150,7 +151,7 @@ function SocialCard({
               className="absolute inset-0 h-full w-full object-cover"
             />
           ) : reel.image ? (
-            <img src={reel.image} alt="" loading="lazy" className="absolute inset-0 h-full w-full object-cover" />
+            <img src={reel.image} alt="" loading="lazy" decoding="async" className="absolute inset-0 h-full w-full object-cover" />
           ) : (
             <div className="absolute inset-0 bg-gradient-to-br from-[#9E7641] via-[#B5905E] to-[#E7CAA0]" aria-hidden="true" />
           )}
@@ -220,6 +221,25 @@ export function InstagramFanCarousel({ reels }: InstagramFanCarouselProps) {
   const imgX = useSpring(imgXRaw, { stiffness: 160, damping: 22 })
   const imgY = useSpring(imgYRaw, { stiffness: 160, damping: 22 })
 
+  // Pauses the ambient glow loop and any playing reel videos once the whole
+  // carousel has scrolled out of view — same "stop paying for continuous
+  // GPU/decode work while off-screen" pattern already used for the hero
+  // backgrounds and the R3F logo scene (see useInView.ts).
+  const { ref: inViewRef, inView } = useInView<HTMLDivElement>()
+
+  useEffect(() => {
+    const container = inViewRef.current
+    if (!container) return
+    const videos = container.querySelectorAll('video')
+    videos.forEach((v) => {
+      if (inView) {
+        v.play().catch(() => {})
+      } else {
+        v.pause()
+      }
+    })
+  }, [inView, inViewRef])
+
   const commitDelta = useCallback(
     (delta: number) => {
       if (total <= 1) return
@@ -267,18 +287,50 @@ export function InstagramFanCarousel({ reels }: InstagramFanCarouselProps) {
 
   const isPointerFine = useRef(typeof window !== 'undefined' && window.matchMedia('(pointer: fine)').matches)
 
-  const onMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (reduceMotion || !isPointerFine.current) return
-    const bounds = e.currentTarget.getBoundingClientRect()
-    const relX = (e.clientX - bounds.left) / bounds.width - 0.5
-    const relY = (e.clientY - bounds.top) / bounds.height - 0.5
+  // rAF-batched: raw `mousemove` can fire many times per animation frame,
+  // and `getBoundingClientRect()` forces a synchronous layout read — this
+  // collapses that down to at most one measurement + one set of motion-value
+  // updates per painted frame (identical output, since the tilt is already
+  // spring-smoothed on top of these raw values either way).
+  const tiltRafRef = useRef<number | null>(null)
+  const latestPointerRef = useRef<{ x: number; y: number } | null>(null)
+  const tiltTargetRef = useRef<HTMLDivElement | null>(null)
+
+  const applyTilt = useCallback(() => {
+    tiltRafRef.current = null
+    const pointer = latestPointerRef.current
+    const el = tiltTargetRef.current
+    if (!pointer || !el) return
+    const bounds = el.getBoundingClientRect()
+    const relX = (pointer.x - bounds.left) / bounds.width - 0.5
+    const relY = (pointer.y - bounds.top) / bounds.height - 0.5
     tiltYRaw.set(relX * 7)
     tiltXRaw.set(-relY * 6)
     imgXRaw.set(-relX * 10)
     imgYRaw.set(-relY * 8)
+  }, [tiltXRaw, tiltYRaw, imgXRaw, imgYRaw])
+
+  useEffect(() => {
+    return () => {
+      if (tiltRafRef.current !== null) cancelAnimationFrame(tiltRafRef.current)
+    }
+  }, [])
+
+  const onMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (reduceMotion || !isPointerFine.current) return
+    tiltTargetRef.current = e.currentTarget
+    latestPointerRef.current = { x: e.clientX, y: e.clientY }
+    if (tiltRafRef.current === null) {
+      tiltRafRef.current = requestAnimationFrame(applyTilt)
+    }
   }
 
   const onMouseLeave = () => {
+    if (tiltRafRef.current !== null) {
+      cancelAnimationFrame(tiltRafRef.current)
+      tiltRafRef.current = null
+    }
+    latestPointerRef.current = null
     tiltXRaw.set(0)
     tiltYRaw.set(0)
     imgXRaw.set(0)
@@ -297,6 +349,7 @@ export function InstagramFanCarousel({ reels }: InstagramFanCarouselProps) {
     <div className="flex w-full flex-col items-center">
       <div className="flex w-full items-center justify-center overflow-x-clip px-3 sm:overflow-visible sm:px-0">
         <div
+          ref={inViewRef}
           role="group"
           aria-roledescription="carousel"
           aria-label="ELATŌ Instagram reels"
@@ -309,9 +362,9 @@ export function InstagramFanCarousel({ reels }: InstagramFanCarouselProps) {
         >
           <motion.div
             aria-hidden="true"
-            className="pointer-events-none absolute left-1/2 top-1/2 h-[62%] w-[58%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#E7CAA0]/20 blur-[70px]"
+            className="pointer-events-none absolute left-1/2 top-1/2 h-[62%] w-[58%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#E7CAA0]/20 blur-[28px]"
             style={{ zIndex: 0 }}
-            animate={reduceMotion ? undefined : { opacity: [0.4, 0.65, 0.4], scale: [1, 1.05, 1] }}
+            animate={reduceMotion || !inView ? undefined : { opacity: [0.4, 0.65, 0.4], scale: [1, 1.05, 1] }}
             transition={reduceMotion ? undefined : { duration: 4.2, repeat: Infinity, ease: 'easeInOut' }}
           />
 
@@ -326,7 +379,13 @@ export function InstagramFanCarousel({ reels }: InstagramFanCarouselProps) {
           >
             {reels.map((reel, i) => {
               const gap = shortestDelta(currentIndex, i, total)
-              if (Math.abs(gap) > cfg.half + 2) return null
+              // Trimmed once more, from `cfg.half + 1` to `cfg.half` — the
+              // dropped ring sat around 28% opacity (per SocialCard's
+              // opacity formula), a soft background presence rather than a
+              // clearly "readable" card, and it was still a full 8-value
+              // useTransform chain plus a permanent `willChange` GPU layer
+              // (and, where a reel had one, an actively decoding video).
+              if (Math.abs(gap) > cfg.half) return null
               return (
                 <SocialCard
                   key={reel.id}

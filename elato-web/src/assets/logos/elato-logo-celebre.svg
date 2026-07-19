@@ -1,0 +1,101 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" width="100%" height="100%">
+  <style>
+    .elato-letter-e { opacity: 0; animation: elato-revealE 6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+    .elato-letter-l { opacity: 0; animation: elato-revealL 6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+    .elato-letter-a { opacity: 0; animation: elato-revealA 6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+    .elato-letter-t { opacity: 0; animation: elato-revealT 6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+    .elato-letter-o { opacity: 0; transform-origin: 480px 50px; animation: elato-revealO 6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+    .elato-macron { opacity: 0; transform-origin: 480px -26px; animation: elato-macronFadeIn 6s forwards, elato-macronMove 6s forwards; }
+    .elato-ripple { opacity: 0; stroke-width: 2px; transform-origin: 480px -26px; animation: elato-rippleExpand 6s cubic-bezier(0.21, 0.83, 0.26, 1) forwards; }
+    .elato-highlight-sweep { opacity: 0; animation: elato-sweepHighlight 6s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
+
+    @keyframes elato-macronFadeIn {
+      0%, 5% { opacity: 0; }
+      10%, 100% { opacity: 1; }
+    }
+    @keyframes elato-macronMove {
+      0%, 10% { transform: translate(0, 0) rotate(0deg); }
+      14%, 17% { transform: translate(-12px, 0) rotate(0deg); animation-timing-function: ease-in-out; }
+      22% { transform: translate(12px, 0) rotate(0deg); animation-timing-function: ease-in-out; }
+      26.6% { transform: translate(0, 0) rotate(0deg); animation-timing-function: ease-out; }
+      31% { transform: translate(-40px, -30px) rotate(-12deg); animation-timing-function: ease-in-out; }
+      35% { transform: translate(30px, -30px) rotate(12deg); animation-timing-function: ease-in; }
+      40%, 100% { transform: translate(0, 0) rotate(0deg); }
+    }
+    @keyframes elato-rippleExpand {
+      0%, 40% { transform: scale(0.1); opacity: 0; stroke-width: 2px; }
+      41% { opacity: 0.8; }
+      53.3%, 100% { transform: scale(15); opacity: 0; stroke-width: 0px; }
+    }
+    @keyframes elato-revealO {
+      0%, 40% { opacity: 0; transform: scale(0.9); }
+      53.3%, 100% { opacity: 1; transform: scale(1); }
+    }
+    @keyframes elato-revealE {
+      0%, 53.3% { opacity: 0; transform: translate(-30px, -30px); }
+      66.6%, 100% { opacity: 1; transform: translate(0, 0); }
+    }
+    @keyframes elato-revealL {
+      0%, 56.6% { opacity: 0; transform: translate(-30px, 30px); }
+      70%, 100% { opacity: 1; transform: translate(0, 0); }
+    }
+    @keyframes elato-revealA {
+      0%, 60% { opacity: 0; transform: translate(0, -40px); }
+      73.3%, 100% { opacity: 1; transform: translate(0, 0); }
+    }
+    @keyframes elato-revealT {
+      0%, 63.3% { opacity: 0; transform: translate(30px, 0); }
+      76.6%, 100% { opacity: 1; transform: translate(0, 0); }
+    }
+    @keyframes elato-sweepHighlight {
+      0%, 76.5% { transform: translateX(0px) skewX(-30deg); opacity: 0; }
+      76.6% { opacity: 0.8; transform: translateX(200px) skewX(-30deg); }
+      90% { transform: translateX(1600px) skewX(-30deg); opacity: 0.8; }
+      90.1%, 100% { opacity: 0; transform: translateX(1600px) skewX(-30deg); }
+    }
+  </style>
+
+  <defs>
+    <linearGradient id="elato-champagne" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0" />
+      <stop offset="30%" stop-color="#FFFFFF" stop-opacity="0" />
+      <stop offset="50%" stop-color="#FFF0D4" stop-opacity="0.9" />
+      <stop offset="70%" stop-color="#FFFFFF" stop-opacity="0" />
+      <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0" />
+    </linearGradient>
+
+    <path id="elato-shape-e" d="M 0 0 H 64 V 24 H 24 V 38 H 56 V 62 H 24 V 76 H 64 V 100 H 0 Z" />
+    <path id="elato-shape-l" d="M 100 0 H 124 V 76 H 164 V 100 H 100 Z" />
+    <path id="elato-shape-a" d="M 232 0 H 268 L 312 100 H 282 L 267 66 H 233 L 218 100 H 188 Z M 250 28 L 241 48 H 259 Z" />
+    <path id="elato-shape-t" d="M 324 0 H 404 V 24 H 376 V 100 H 352 V 24 H 324 Z" />
+    <path id="elato-shape-o" d="M 480 -2 A 52 52 0 1 1 479.9 -2 Z M 480 22 A 28 28 0 1 0 479.9 22 Z" />
+    <path id="elato-shape-macron" d="M 448 -32 H 512 V -20 H 448 Z" />
+
+    <mask id="elato-mask" x="-20%" y="-20%" width="140%" height="140%">
+      <g transform="translate(481.2, 450) scale(1.8)">
+        <use href="#elato-shape-e" fill="white" />
+        <use href="#elato-shape-l" fill="white" />
+        <use href="#elato-shape-a" fill="white" />
+        <use href="#elato-shape-t" fill="white" />
+        <use href="#elato-shape-o" fill="white" />
+        <use href="#elato-shape-macron" fill="white" />
+      </g>
+    </mask>
+  </defs>
+
+  <g transform="translate(481.2, 450) scale(1.8)">
+    <use href="#elato-shape-e" class="elato-letter-e" fill="#A87E23" />
+    <use href="#elato-shape-l" class="elato-letter-l" fill="#A87E23" />
+    <use href="#elato-shape-a" class="elato-letter-a" fill="#A87E23" />
+    <use href="#elato-shape-t" class="elato-letter-t" fill="#A87E23" />
+    <use href="#elato-shape-o" class="elato-letter-o" fill="#A87E23" />
+    
+    <circle cx="480" cy="-26" r="10" fill="none" stroke="#B19F87" class="elato-ripple" />
+    
+    <g class="elato-macron">
+      <use href="#elato-shape-macron" fill="#B19F87" />
+    </g>
+  </g>
+
+  <rect class="elato-highlight-sweep" x="0" y="0" width="400" height="1500" fill="url(#elato-champagne)" mask="url(#elato-mask)" />
+</svg>

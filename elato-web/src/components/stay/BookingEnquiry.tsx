@@ -10,7 +10,6 @@ import { businessInfo } from '../../content/siteContent'
 import { STAY_GUEST_MIN, STAY_GUEST_MAX } from '../../content/stayContent'
 import { buildWhatsAppLink } from '../../lib/whatsapp'
 import { sectionReveal, viewportOnce } from '../../lib/motion'
-import { useSectionExitFade } from '../../lib/useSectionExitFade'
 import {
   validateName,
   validatePhone10,
@@ -39,7 +38,6 @@ export function BookingEnquiry() {
   const [submitting, setSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
   const reserveImage = useSiteImage('stay_reserve_image', '')
-  const exitFade = useSectionExitFade<HTMLElement>()
 
   const validate = (): Errors => {
     const dateErrors = validateDateRange(checkIn, checkOut)
@@ -83,7 +81,7 @@ export function BookingEnquiry() {
   }
 
   return (
-    <motion.section id="booking" ref={exitFade.ref} style={exitFade.style} className="relative overflow-hidden py-16 lg:py-32">
+    <motion.section id="booking" className="relative overflow-hidden py-16 lg:py-32">
       <SectionBackground image={sectionBackground} mobileImage={sectionBackgroundMobile} />
       <motion.div
         initial="hidden"

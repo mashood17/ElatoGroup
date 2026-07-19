@@ -1,4 +1,4 @@
-import { createContext, useContext, useRef, useState, type ReactNode } from 'react'
+import { createContext, useCallback, useContext, useMemo, useRef, useState, type ReactNode } from 'react'
 
 type ItemModalContextValue = {
   openItemId: string | null
@@ -28,27 +28,33 @@ export function ItemModalProvider({ children }: { children: ReactNode }) {
   const highlightTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const [menuSearchResetToken, setMenuSearchResetToken] = useState(0)
 
-  const highlightItem = (id: string) => {
+  const closeItem = useCallback(() => setOpenItemId(null), [])
+
+  const highlightItem = useCallback((id: string) => {
     if (highlightTimer.current) clearTimeout(highlightTimer.current)
     setHighlightItemId(id)
     highlightTimer.current = setTimeout(() => setHighlightItemId(null), 1800)
-  }
+  }, [])
 
-  return (
-    <ItemModalContext.Provider
-      value={{
-        openItemId,
-        openItem: setOpenItemId,
-        closeItem: () => setOpenItemId(null),
-        highlightItemId,
-        highlightItem,
-        menuSearchResetToken,
-        resetMenuSearch: () => setMenuSearchResetToken((t) => t + 1),
-      }}
-    >
-      {children}
-    </ItemModalContext.Provider>
+  const resetMenuSearch = useCallback(() => setMenuSearchResetToken((t) => t + 1), [])
+
+  // Stable value reference — previously a fresh object literal every
+  // render, which re-rendered every consumer (the whole Célébré menu tree)
+  // whenever any field here changed, not just the one it actually reads.
+  const value = useMemo<ItemModalContextValue>(
+    () => ({
+      openItemId,
+      openItem: setOpenItemId,
+      closeItem,
+      highlightItemId,
+      highlightItem,
+      menuSearchResetToken,
+      resetMenuSearch,
+    }),
+    [openItemId, closeItem, highlightItemId, highlightItem, menuSearchResetToken, resetMenuSearch],
   )
+
+  return <ItemModalContext.Provider value={value}>{children}</ItemModalContext.Provider>
 }
 
 export function useItemModal() {

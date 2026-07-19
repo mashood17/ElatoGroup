@@ -42,9 +42,14 @@ export function HeroServicesReveal() {
     offset: ['start start', 'end start'],
   })
 
-  const heroScale = useTransform(scrollYProgress, [0, 1], [1, 0.78])
-  const heroRotate = useTransform(scrollYProgress, [0, 1], [0, -18])
-  const heroY = useTransform(scrollYProgress, [0, 1], [0, -80])
+  // Kept the receding-card feel but toned the 3D down to a standard,
+  // cheaper range: a shallower rotateX and a wider perspective both shrink
+  // how much of the foreshortened layer actually changes per frame, which
+  // is what drove the GPU cost during scroll — the pin range is shorter too
+  // so there's simply less scroll distance for it to run over.
+  const heroScale = useTransform(scrollYProgress, [0, 1], [1, 0.96])
+  const heroRotate = useTransform(scrollYProgress, [0, 1], [0, -3])
+  const heroY = useTransform(scrollYProgress, [0, 1], [0, -20])
 
   if (reduceMotion) {
     return (
@@ -59,8 +64,8 @@ export function HeroServicesReveal() {
     <>
       <div
         ref={containerRef}
-        className="relative h-[130vh] bg-surface-base sm:h-[145vh] lg:h-[165vh]"
-        style={{ perspective: '1600px' }}
+        className="relative h-[115vh] bg-surface-base sm:h-[120vh] lg:h-[130vh]"
+        style={{ perspective: '2200px' }}
       >
         <div className="sticky top-0 h-screen overflow-hidden">
           <motion.div

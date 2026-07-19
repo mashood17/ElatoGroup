@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react'
+import { useMemo, useState, type FormEvent } from 'react'
 import { AnimatePresence, motion, useReducedMotion, type Variants } from 'framer-motion'
 import { CheckCircle2, Clock, ExternalLink, Mail, MapPin, MessageCircle, MessageSquare, Phone, Tag, User } from 'lucide-react'
 import { Button } from '../ui/Button'
@@ -7,7 +7,6 @@ import { businessInfo } from '../../content/siteContent'
 import { visitHeading, visitContact, visitMap } from '../../content/visitContent'
 import { buildWhatsAppLink } from '../../lib/whatsapp'
 import { viewportOnce } from '../../lib/motion'
-import { useSectionExitFade } from '../../lib/useSectionExitFade'
 import { validateName, validatePhone10, validateMessage } from '../../lib/validation'
 import { persistEnquiry } from '../../lib/enquiryRepository'
 import { trackEvent } from '../../lib/analytics'
@@ -31,7 +30,6 @@ export function VisitSection() {
   const [submitting, setSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
   const [mapActive, setMapActive] = useState(false)
-  const exitFade = useSectionExitFade<HTMLElement>()
 
   const validate = (): Errors => ({
     name: validateName(name),
@@ -71,22 +69,36 @@ export function VisitSection() {
     setSubmitted(false)
   }
 
-  const headingReveal: Variants = {
-    hidden: { opacity: 0, y: reduceMotion ? 0 : 20 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: EASE_EDITORIAL } },
-  }
+  // Every field here is a flat useState, so any keystroke in the form below
+  // re-renders this whole section — memoizing these on `reduceMotion` (the
+  // only thing they actually depend on) stops them from being reallocated
+  // on every one of those re-renders while still reacting correctly if the
+  // OS-level reduced-motion setting changes mid-session.
+  const headingReveal: Variants = useMemo(
+    () => ({
+      hidden: { opacity: 0, y: reduceMotion ? 0 : 20 },
+      visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: EASE_EDITORIAL } },
+    }),
+    [reduceMotion],
+  )
 
-  const columnsContainer: Variants = {
-    hidden: {},
-    visible: {
-      transition: { staggerChildren: reduceMotion ? 0 : 0.15, delayChildren: reduceMotion ? 0 : 0.1 },
-    },
-  }
+  const columnsContainer: Variants = useMemo(
+    () => ({
+      hidden: {},
+      visible: {
+        transition: { staggerChildren: reduceMotion ? 0 : 0.15, delayChildren: reduceMotion ? 0 : 0.1 },
+      },
+    }),
+    [reduceMotion],
+  )
 
-  const columnReveal: Variants = {
-    hidden: { opacity: 0, y: reduceMotion ? 0 : 28 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: EASE_EDITORIAL } },
-  }
+  const columnReveal: Variants = useMemo(
+    () => ({
+      hidden: { opacity: 0, y: reduceMotion ? 0 : 28 },
+      visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: EASE_EDITORIAL } },
+    }),
+    [reduceMotion],
+  )
 
   const inputClasses =
     'h-12 w-full rounded-xl border border-[#9e7641]/25 bg-surface-base/60 pl-10 pr-4 text-body transition-colors focus-visible:border-[#9e7641] focus-visible:bg-surface-base'
@@ -95,8 +107,6 @@ export function VisitSection() {
   return (
     <motion.section
       id="visit"
-      ref={exitFade.ref}
-      style={exitFade.style}
       className="relative pb-16 pt-8 font-sans lg:pb-24 lg:pt-12"
     >
       <SectionBackground image={sectionBackground} mobileImage={sectionBackgroundMobile} />

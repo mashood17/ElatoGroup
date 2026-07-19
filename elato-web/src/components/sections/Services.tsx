@@ -44,7 +44,7 @@ export function Services() {
     <motion.section
       id="services"
       ref={exitFade.ref}
-      style={exitFade.style}
+      style={{ opacity: exitFade.style.opacity }}
       className="relative z-0 overflow-hidden rounded-t-[28px] bg-surface-base py-8 font-sans shadow-[0_-10px_30px_rgba(23,15,10,0.06),0_30px_70px_rgba(23,15,10,0.16)] lg:rounded-t-[48px] lg:py-14"
     >
       <picture>

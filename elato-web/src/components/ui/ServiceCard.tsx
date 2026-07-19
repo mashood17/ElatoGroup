@@ -4,6 +4,7 @@ import { motion, useReducedMotion, useScroll, useSpring, useTransform, type Vari
 import { memo, useRef } from 'react'
 import { cn } from '../../lib/cn'
 import { usePageTransition } from '../../lib/pageTransition'
+import { useInView } from '../../lib/useInView'
 
 const EASE_CINEMATIC = [0.16, 1, 0.3, 1] as const
 
@@ -73,6 +74,11 @@ export const ServiceCard = memo(function ServiceCard({ title, description, image
   const cardRef = useRef<HTMLDivElement>(null)
   const linkRef = useRef<HTMLAnchorElement>(null)
   const { isTransitioning, pendingId, beginCardTransition } = usePageTransition()
+  // Same "pause continuous GPU work once scrolled off-screen" pattern the
+  // hero backgrounds already use (see useInView.ts) — applied here to the
+  // card's permanent conic-gradient border glow, which previously had no
+  // visibility gating and kept spinning for the rest of the page visit.
+  const { ref: glowInViewRef, inView: glowInView } = useInView<HTMLDivElement>()
 
   const isSelected = pendingId === href
   const isDimmed = isTransitioning && !isSelected
@@ -106,7 +112,11 @@ export const ServiceCard = memo(function ServiceCard({ title, description, image
           opacity: 0,
           x: fromRight ? 56 : -56,
           scale: 0.96,
-          filter: 'blur(8px)',
+          // Trimmed again from blur(4px) (originally blur(8px)) — still a
+          // soft focus-pull on entry, now at roughly a third of the original
+          // filter-compositing cost. One-shot per card on scroll-into-view,
+          // but still worth keeping light.
+          filter: 'blur(3px)',
         },
     visible: {
       opacity: 1,
@@ -133,7 +143,10 @@ export const ServiceCard = memo(function ServiceCard({ title, description, image
 
   return (
     <motion.div
-      ref={cardRef}
+      ref={(node) => {
+        cardRef.current = node
+        glowInViewRef.current = node
+      }}
       initial="hidden"
       whileInView="visible"
       viewport={{ once: true, amount: 0.35 }}
@@ -161,13 +174,16 @@ export const ServiceCard = memo(function ServiceCard({ title, description, image
         // undefined lets the CSS shadow classes (rest / group-hover) show through.
         style={
           isSelected
-            ? { boxShadow: '0 0 46px rgba(231,202,160,0.55), 0 16px 30px -8px rgba(58,46,30,0.4), 0 55px 90px -20px rgba(58,46,30,0.6)' }
+            ? { boxShadow: '0 0 23px rgba(231,202,160,0.55), 0 16px 16px -8px rgba(58,46,30,0.4), 0 55px 43px -20px rgba(58,46,30,0.6)' }
             : undefined
         }
         transition={{ duration: 0.5, ease: EASE_CINEMATIC }}
         aria-disabled={isTransitioning || undefined}
         className={cn(
-          'relative block h-[380px] w-full rounded-[30px] p-[2px] shadow-[0_0_20px_rgba(231,202,160,0.28),0_8px_20px_-6px_rgba(58,46,30,0.35),0_40px_70px_-24px_rgba(58,46,30,0.55)] transition-shadow duration-700 ease-out group-hover:shadow-[0_0_42px_rgba(231,202,160,0.5),0_14px_28px_-8px_rgba(58,46,30,0.4),0_50px_85px_-20px_rgba(58,46,30,0.6)] sm:h-[420px] lg:h-[460px]',
+          // Blur radii trimmed further (offsets, spread and colors still
+          // untouched) — same layered "glow" shape and color intensity,
+          // cheaper again to rasterize on every hover/tap transition.
+          'relative block h-[380px] w-full rounded-[30px] p-[2px] shadow-[0_0_10px_rgba(231,202,160,0.28),0_8px_10px_-6px_rgba(58,46,30,0.35),0_40px_34px_-24px_rgba(58,46,30,0.55)] transition-shadow duration-700 ease-out group-hover:shadow-[0_0_20px_rgba(231,202,160,0.5),0_14px_15px_-8px_rgba(58,46,30,0.4),0_50px_42px_-20px_rgba(58,46,30,0.6)] sm:h-[420px] lg:h-[460px]',
           isTransitioning && 'pointer-events-none',
         )}
       >
@@ -181,15 +197,22 @@ export const ServiceCard = memo(function ServiceCard({ title, description, image
         />
         {/* Layer 1b — the slow metallic light sweeping across that border */}
         <div className="absolute inset-0 overflow-hidden rounded-[30px]" aria-hidden="true">
-          <div className="card-border-glow" />
+          <div className="card-border-glow" style={{ animationPlayState: glowInView ? 'running' : 'paused' }} />
         </div>
 
         {/* Layer 2 — inner dark card the image sits inside, not on top of the page */}
         <div className="relative z-10 h-full w-full overflow-hidden rounded-[28px] bg-[#140E09] font-sans shadow-[inset_0_1px_0_rgba(255,255,255,0.4),inset_0_0_30px_rgba(20,14,9,0.4)]">
-          {/* Layer 3 — the photograph */}
-          <motion.div
-            className="absolute inset-0 bg-cover bg-center"
-            style={{ backgroundImage: `url(${imageSrc})`, y: imageY, willChange: 'transform' }}
+          {/* Layer 3 — the photograph. A real <img> (not a CSS background-image)
+              so the browser can apply native lazy-loading — a background-image
+              has no loading attribute and was previously always fetched/decoded
+              on mount regardless of scroll position. */}
+          <motion.img
+            src={imageSrc}
+            alt=""
+            loading="lazy"
+            decoding="async"
+            className="absolute inset-0 h-full w-full object-cover object-center"
+            style={{ y: imageY, willChange: 'transform' }}
             animate={reduceMotion ? undefined : { scale: isSelected ? 1.2 : 1.14 }}
             whileHover={reduceMotion || isTransitioning ? undefined : { scale: 1.19 }}
             whileTap={reduceMotion || isTransitioning ? undefined : { scale: 1.17 }}

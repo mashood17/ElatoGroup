@@ -29,5 +29,5 @@ export function SiteImage({ src, alt, className, loading = 'lazy' }: SiteImagePr
       </div>
     )
   }
-  return <img src={src} alt={alt} className={className} loading={loading} />
+  return <img src={src} alt={alt} className={className} loading={loading} decoding="async" />
 }

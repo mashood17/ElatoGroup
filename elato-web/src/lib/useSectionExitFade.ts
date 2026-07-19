@@ -46,7 +46,16 @@ export function useSectionExitFade<T extends HTMLElement = HTMLElement>(): {
   const opacity = useTransform(scrollYProgress, STOPS, reduceMotion ? [1, 1, 1, 1] : [1, 1, 0.5, 0])
   const scale = useTransform(scrollYProgress, STOPS, reduceMotion ? [1, 1, 1, 1] : [1, 1, 0.97, 0.935])
   const y = useTransform(scrollYProgress, STOPS, reduceMotion ? [0, 0, 0, 0] : [0, 0, -24, -52])
-  const blurPx = useTransform(scrollYProgress, STOPS, reduceMotion ? [0, 0, 0, 0] : [0, 0, 4, 10])
+  // Blur is the one property in this fade that's genuinely expensive (a real
+  // filter/repaint pass, unlike the transform-only properties above) — given
+  // its own shorter, shallower curve so the browser only pays for the blur
+  // compositing layer over the final ~22% of the section's exit (was ~40%,
+  // then ~30%) and its peak radius is now under a third of the original.
+  // Opacity/scale/y are untouched — they're cheap regardless of range, so
+  // narrowing them further would only cost visual fidelity for no
+  // performance gain.
+  const BLUR_STOPS = [0, 0.78, 1]
+  const blurPx = useTransform(scrollYProgress, BLUR_STOPS, reduceMotion ? [0, 0, 0] : [0, 0, 3])
   // `blur(0px)` and `none` render identically, but `blur(0px)` is still a
   // non-`none` filter value — browsers can keep the section pinned to its
   // own filter-compositing layer the entire time simply because *a* filter

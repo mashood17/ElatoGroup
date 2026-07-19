@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import heroLogoAnimation from '../../assets/logos/elato-logo-animation-01.svg'
+import heroLogoAnimation from '../../assets/logos/elato-logo-home.svg'
 
 /**
  * Animated ELATŌ hero wordmark — the client-supplied self-animating SVG

@@ -15,7 +15,22 @@ import { PARALLAX_MAX_PX } from '../../lib/motion'
  * `<picture>`, the same technique the hero itself uses — desktop keeps
  * `image` unchanged either way.
  */
-export function SectionBackground({ image, mobileImage }: { image: string; mobileImage?: string }) {
+export function SectionBackground({
+  image,
+  mobileImage,
+  loading = 'lazy',
+}: {
+  image: string
+  mobileImage?: string
+  /**
+   * Every current caller sits below an always-larger-than-viewport hero, so
+   * `lazy` (the default) is correct site-wide — the browser starts fetching
+   * well before the section scrolls into range, with no visible pop-in.
+   * Left overridable to `eager` in case a future section ever sits directly
+   * in the first viewport.
+   */
+  loading?: 'lazy' | 'eager'
+}) {
   const reduceMotion = useReducedMotion()
   const ref = useRef<HTMLDivElement>(null)
   const { scrollYProgress } = useScroll({ target: ref, offset: ['start end', 'end start'] })
@@ -25,7 +40,7 @@ export function SectionBackground({ image, mobileImage }: { image: string; mobil
     [0, 1],
     reduceMotion ? [0, 0] : [-PARALLAX_MAX_PX, PARALLAX_MAX_PX],
   )
-  const scale = useTransform(scrollYProgress, [0, 1], reduceMotion ? [1, 1] : [1.05, 1.16])
+  const scale = useTransform(scrollYProgress, [0, 1], reduceMotion ? [1, 1] : [1.04, 1.1])
 
   return (
     <div ref={ref} aria-hidden="true" className="absolute inset-0 -z-10 overflow-hidden">
@@ -34,7 +49,7 @@ export function SectionBackground({ image, mobileImage }: { image: string; mobil
         <motion.img
           src={mobileImage ?? image}
           alt=""
-          loading="eager"
+          loading={loading}
           decoding="async"
           style={{ y: parallaxY, scale, willChange: 'transform' }}
           className="absolute inset-0 h-full w-full object-cover object-center"

@@ -95,6 +95,7 @@ function PerspectiveCard({ item, index, gradient, position, total, half, spacing
             alt={item.caption}
             draggable={false}
             loading="lazy"
+            decoding="async"
             className="h-full w-full rounded-[36px] object-cover"
           />
         ) : (
@@ -172,10 +173,16 @@ export function PerspectiveGallery({ items, ariaLabel }: PerspectiveGalleryProps
           // Cap how many cards are simultaneously mounted and animating.
           // Wrapped with the same nearest-multiple math as each card's own
           // distance transform, so this stays correct across any number of
-          // loops, not just a raw index subtraction.
+          // loops, not just a raw index subtraction. Trimmed once more, from
+          // `half + 1` to `half` — per the opacity formula below, cards at
+          // `half + 1` already render at exactly 0 opacity at rest (only a
+          // sub-2% flicker for a fraction of a second while the shared
+          // spring is mid-transition), so this ring was effectively
+          // invisible while still running a full 7-value useTransform chain
+          // and holding a permanent `willChange: 'transform'` GPU layer.
           const rawGap = i - currentIndex
           const gap = total > 2 ? rawGap - total * Math.round(rawGap / total) : rawGap
-          if (Math.abs(gap) > half + 2) return null
+          if (Math.abs(gap) > half) return null
 
           return (
             <PerspectiveCard

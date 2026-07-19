@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { motion } from 'framer-motion'
 import { SkeletonCard } from '../ui/SkeletonCard'
 import CardFanCarousel from '../ui/CardFanCarousel'
@@ -50,6 +50,29 @@ export function FeaturedSpecials() {
     load()
   }, [])
 
+  // Stable regardless of unrelated re-renders (page-transition state,
+  // reduced-motion changes, etc.) — CardFanCarousel's own layout effect is
+  // keyed on this array's identity, so an array rebuilt fresh every render
+  // was defeating that memoization and re-running GSAP's card layout/
+  // listener setup far more often than the data actually changed.
+  const handleSpecialClick = useCallback((special: Special) => setActiveSpecial(special), [])
+
+  const cards = useMemo(
+    () =>
+      specials
+        ? specials.map((special, i) => ({
+            id: special.id,
+            name: special.name,
+            description: special.description,
+            price: special.price,
+            gradientClass: gradients[i % gradients.length],
+            imageUrl: special.imageUrl,
+            onClick: () => handleSpecialClick(special),
+          }))
+        : [],
+    [specials, handleSpecialClick],
+  )
+
   return (
     <motion.section ref={exitFade.ref} style={exitFade.style} className="relative overflow-hidden py-16 lg:py-32">
       <div className="absolute inset-0 -z-10 bg-cover bg-center sm:hidden" style={{ backgroundImage: `url(${bgMobile})` }} aria-hidden="true" />
@@ -86,19 +109,9 @@ export function FeaturedSpecials() {
         ) : null}
       </div>
 
-      {specials && specials.length > 0 && (
+      {cards.length > 0 && (
         <motion.div initial="hidden" whileInView="visible" viewport={viewportOnce} variants={sectionReveal}>
-          <CardFanCarousel
-            cards={specials.map((special, i) => ({
-              id: special.id,
-              name: special.name,
-              description: special.description,
-              price: special.price,
-              gradientClass: gradients[i % gradients.length],
-              imageUrl: special.imageUrl,
-              onClick: () => setActiveSpecial(special),
-            }))}
-          />
+          <CardFanCarousel cards={cards} />
         </motion.div>
       )}
 

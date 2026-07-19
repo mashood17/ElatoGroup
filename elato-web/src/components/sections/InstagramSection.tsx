@@ -97,7 +97,7 @@ export function InstagramSection() {
     <motion.section
       id="instagram"
       ref={exitFade.ref}
-      style={exitFade.style}
+      style={{ opacity: exitFade.style.opacity }}
       className="relative py-20 font-sans lg:py-32"
     >
       <SectionBackground image={sectionBackground} mobileImage={sectionBackgroundMobile} />
