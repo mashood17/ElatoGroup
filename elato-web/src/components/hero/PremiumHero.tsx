@@ -160,7 +160,7 @@ export function PremiumHero({
     <section
       id={id}
       ref={heroSectionRef}
-      className="relative flex h-screen items-center overflow-hidden pt-28 pb-16 sm:pb-28 lg:py-24 [@media(max-height:600px)_and_(max-width:900px)]:py-16"
+      className="relative flex h-screen [align-items:safe_center] overflow-hidden pt-[max(7rem,calc(env(safe-area-inset-top)+5.5rem))] pb-16 sm:pb-28 lg:items-center lg:py-24 [@media(max-height:600px)_and_(max-width:900px)]:pt-24 [@media(max-height:600px)_and_(max-width:900px)]:pb-10"
     >
       <picture>
         <source media="(min-width: 768px)" srcSet={heroBackground} />
@@ -220,7 +220,7 @@ export function PremiumHero({
           initial="hidden"
           animate={revealNow ? 'visible' : 'hidden'}
           variants={imageCardReveal}
-          className="relative mx-auto w-full max-w-[390px] px-6 pt-8 pb-56 sm:max-w-[380px] sm:pb-10 lg:mx-0 lg:max-w-[400px] xl:max-w-[440px] lg:self-center"
+          className="relative mx-auto w-full max-w-[390px] px-6 pt-8 pb-10 sm:max-w-[380px] sm:pb-10 lg:mx-0 lg:max-w-[400px] xl:max-w-[440px] lg:self-center"
         >
           <HeroShowcaseCard
             src={imageSrc}
