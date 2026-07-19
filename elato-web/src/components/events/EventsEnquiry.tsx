@@ -104,7 +104,7 @@ export function EventsEnquiry() {
           <h2 className="text-h2 mt-2 font-sans font-bold text-[#9e7641]">Let&rsquo;s Create Something Memorable</h2>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] lg:items-stretch lg:gap-10">
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] lg:items-stretch lg:gap-10">
         <div className="relative">
           <div className="absolute -inset-3 rounded-[44px] bg-primary-50/80" aria-hidden="true" />
           <div className="relative overflow-hidden rounded-[36px] border-[10px] border-secondary-900 ring-4 ring-surface-elevated bg-surface-elevated/95 p-6 shadow-elato-lg backdrop-blur-sm lg:rounded-[48px] lg:border-[14px] lg:p-10">
@@ -261,12 +261,12 @@ export function EventsEnquiry() {
           </div>
         </div>
 
-        <div className="relative hidden lg:block">
+        <div className="relative">
           <div
             className="absolute -inset-3 rounded-[44px] rounded-br-[130px] bg-primary-50/80"
             aria-hidden="true"
           />
-          <div className="relative h-full w-full overflow-hidden rounded-[36px] rounded-br-[110px] border-[10px] border-secondary-900 ring-4 ring-surface-elevated shadow-elato-lg lg:rounded-[48px] lg:rounded-br-[150px] lg:border-[14px]">
+          <div className="relative aspect-4/5 w-full max-w-sm overflow-hidden rounded-[36px] rounded-br-[110px] border-[10px] border-secondary-900 ring-4 ring-surface-elevated shadow-elato-lg mx-auto lg:mx-0 lg:aspect-auto lg:h-full lg:max-w-none lg:rounded-[48px] lg:rounded-br-[150px] lg:border-[14px]">
             <SiteImage
               src={planImage}
               alt="An event hosted at ELATŌ"
