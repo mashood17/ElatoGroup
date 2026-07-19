@@ -23,3 +23,4 @@ class GalleryItemOut(GalleryItemBase):
     id: str
     created_at: str
     media_url: str | None = None
+    media_srcset: str | None = None

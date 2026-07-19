@@ -5,6 +5,10 @@ export interface PerspectiveGalleryItem {
   id: string
   caption: string
   url?: string
+  /** `srcset` for the admin-uploaded photo's 320/640/1280px variants — lets
+   * the browser pick the smallest one that covers the card's actual
+   * rendered width instead of always downloading the largest. */
+  srcset?: string
 }
 
 interface PerspectiveGalleryProps {
@@ -92,6 +96,12 @@ function PerspectiveCard({ item, index, gradient, position, total, half, spacing
         {item.url ? (
           <img
             src={item.url}
+            srcSet={item.srcset}
+            // Card renders at clamp(19.5rem, 12.5rem + 22vw, 31rem) — roughly
+            // 85vw on phones, ~45vw on tablets, capped at 480px on desktop —
+            // so the browser can match against the 320/640/1280px variants
+            // instead of defaulting to the largest one regardless of size.
+            sizes="(max-width: 640px) 85vw, (max-width: 1024px) 45vw, 480px"
             alt={item.caption}
             draggable={false}
             loading="lazy"

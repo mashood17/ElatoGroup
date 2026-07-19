@@ -81,6 +81,40 @@ def pop_embedded_media_url(row: dict) -> str | None:
     return public_url_for(media.get("bucket"), media.get("storage_path"))
 
 
+def responsive_srcset_for(bucket: str | None, storage_path: str | None) -> str | None:
+    """
+    Build a `srcset` attribute value covering all three breakpoint variants
+    `process_and_store` already wrote alongside the canonical `lg.webp`
+    (thumbnail.webp/320w, sm.webp/640w, lg.webp/1280w) — same bucket, same
+    `{stem}/` prefix, just the filename swapped. Every consumer of
+    `public_url_for` was resolving only the largest (1280px) variant
+    regardless of how small the image actually renders on screen; this lets
+    callers hand the browser the full set so it can pick the smallest one
+    that covers the real display size instead of always downloading `lg`.
+    Returns None if `storage_path` isn't the expected `.../lg.webp` shape.
+    """
+    if not bucket or not storage_path or not storage_path.endswith("/lg.webp"):
+        return None
+    stem = storage_path.removesuffix("/lg.webp")
+    parts = [
+        (f"{stem}/thumbnail.webp", _BREAKPOINTS["thumbnail"]),
+        (f"{stem}/sm.webp", _BREAKPOINTS["sm"]),
+        (f"{stem}/lg.webp", _BREAKPOINTS["lg"]),
+    ]
+    storage = get_supabase().storage.from_(bucket)
+    return ", ".join(f"{storage.get_public_url(path)} {width}w" for path, width in parts)
+
+
+def pop_embedded_media_srcset(row: dict) -> str | None:
+    """Same embedded-join pattern as `pop_embedded_media_url`, but resolves
+    the full responsive `srcset` instead of just the canonical URL. Reads
+    (doesn't pop) the `media` key — call this *before* `pop_embedded_media_url`
+    on the same row, since that one pops `media` off and would leave nothing
+    here to read."""
+    media = row.get("media") or {}
+    return responsive_srcset_for(media.get("bucket"), media.get("storage_path"))
+
+
 def _sniff_image_type(raw: bytes) -> str:
     for magic, mime in _MAGIC_BYTES.items():
         if raw.startswith(magic):

@@ -9,7 +9,7 @@ import { SiteImage } from '../ui/SiteImage'
 import { businessInfo } from '../../content/siteContent'
 import { STAY_GUEST_MIN, STAY_GUEST_MAX } from '../../content/stayContent'
 import { buildWhatsAppLink } from '../../lib/whatsapp'
-import { sectionReveal, viewportOnce } from '../../lib/motion'
+import { deferredSectionStyle, sectionReveal, viewportOnce } from '../../lib/motion'
 import {
   validateName,
   validatePhone10,
@@ -81,7 +81,7 @@ export function BookingEnquiry() {
   }
 
   return (
-    <motion.section id="booking" className="relative overflow-hidden py-16 lg:py-32">
+    <motion.section id="booking" style={deferredSectionStyle} className="relative overflow-hidden py-16 lg:py-32">
       <SectionBackground image={sectionBackground} mobileImage={sectionBackgroundMobile} />
       <motion.div
         initial="hidden"

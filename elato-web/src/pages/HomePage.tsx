@@ -5,6 +5,7 @@ import { About } from '../components/sections/About'
 import { InstagramSection } from '../components/sections/InstagramSection'
 import { ReviewsSection } from '../components/sections/ReviewsSection'
 import { VisitSection } from '../components/sections/VisitSection'
+import { DeferredMount } from '../lib/DeferredMount'
 
 export function HomePage() {
   return (
@@ -18,8 +19,17 @@ export function HomePage() {
       <main>
         <HeroServicesReveal />
         <About />
-        <InstagramSection />
-        <ReviewsSection />
+        {/* Instagram/Reviews fetch data and set up their own Framer Motion +
+            IntersectionObserver machinery on mount — deferred so that work
+            doesn't compete with the hero's critical-path animation during
+            initial hydration. Neither is a nav-anchor target (unlike About/
+            Visit), so deferring their mount doesn't affect #hash navigation. */}
+        <DeferredMount>
+          <InstagramSection />
+        </DeferredMount>
+        <DeferredMount>
+          <ReviewsSection />
+        </DeferredMount>
         <VisitSection />
       </main>
     </>

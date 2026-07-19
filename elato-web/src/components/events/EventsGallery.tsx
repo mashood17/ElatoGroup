@@ -23,6 +23,7 @@ export function EventsGallery() {
     id: img.id,
     caption: img.caption,
     url: img.url,
+    srcset: img.srcset,
   }))
 
   const tiles: PerspectiveGalleryItem[] = status === 'ready' ? liveTiles : eventGalleryItems

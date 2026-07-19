@@ -63,3 +63,20 @@ export const modalOpen: Variants = {
 export const PARALLAX_MAX_PX = 40
 
 export const viewportOnce = { once: true, amount: 0.2 }
+
+/**
+ * Skips style/layout/paint work for a section while it's off-screen, so
+ * scrolling toward it doesn't pay for recalculating content the user can't
+ * see yet. `containIntrinsicSize` reserves an estimated height up front so
+ * the page doesn't jump once the browser switches the section to full
+ * rendering as it nears the viewport — it self-corrects to the real height
+ * (the `auto` keyword) the first time that happens. Purely a rendering-
+ * pipeline hint: doesn't change when a section mounts, when its whileInView/
+ * exit-fade animations fire, or how anchor-link scrolling to it behaves
+ * (the spec auto-reveals a content-visibility:auto ancestor for fragment
+ * navigation and find-in-page).
+ */
+export const deferredSectionStyle = {
+  contentVisibility: 'auto',
+  containIntrinsicSize: '0 900px',
+} as const

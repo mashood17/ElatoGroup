@@ -84,8 +84,9 @@ def list_specials():
 def list_gallery(category: str | None = None):
     out = []
     for row in gallery_repository.list_public(category):
+        media_srcset = media_service.pop_embedded_media_srcset(row)
         media_url = media_service.pop_embedded_media_url(row)
-        out.append(GalleryItemOut(**row, media_url=media_url))
+        out.append(GalleryItemOut(**row, media_url=media_url, media_srcset=media_srcset))
     return out
 
 

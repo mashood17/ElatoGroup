@@ -5,7 +5,7 @@ import sectionBackgroundMobile from '../../assets/newbg/bg-mb2.webp'
 import { SectionBackground } from '../ui/SectionBackground'
 import { galleryItems } from '../../content/stayContent'
 import { useStayGallery } from '../../lib/useStayGallery'
-import { sectionReveal, viewportOnce } from '../../lib/motion'
+import { deferredSectionStyle, sectionReveal, viewportOnce } from '../../lib/motion'
 import { useSectionExitFade } from '../../lib/useSectionExitFade'
 
 /**
@@ -25,12 +25,17 @@ export function StayGallery() {
     id: img.id,
     caption: img.caption,
     url: img.url,
+    srcset: img.srcset,
   }))
 
   const tiles: PerspectiveGalleryItem[] = status === 'ready' ? liveTiles : galleryItems
 
   return (
-    <motion.section ref={exitFade.ref} style={exitFade.style} className="relative overflow-hidden py-20 lg:py-36">
+    <motion.section
+      ref={exitFade.ref}
+      style={{ ...exitFade.style, ...deferredSectionStyle }}
+      className="relative overflow-hidden py-20 lg:py-36"
+    >
       <SectionBackground image={sectionBackground} mobileImage={sectionBackgroundMobile} />
 
       <div className="container-elato relative">

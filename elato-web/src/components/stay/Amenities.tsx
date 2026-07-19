@@ -7,7 +7,7 @@ import { SiteImage } from '../ui/SiteImage'
 import Stack from '../ui/Stack'
 import { amenities } from '../../content/stayContent'
 import { useStayGallery } from '../../lib/useStayGallery'
-import { sectionReveal, staggerContainer, viewportOnce } from '../../lib/motion'
+import { deferredSectionStyle, sectionReveal, staggerContainer, viewportOnce } from '../../lib/motion'
 import { useSectionExitFade } from '../../lib/useSectionExitFade'
 
 const amenityIcons: Record<string, LucideIcon> = {
@@ -60,14 +60,25 @@ export function Amenities() {
           <img
             key={img.id}
             src={img.url}
+            srcSet={img.srcset}
+            // Card is h-80/w-80 up to lg:h-[28rem] (320-448px CSS) — far
+            // smaller than the 1280px "lg" variant `img.url` alone points
+            // to, so give the browser the smaller variants to pick from.
+            sizes="(max-width: 1024px) 320px, 448px"
             alt={img.caption || 'ELATŌ Stay'}
+            loading="lazy"
+            decoding="async"
             className="box-border h-full w-full border-[6px] border-[#9e7641] object-cover"
           />
         ))
       : fallbackStackCards
 
   return (
-    <motion.section ref={exitFade.ref} style={exitFade.style} className="relative overflow-hidden py-16 lg:py-32">
+    <motion.section
+      ref={exitFade.ref}
+      style={{ ...exitFade.style, ...deferredSectionStyle }}
+      className="relative overflow-hidden py-16 lg:py-32"
+    >
       <SectionBackground image={sectionBackground} mobileImage={sectionBackgroundMobile} />
 
       <div className="container-elato relative">

@@ -76,13 +76,19 @@ export function Navbar() {
     return () => window.removeEventListener('deviceorientation', handleOrientation)
   }, [menuOpen, prefersReducedMotion, tiltX, tiltY])
 
+  // Transform/opacity only — no animated `filter: blur()`. The static
+  // backdrop-blur on the panel already delivers the glass look; animating a
+  // second, full-panel blur filter on top of it forced a repeated
+  // rasterization pass of everything behind the glass on every frame of the
+  // open/close transition (confirmed via runtime profiling as the dominant
+  // cost of menu toggle: 16 long tasks / ~13.2s blocked main thread, worst
+  // frame 8.7s, under 4x CPU throttle).
   const panelVariants = prefersReducedMotion
     ? { hidden: { opacity: 0 }, visible: { opacity: 1 } }
     : {
         hidden: {
           opacity: 0,
           scale: 0.97,
-          filter: 'blur(8px)',
           transition: {
             duration: 0.32,
             ease: [0.4, 0, 1, 1] as const,
@@ -94,7 +100,6 @@ export function Navbar() {
         visible: {
           opacity: 1,
           scale: 1,
-          filter: 'blur(0px)',
           transition: {
             duration: 0.55,
             ease: [0.16, 1, 0.3, 1] as const,
@@ -108,8 +113,8 @@ export function Navbar() {
   const itemVariants = prefersReducedMotion
     ? { hidden: { opacity: 0 }, visible: { opacity: 1 } }
     : {
-        hidden: { opacity: 0, y: 16, filter: 'blur(3px)', transition: { duration: 0.26, ease: [0.4, 0, 1, 1] as const } },
-        visible: { opacity: 1, y: 0, filter: 'blur(0px)', transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] as const } },
+        hidden: { opacity: 0, y: 16, transition: { duration: 0.26, ease: [0.4, 0, 1, 1] as const } },
+        visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] as const } },
       }
 
   return (

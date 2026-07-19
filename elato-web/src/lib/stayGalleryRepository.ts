@@ -14,11 +14,13 @@ type GalleryItemDto = {
   caption: string | null
   display_order: number
   media_url: string | null
+  media_srcset: string | null
 }
 
 export type StayGalleryImage = {
   id: string
   url: string
+  srcset?: string
   caption: string
 }
 
@@ -30,6 +32,7 @@ export async function getStayGallery(): Promise<StayGalleryImage[]> {
     .map((r) => ({
       id: r.id,
       url: r.media_url,
+      srcset: r.media_srcset ?? undefined,
       caption: r.caption ?? '',
     }))
 }
