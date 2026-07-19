@@ -22,9 +22,9 @@ def test_all_api_v1_route_modules_import_cleanly():
     modules = [
         "app.api.v1.admin_categories",
         "app.api.v1.admin_dashboard",
-        "app.api.v1.admin_enquiries",
         "app.api.v1.admin_event_packages",
         "app.api.v1.admin_gallery",
+        "app.api.v1.admin_instagram",
         "app.api.v1.admin_media",
         "app.api.v1.admin_menu_items",
         "app.api.v1.admin_reviews",

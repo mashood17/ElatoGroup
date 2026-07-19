@@ -317,7 +317,7 @@ function HeroShowcaseCard({
 
       <div
         ref={imageContainerRef}
-        className="relative z-10 aspect-[5/6] w-full overflow-hidden rounded-[1.75rem] border border-white/60 bg-surface-elevated shadow-elato-xl sm:aspect-[6/7]"
+        className="relative z-10 aspect-[7/6] w-full overflow-hidden rounded-[1.75rem] border border-white/60 bg-surface-elevated shadow-elato-xl sm:aspect-[6/7]"
       >
         {src ? (
           <img src={src} alt={alt} className="h-full w-full object-cover" />
