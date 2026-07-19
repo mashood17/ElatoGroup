@@ -220,7 +220,7 @@ export function PremiumHero({
           initial="hidden"
           animate={revealNow ? 'visible' : 'hidden'}
           variants={imageCardReveal}
-          className="relative mx-auto w-full max-w-[390px] px-6 pt-8 pb-10 sm:max-w-[380px] lg:mx-0 lg:max-w-[400px] xl:max-w-[440px] lg:self-center"
+          className="relative mx-auto w-full max-w-[390px] px-6 pt-8 pb-40 sm:max-w-[380px] sm:pb-10 lg:mx-0 lg:max-w-[400px] xl:max-w-[440px] lg:self-center"
         >
           <HeroShowcaseCard
             src={imageSrc}
