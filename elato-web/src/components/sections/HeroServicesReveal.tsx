@@ -37,15 +37,19 @@ export function HeroServicesReveal() {
   const reduceMotion = useReducedMotion()
   const containerRef = useRef<HTMLDivElement>(null)
 
-  // TEMP (Task 2 isolation test): static rest-state values instead of
-  // useScroll + 4x useTransform — no scroll listener, no rect measurement,
-  // no derived-motion-value subscriptions. Same numbers useScroll would
-  // produce at scrollYProgress=0 (the values visible at initial page load,
-  // before any scroll occurs), so the render output at mount is identical.
-  const heroScale = 1
-  const heroRotate = 0
-  const heroY = 0
-  const heroRadius = 0
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ['start start', 'end start'],
+  })
+
+  const heroScale = useTransform(scrollYProgress, [0, 1], [1, 0.78])
+  const heroRotate = useTransform(scrollYProgress, [0, 1], [0, -18])
+  const heroY = useTransform(scrollYProgress, [0, 1], [0, -80])
+  // Square at rest, easing into the site's premium card radius as the pin
+  // releases — synchronized off the same scrollYProgress driving scale/
+  // rotateX/y, so it reads as one continuous motion rather than a separate
+  // effect.
+  const heroRadius = useTransform(scrollYProgress, [0, 1], [0, 40])
 
   if (reduceMotion) {
     return (
