@@ -160,7 +160,7 @@ export function PremiumHero({
     <section
       id={id}
       ref={heroSectionRef}
-      className="relative flex min-h-[87vh] items-center overflow-hidden pt-28 pb-16 sm:pb-28 lg:min-h-screen lg:py-24 [@media(max-height:600px)_and_(max-width:900px)]:py-16"
+      className="relative flex h-screen items-center overflow-hidden pt-28 pb-16 sm:pb-28 lg:py-24 [@media(max-height:600px)_and_(max-width:900px)]:py-16"
     >
       <picture>
         <source media="(min-width: 768px)" srcSet={heroBackground} />

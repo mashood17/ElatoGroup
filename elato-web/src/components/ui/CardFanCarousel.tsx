@@ -100,28 +100,24 @@ export default function CardFanCarousel({ cards }: CardFanCarouselProps) {
   const getVisibleMap = useCallback(
     (center: number) => {
       const map = new Map<number, number>()
-      if (!needsPagination) {
-        cards.forEach((_, i) => map.set(i, i))
-        return map
-      }
-      const visibleCount = getVisibleSlotCount(window.innerWidth)
+      const visibleCount = Math.min(getVisibleSlotCount(window.innerWidth), totalCards)
       const half = Math.floor(visibleCount / 2)
       for (let slot = 0; slot < visibleCount; slot++) {
         map.set((((center + slot - half) % totalCards) + totalCards) % totalCards, slot)
       }
       return map
     },
-    [totalCards, needsPagination, cards],
+    [totalCards],
   )
 
   const cycle = useCallback(
     (direction: 'left' | 'right') => {
-      if (isAnimating.current || !needsPagination) return
+      if (isAnimating.current || totalCards <= 1) return
       isAnimating.current = true
       directionRef.current = direction
       setCenterIndex((prev) => (direction === 'right' ? (prev + 1) % totalCards : (prev - 1 + totalCards) % totalCards))
     },
-    [totalCards, needsPagination],
+    [totalCards],
   )
 
   useEffect(() => {
@@ -139,7 +135,7 @@ export default function CardFanCarousel({ cards }: CardFanCarouselProps) {
     const multiplier = getResponsiveMultiplier(window.innerWidth)
     const hMult = getHeightMultiplier(window.innerWidth)
     const rotMult = getRotationMultiplier(window.innerWidth)
-    const slotCount = needsPagination ? getVisibleSlotCount(window.innerWidth) : totalCards
+    const slotCount = Math.min(getVisibleSlotCount(window.innerWidth), totalCards)
     const config = (slot: number) => getSlotConfig(slotCount, slot)
 
     if (isFirstMount) isAnimating.current = true
@@ -295,7 +291,7 @@ export default function CardFanCarousel({ cards }: CardFanCarouselProps) {
       window.removeEventListener('resize', onResize)
       if (leaveTimer) clearTimeout(leaveTimer)
     }
-  }, [centerIndex, totalCards, getVisibleMap, needsPagination])
+  }, [centerIndex, totalCards, getVisibleMap])
 
   if (!totalCards) return null
 
@@ -325,8 +321,8 @@ export default function CardFanCarousel({ cards }: CardFanCarouselProps) {
       <div className="flex w-full items-center justify-center overflow-x-clip px-3 sm:overflow-visible sm:px-0">
         <div
           ref={containerRef}
-          onTouchStart={needsPagination ? onTouchStart : undefined}
-          onTouchEnd={needsPagination ? onTouchEnd : undefined}
+          onTouchStart={totalCards > 1 ? onTouchStart : undefined}
+          onTouchEnd={totalCards > 1 ? onTouchEnd : undefined}
           className="fan-layout relative flex h-[clamp(29rem,17.5rem_+_24vw,37rem)] w-full max-w-[84rem] touch-pan-y items-center justify-center"
         >
           {cards.map((card) => {
@@ -371,7 +367,7 @@ export default function CardFanCarousel({ cards }: CardFanCarouselProps) {
         </div>
       </div>
 
-      {needsPagination && (
+      {totalCards > 1 && (
         <div className="z-30 mt-5 flex items-center justify-center gap-4 md:-mt-20">
           <button className={`${ARROW_CLASSES} h-10 w-10 md:h-12 md:w-12`} onClick={() => cycle('left')} aria-label="Previous special">
             {chevron('left')}
