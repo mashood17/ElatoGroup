@@ -176,7 +176,7 @@ export function PremiumHero({
       </picture>
       <div className="hero-bg-light" aria-hidden="true" style={{ animationPlayState: heroInView ? 'running' : 'paused' }} />
 
-      <div className="container-elato relative grid w-full items-center gap-14 lg:grid-cols-[1.5fr_1fr] lg:items-stretch lg:gap-10 xl:gap-16">
+      <div className="container-elato relative grid w-full items-center gap-6 sm:gap-14 lg:grid-cols-[1.5fr_1fr] lg:items-stretch lg:gap-10 xl:gap-16">
         {/*
           Left column is one flex container spanning the full row height, with
           a flex-1 spacer above and below the branding wrapper — that's what
@@ -317,7 +317,7 @@ function HeroShowcaseCard({
 
       <div
         ref={imageContainerRef}
-        className="relative z-10 aspect-[6/7] w-full overflow-hidden rounded-[1.75rem] border border-white/60 bg-surface-elevated shadow-elato-xl"
+        className="relative z-10 aspect-[5/6] w-full overflow-hidden rounded-[1.75rem] border border-white/60 bg-surface-elevated shadow-elato-xl sm:aspect-[6/7]"
       >
         {src ? (
           <img src={src} alt={alt} className="h-full w-full object-cover" />
