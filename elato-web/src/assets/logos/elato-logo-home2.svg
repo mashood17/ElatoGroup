@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 400" width="100%" height="100%">
+<svg viewBox="-100 -100 700 300" xmlns="http://www.w3.org/2000/svg">
   <style>
     /* CSS animations for Animation 01: The Architectural Reveal */
     .fidelity-frame { opacity: 0; animation: crossfade-in 0.16s linear 7.84s forwards; }
@@ -8,7 +8,7 @@
     @keyframes crossfade-out { 0% { opacity: 1; } 100% { opacity: 0; } }
 
     .scene {
-      transform-origin: 500px 188px;
+      transform-origin: 230px 50px;
       transform: scale(0.9) skewX(-20deg) skewY(5deg);
       animation: sceneParallax 4s cubic-bezier(0.25, 1, 0.5, 1) 2s forwards;
     }
@@ -68,7 +68,7 @@
     }
     @keyframes bloomO {
       0% { r: 0; }
-      100% { r: 130px; }
+      100% { r: 75px; }
     }
 
     .macron-group {
@@ -82,29 +82,29 @@
     }
 
     .light-sweep-rect {
-      transform: translateX(-300px) skewX(-20deg);
+      transform: translateX(-400px) skewX(-20deg);
       animation: lightSweep 1.5s cubic-bezier(0.4, 0, 0.2, 1) 6.0s forwards;
     }
     @keyframes lightSweep {
-      0% { transform: translateX(-300px) skewX(-20deg); }
-      100% { transform: translateX(900px) skewX(-20deg); }
+      0% { transform: translateX(-400px) skewX(-20deg); }
+      100% { transform: translateX(800px) skewX(-20deg); }
     }
   </style>
 
   <defs>
-    <path id="path-E" d="M 270 160 H 330 V 178 H 290 V 191.5 H 320 V 208.5 H 290 V 222 H 330 V 240 H 270 Z" fill-rule="evenodd" clip-rule="evenodd" />
-    <path id="path-L" d="M 355 160 H 375 V 222 H 410 V 240 H 355 Z" fill-rule="evenodd" clip-rule="evenodd" />
-    <path id="path-A" d="M 469 160 H 491 L 530 240 H 508 L 499.71 223 H 460.29 L 452 240 H 430 Z M 480 182.56 L 467.6 208 H 492.4 Z" fill-rule="evenodd" clip-rule="evenodd" />
-    <path id="path-T" d="M 550 160 H 620 V 178 H 595 V 240 H 575 V 178 H 550 Z" fill-rule="evenodd" clip-rule="evenodd" />
-    <path id="path-O" d="M 687,158 C 710.2,158 729,176.8 729,200 C 729,223.2 710.2,242 687,242 C 663.8,242 645,223.2 645,200 C 645,176.8 663.8,158 687,158 Z M 687,178 C 674.8,178 665,187.8 665,200 C 665,212.2 674.8,222 687,222 C 699.2,222 709,212.2 709,200 C 709,187.8 699.2,178 687,178 Z" fill-rule="evenodd" clip-rule="evenodd" />
-    <path id="path-macron" d="M 665 140 H 709 V 150 H 665 Z" fill-rule="evenodd" clip-rule="evenodd" />
+    <path id="path-E" d="M 0,0 H 70 V 22 H 22 V 39 H 60 V 61 H 22 V 78 H 70 V 100 H 0 Z" fill-rule="evenodd" clip-rule="evenodd" />
+    <path id="path-L" d="M 95,0 H 117 V 78 H 155 V 100 H 95 Z" fill-rule="evenodd" clip-rule="evenodd" />
+    <path id="path-A" d="M 180,100 L 214,0 H 234 L 268,100 H 244 L 237.2,80 H 210.8 L 204,100 Z M 217.6,60 L 230.4,60 L 224,41.2 Z" fill-rule="evenodd" clip-rule="evenodd" />
+    <path id="path-T" d="M 285,0 H 359 V 22 H 333 V 100 H 311 V 22 H 285 Z" fill-rule="evenodd" clip-rule="evenodd" />
+    <path id="path-O" d="M 432,0 A 50,50 0 1,1 432,100 A 50,50 0 1,1 432,0 Z M 432,22 A 28,28 0 1,0 432,78 A 28,28 0 1,0 432,22 Z" fill-rule="evenodd" clip-rule="evenodd" />
+    <path id="path-macron" d="M 405,-30 H 459 V -18 H 405 Z" fill-rule="evenodd" clip-rule="evenodd" />
 
     <mask id="material-mask">
-      <rect class="mask-sweep" x="100" y="0" width="10" height="400" fill="white" transform="skewX(-20)" />
+      <rect class="mask-sweep" x="-500" y="-100" width="10" height="400" fill="white" transform="skewX(-20)" />
     </mask>
     
     <mask id="o-mask">
-      <circle class="o-mask-circle" cx="687" cy="200" r="0" fill="white" />
+      <circle class="o-mask-circle" cx="432" cy="50" r="0" fill="white" />
     </mask>
 
     <mask id="logo-mask">
@@ -175,6 +175,6 @@
       </g>
     </g>
 
-    <rect class="light-sweep-rect" x="100" y="0" width="300" height="400" fill="url(#sweep-grad)" transform="skewX(-20)" mask="url(#logo-mask)" />
+    <rect class="light-sweep-rect" x="0" y="-100" width="300" height="400" fill="url(#sweep-grad)" transform="skewX(-20)" mask="url(#logo-mask)" />
   </g>
 </svg>
