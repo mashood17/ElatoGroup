@@ -83,7 +83,7 @@ export function HomeHero() {
       </picture>
       <div className="hero-bg-light" aria-hidden="true" style={{ animationPlayState: heroInView ? 'running' : 'paused' }} />
 
-      <div className="container-elato relative flex -translate-y-[8vh] flex-col items-center gap-7 pt-20 text-center [@media(max-height:500px)]:gap-3 [@media(max-height:500px)]:pt-10 sm:gap-5 md:translate-y-0 md:gap-6 lg:gap-4">
+      <div className="container-elato relative flex -translate-y-[8vh] flex-col items-center gap-3 pt-20 text-center [@media(max-height:500px)]:gap-3 [@media(max-height:500px)]:pt-10 sm:gap-2 md:translate-y-0 md:gap-2 lg:gap-0">
         {/*
           Width-driven, mobile-first sizing (h-auto in HeroLogo keeps the
           aspect locked). The negative vertical margins cancel the SVG's
@@ -91,7 +91,7 @@ export function HomeHero() {
           bottom) so the visible wordmark — not the padded box — is what the
           surrounding gaps and vertical centering measure against.
         */}
-        <HeroLogo className="-my-8 w-[min(104vw,33rem)] sm:-my-9 sm:w-[34rem] md:-my-11 md:w-[43rem] lg:-my-14 lg:w-[56rem] xl:-my-16 xl:w-[66rem] [@media(max-height:500px)]:-my-4 [@media(max-height:500px)]:w-[19rem]" />
+        <HeroLogo className="-my-[4.5rem] w-[min(156vw,49.5rem)] sm:-my-[5rem] sm:w-[51rem] md:-my-[4.5rem] md:w-[55.9rem] lg:-my-[5.8rem] lg:w-[72.8rem] xl:-my-[6.5rem] xl:w-[85.8rem] [@media(max-height:500px)]:-my-[1.5rem] [@media(max-height:500px)]:w-[28.5rem]" />
 
         <div className="flex flex-col items-center gap-4 sm:gap-4">
           <motion.h1

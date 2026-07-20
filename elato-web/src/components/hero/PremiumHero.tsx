@@ -183,7 +183,7 @@ export function PremiumHero({
           puts the wrapper in the true vertical center, rather than relying on
           the grid centering a content-sized block.
         */}
-        <div className="flex flex-col items-center lg:h-full lg:items-start">
+        <div className="flex flex-col items-center lg:h-full lg:items-center">
           <div className="flex-1" aria-hidden="true" />
 
           {/*
@@ -194,20 +194,20 @@ export function PremiumHero({
             tagline can never render wider than the logo above it. Centered
             on mobile, left-aligned from `lg:` up.
           */}
-          <div className="flex w-[300px] flex-col items-center gap-3 text-center sm:w-[340px] sm:gap-4 md:w-[440px] lg:w-full lg:items-start lg:text-left [@media(max-height:600px)_and_(max-width:900px)]:w-[190px]">
+          <div className="flex w-[300px] flex-col items-center gap-3 text-center sm:w-[340px] sm:gap-4 md:w-[440px] md:gap-1 lg:w-full lg:items-center lg:gap-0 lg:-translate-y-8 lg:text-center [@media(max-height:600px)_and_(max-width:900px)]:w-[190px]">
             <PremiumHeroLogo
               src={logoSrc}
               alt={logoAlt}
               width={logoWidth}
               height={logoHeight}
-              className="w-full"
+              className="w-[180%] md:w-[130%]"
             />
 
             <motion.p
               initial="hidden"
               animate={revealNow ? 'visible' : 'hidden'}
               variants={taglineReveal}
-              className="w-[73%] font-sans text-[17px] font-medium leading-relaxed tracking-[0.03em] text-[#9e7641] sm:w-[60%] sm:text-[18px] md:text-[20px] lg:ml-[13.3%] lg:text-[19px] xl:text-[21px]"
+              className="w-[73%] font-sans text-[17px] font-medium leading-relaxed tracking-[0.03em] text-[#9e7641] sm:w-[60%] sm:text-[18px] md:text-[20px] lg:text-[19px] xl:text-[21px]"
             >
               {tagline}
             </motion.p>

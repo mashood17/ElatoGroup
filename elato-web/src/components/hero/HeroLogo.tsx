@@ -38,7 +38,7 @@ export function HeroLogo({ className = '' }: { className?: string }) {
       fetchPriority="high"
       decoding="async"
       draggable={false}
-      className={`h-auto select-none ${className}`}
+      className={`h-auto max-w-none select-none ${className}`}
     />
   )
 }
