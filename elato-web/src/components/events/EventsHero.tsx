@@ -26,7 +26,7 @@ export function EventsHero() {
       imageSrc={imageSrc}
       cardStatLabel="Hall Capacity"
       cardStatValue={`${EVENTS_HALL_CAPACITY_MIN}–${EVENTS_HALL_CAPACITY_MAX}`}
-      cardBadgeLabel="Celebrated Here"
+      cardBadgeLabel="Moments Curated"
     />
   )
 }

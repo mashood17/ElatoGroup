@@ -194,7 +194,7 @@ export function PremiumHero({
             tagline can never render wider than the logo above it. Centered
             on mobile, left-aligned from `lg:` up.
           */}
-          <div className="flex w-[300px] -translate-y-6 flex-col items-center gap-0 text-center sm:w-[340px] sm:gap-0 md:w-[440px] md:translate-y-0 md:gap-1 lg:w-full lg:items-center lg:gap-0 lg:-translate-y-8 lg:text-center [@media(max-height:600px)_and_(max-width:900px)]:w-[190px]">
+          <div className="flex w-[300px] -translate-y-10 flex-col items-center gap-0 text-center sm:w-[340px] sm:gap-0 md:w-[440px] md:translate-y-0 md:gap-1 lg:w-full lg:items-center lg:gap-0 lg:-translate-y-8 lg:text-center [@media(max-height:600px)_and_(max-width:900px)]:w-[190px]">
             <PremiumHeroLogo
               src={logoSrc}
               alt={logoAlt}
@@ -220,7 +220,7 @@ export function PremiumHero({
           initial="hidden"
           animate={revealNow ? 'visible' : 'hidden'}
           variants={imageCardReveal}
-          className="relative mx-auto w-full max-w-[390px] -translate-y-6 px-6 pt-8 pb-10 sm:max-w-[380px] sm:pb-10 md:translate-y-0 lg:mx-0 lg:max-w-[400px] xl:max-w-[440px] lg:self-center"
+          className="relative mx-auto w-full max-w-[390px] -translate-y-10 px-6 pt-8 pb-10 sm:max-w-[380px] sm:pb-10 md:translate-y-0 lg:mx-0 lg:max-w-[400px] lg:translate-y-8 xl:max-w-[440px] lg:self-center"
         >
           <HeroShowcaseCard
             src={imageSrc}

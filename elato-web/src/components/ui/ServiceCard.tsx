@@ -206,19 +206,21 @@ export const ServiceCard = memo(function ServiceCard({ title, description, image
               so the browser can apply native lazy-loading — a background-image
               has no loading attribute and was previously always fetched/decoded
               on mount regardless of scroll position. */}
-          <motion.img
-            src={imageSrc}
-            alt=""
-            loading="lazy"
-            decoding="async"
-            className="absolute inset-0 h-full w-full object-cover object-center"
-            style={{ y: imageY, willChange: 'transform' }}
-            animate={reduceMotion ? undefined : { scale: isSelected ? 1.2 : 1.14 }}
-            whileHover={reduceMotion || isTransitioning ? undefined : { scale: 1.19 }}
-            whileTap={reduceMotion || isTransitioning ? undefined : { scale: 1.17 }}
-            transition={{ duration: 0.8, ease: EASE_CINEMATIC }}
-            aria-hidden="true"
-          />
+          {imageSrc && (
+            <motion.img
+              src={imageSrc}
+              alt=""
+              loading="lazy"
+              decoding="async"
+              className="absolute inset-0 h-full w-full object-cover object-center"
+              style={{ y: imageY, willChange: 'transform' }}
+              animate={reduceMotion ? undefined : { scale: isSelected ? 1.2 : 1.14 }}
+              whileHover={reduceMotion || isTransitioning ? undefined : { scale: 1.19 }}
+              whileTap={reduceMotion || isTransitioning ? undefined : { scale: 1.17 }}
+              transition={{ duration: 0.8, ease: EASE_CINEMATIC }}
+              aria-hidden="true"
+            />
+          )}
 
           <div
             className="absolute inset-0 bg-gradient-to-t from-ink/95 via-ink/50 to-transparent"
