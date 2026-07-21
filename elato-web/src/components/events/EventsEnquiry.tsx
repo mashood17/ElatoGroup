@@ -1,22 +1,25 @@
 import { useState, type FormEvent } from 'react'
 import { motion } from 'framer-motion'
-import { User, Phone, Mail, PartyPopper, CalendarDays, Users, MessageSquare, MessageCircle, type LucideIcon } from 'lucide-react'
+import { User, Mail, PartyPopper, CalendarDays, Users, MessageSquare, MessageCircle, type LucideIcon } from 'lucide-react'
 import { Button } from '../ui/Button'
 import sectionBackground from '../../assets/newbg/bg2.webp'
 import sectionBackgroundMobile from '../../assets/newbg/bg-mb2.webp'
 import { SectionBackground } from '../ui/SectionBackground'
 import { SiteImage } from '../ui/SiteImage'
+import { PhoneCountryField } from '../ui/PhoneCountryField'
 import { businessInfo } from '../../content/siteContent'
 import { buildWhatsAppLink } from '../../lib/whatsapp'
 import { sectionReveal, viewportOnce } from '../../lib/motion'
 import {
   validateName,
-  validatePhone10,
+  validatePhoneForCountry,
   validateEmail,
   validateMessage,
   validateFutureDate,
   validateGuests,
+  toE164,
 } from '../../lib/validation'
+import { DEFAULT_COUNTRY_ISO, dialCodeForIso } from '../../lib/countryCodes'
 import { persistEnquiry } from '../../lib/enquiryRepository'
 import { trackEvent } from '../../lib/analytics'
 import { useSiteImage } from '../../lib/useSiteImage'
@@ -41,6 +44,7 @@ type Errors = Partial<
 
 export function EventsEnquiry() {
   const [name, setName] = useState('')
+  const [countryIso, setCountryIso] = useState(DEFAULT_COUNTRY_ISO)
   const [phone, setPhone] = useState('')
   const [email, setEmail] = useState('')
   const [eventType, setEventType] = useState<(typeof EVENT_TYPES)[number]>(EVENT_TYPES[0])
@@ -54,7 +58,7 @@ export function EventsEnquiry() {
 
   const validate = (): Errors => ({
     name: validateName(name),
-    phone: validatePhone10(phone),
+    phone: validatePhoneForCountry(dialCodeForIso(countryIso), phone),
     email: validateEmail(email),
     date: validateFutureDate(date),
     guests: validateGuests(guests, GUEST_MIN, GUEST_MAX),
@@ -69,13 +73,14 @@ export function EventsEnquiry() {
 
     setSubmitting(true)
     setTimeout(() => {
+      const fullPhone = toE164(dialCodeForIso(countryIso), phone)
       const waMessage =
         `Hi Elato! My name is ${name.trim()}. I'd like to enquire about hosting a ${eventType} ` +
-        `for ${guests} guest${guests > 1 ? 's' : ''} on ${date}. Contact: ${phone.trim()}. ${message.trim()}`.trim()
+        `for ${guests} guest${guests > 1 ? 's' : ''} on ${date}. Contact: ${fullPhone}. ${message.trim()}`.trim()
       persistEnquiry({
         source_page: 'events',
         name: name.trim(),
-        phone: phone.trim(),
+        phone: fullPhone,
         email: email.trim() || undefined,
         message: `Event type: ${eventType}. ${message.trim()}`.trim(),
         guests,
@@ -133,16 +138,15 @@ export function EventsEnquiry() {
                     onBlur={() => setErrors((prev) => ({ ...prev, name: validate().name }))}
                     error={errors.name}
                   />
-                  <Field
-                    id="events-phone"
+                  <PhoneCountryField
+                    idPrefix="events"
                     label="Phone Number"
-                    type="tel"
-                    icon={Phone}
-                    value={phone}
-                    onChange={setPhone}
+                    countryIso={countryIso}
+                    onCountryChange={setCountryIso}
+                    phone={phone}
+                    onPhoneChange={setPhone}
                     onBlur={() => setErrors((prev) => ({ ...prev, phone: validate().phone }))}
                     error={errors.phone}
-                    placeholder="98765 43210"
                   />
                 </div>
 

@@ -3,11 +3,13 @@ import { AnimatePresence, motion, useReducedMotion, type Variants } from 'framer
 import { CheckCircle2, Clock, ExternalLink, Mail, MapPin, MessageCircle, MessageSquare, Phone, Tag, User } from 'lucide-react'
 import { Button } from '../ui/Button'
 import { SectionBackground } from '../ui/SectionBackground'
+import { PhoneCountryField } from '../ui/PhoneCountryField'
 import { businessInfo } from '../../content/siteContent'
 import { visitHeading, visitContact, visitMap } from '../../content/visitContent'
 import { buildWhatsAppLink } from '../../lib/whatsapp'
 import { viewportOnce } from '../../lib/motion'
-import { validateName, validatePhone10, validateMessage } from '../../lib/validation'
+import { validateName, validatePhoneForCountry, validateMessage, toE164 } from '../../lib/validation'
+import { DEFAULT_COUNTRY_ISO, dialCodeForIso } from '../../lib/countryCodes'
 import { persistEnquiry } from '../../lib/enquiryRepository'
 import { trackEvent } from '../../lib/analytics'
 import sectionBackground from '../../assets/newbg/bg2.webp'
@@ -23,6 +25,7 @@ const EASE_EDITORIAL = [0.16, 1, 0.3, 1] as const
 export function VisitSection() {
   const reduceMotion = useReducedMotion()
   const [name, setName] = useState('')
+  const [countryIso, setCountryIso] = useState(DEFAULT_COUNTRY_ISO)
   const [phone, setPhone] = useState('')
   const [purpose, setPurpose] = useState<(typeof purposes)[number]>('General')
   const [message, setMessage] = useState('')
@@ -33,7 +36,7 @@ export function VisitSection() {
 
   const validate = (): Errors => ({
     name: validateName(name),
-    phone: validatePhone10(phone),
+    phone: validatePhoneForCountry(dialCodeForIso(countryIso), phone),
     message: validateMessage(message),
   })
 
@@ -45,11 +48,12 @@ export function VisitSection() {
 
     setSubmitting(true)
     setTimeout(() => {
+      const fullPhone = toE164(dialCodeForIso(countryIso), phone)
       const waMessage = `Hi Elato! My name is ${name.trim()}. Purpose: ${purpose}. ${message.trim()}`.trim()
       persistEnquiry({
         source_page: 'home',
         name: name.trim(),
-        phone: phone.trim(),
+        phone: fullPhone,
         message: `Purpose: ${purpose}. ${message.trim()}`.trim(),
       })
       trackEvent('enquiry_submitted', 'home', { purpose })
@@ -62,6 +66,7 @@ export function VisitSection() {
 
   const resetForm = () => {
     setName('')
+    setCountryIso(DEFAULT_COUNTRY_ISO)
     setPhone('')
     setPurpose('General')
     setMessage('')
@@ -304,30 +309,16 @@ export function VisitSection() {
                   )}
                 </div>
 
-                <div className="flex flex-col gap-1.5">
-                  <label htmlFor="visit-phone" className="text-caption text-neutral-warm-500">Phone</label>
-                  <div className="relative">
-                    <Phone className={iconClasses} aria-hidden="true" />
-                    <input
-                      id="visit-phone"
-                      type="tel"
-                      inputMode="numeric"
-                      autoComplete="tel-national"
-                      value={phone}
-                      onChange={(e) => setPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
-                      onBlur={() => setErrors((prev) => ({ ...prev, phone: validate().phone }))}
-                      placeholder="98765 43210"
-                      maxLength={10}
-                      aria-describedby={errors.phone ? 'visit-phone-error' : undefined}
-                      className={inputClasses}
-                    />
-                  </div>
-                  {errors.phone && (
-                    <p id="visit-phone-error" className="text-caption text-danger" aria-live="polite">
-                      {errors.phone}
-                    </p>
-                  )}
-                </div>
+                <PhoneCountryField
+                  idPrefix="visit"
+                  label="Phone"
+                  countryIso={countryIso}
+                  onCountryChange={setCountryIso}
+                  phone={phone}
+                  onPhoneChange={setPhone}
+                  onBlur={() => setErrors((prev) => ({ ...prev, phone: validate().phone }))}
+                  error={errors.phone}
+                />
 
                 <div className="flex flex-col gap-1.5">
                   <label htmlFor="visit-purpose" className="text-caption text-neutral-warm-500">Purpose</label>

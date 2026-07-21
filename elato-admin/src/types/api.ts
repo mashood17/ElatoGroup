@@ -332,6 +332,79 @@ export interface MediaUploadResponse {
 }
 
 // ---------------------------------------------------------------------------
+// hero_background.py
+// ---------------------------------------------------------------------------
+
+export type HeroSlot = "desktop" | "mobile";
+
+export interface HeroBackgroundOut {
+  slot: HeroSlot;
+  video_url: string;
+  video_mime: string;
+  poster_url: string | null;
+  width: number | null;
+  height: number | null;
+  duration_seconds: number | null;
+  file_size_bytes: number;
+  updated_at: string;
+}
+
+// ---------------------------------------------------------------------------
+// offer.py / offer_registration.py
+// ---------------------------------------------------------------------------
+
+export interface OfferOut {
+  id: string;
+  name: string;
+  description: string | null;
+  reward_text: string;
+  scratch_reveal_text: string | null;
+  popup_heading: string;
+  button_text: string;
+  valid_from: string | null;
+  valid_to: string | null;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface OfferCreate {
+  name: string;
+  description?: string | null;
+  reward_text: string;
+  scratch_reveal_text?: string | null;
+  popup_heading?: string;
+  button_text?: string;
+  valid_from?: string | null;
+  valid_to?: string | null;
+  is_active?: boolean;
+}
+
+export type OfferUpdate = Partial<OfferCreate>;
+
+export type OfferRegistrationStatus = "pending" | "redeemed";
+
+export interface OfferRegistrationOut {
+  id: string;
+  offer_id: string | null;
+  offer_name: string;
+  name: string;
+  country_code: string;
+  phone_number: string;
+  consent: boolean;
+  source: string | null;
+  status: OfferRegistrationStatus;
+  redeemed_at: string | null;
+  redeemed_by: string | null;
+  notes: string | null;
+  created_at: string;
+}
+
+export interface OfferRegistrationRedeem {
+  notes?: string | null;
+}
+
+// ---------------------------------------------------------------------------
 // instagram_post.py
 // ---------------------------------------------------------------------------
 

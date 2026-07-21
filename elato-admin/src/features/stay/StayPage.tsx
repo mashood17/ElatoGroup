@@ -28,7 +28,7 @@ export function StayPage() {
     <div>
       <PageHeader
         title="Stay"
-        description="Content shown on the public Stay page. The hero image is managed from Homepage → Services (Stay) — it's shared with the homepage service card."
+        description="Content shown on the public Stay page."
       />
 
       <div className="flex flex-col gap-4">

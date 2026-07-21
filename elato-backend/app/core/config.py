@@ -44,6 +44,13 @@ class Settings(BaseSettings):
     # expected. Defaults to 50MB.
     max_upload_bytes: int = Field(default=50 * 1024 * 1024, alias="MAX_UPLOAD_BYTES")
 
+    # Same resource-exhaustion-guard role as max_upload_bytes, but sized for
+    # video rather than photos. Admins are expected to upload already-
+    # reasonable hero clips (this pipeline stores the file as-is — see
+    # app/services/hero_video_service.py); raise via env if genuinely larger
+    # sources are expected.
+    hero_video_max_bytes: int = Field(default=40 * 1024 * 1024, alias="HERO_VIDEO_MAX_BYTES")
+
     # Password reset emails — Supabase Auth's built-in email sender (see
     # app/services/auth_service.py for the reasoning behind this choice).
     frontend_admin_url: str = Field(

@@ -1,32 +1,19 @@
-import { PremiumHero } from '../hero/PremiumHero'
-import { eventsHero, EVENTS_HALL_CAPACITY_MIN, EVENTS_HALL_CAPACITY_MAX } from '../../content/eventsContent'
+import { Hero } from '../hero/Hero'
+import { eventsHero } from '../../content/eventsContent'
 import eventsStayLogo from '../../assets/logos/elato-logo-stay-event.svg'
-import { serviceImages, serviceImageKeys } from '../../content/serviceImages'
-import { useSiteImage } from '../../lib/useSiteImage'
-
-// Intrinsic dimensions from elato-logo-stay-event.svg's own viewBox.
-const LOGO_WIDTH = 545
-const LOGO_HEIGHT = 185
 
 export function EventsHero() {
-  // Same site_content key the "Discover ELATŌ" Events card reads
-  // (`Services.tsx`) — one shared image, so the shared-element transition
-  // never has to swap it for a different photo on arrival.
-  const imageSrc = useSiteImage(serviceImageKeys.events, serviceImages.events)
   return (
-    <PremiumHero
+    <Hero
       id="events-hero"
       logoSrc={eventsStayLogo}
       logoAlt="ELATŌ Events & Stay"
-      logoWidth={LOGO_WIDTH}
-      logoHeight={LOGO_HEIGHT}
-      sectionName="Events"
-      tagline={eventsHero.tagline}
-      imageAlt="ELATŌ Events — the banquet hall, set up for a celebration"
-      imageSrc={imageSrc}
-      cardStatLabel="Hall Capacity"
-      cardStatValue={`${EVENTS_HALL_CAPACITY_MIN}–${EVENTS_HALL_CAPACITY_MAX}`}
-      cardBadgeLabel="Moments Curated"
+      logoWidth={1000}
+      logoHeight={400}
+      headline={eventsHero.tagline}
+      logoDesktopClassName="lg:-translate-y-6 xl:-translate-y-8"
+      mobileGapClassName="gap-16"
+      headlineClassName="max-w-lg font-sans text-[22px] font-semibold leading-snug tracking-[0.04em] text-[#B08F63] sm:text-[24px] md:text-[19px] lg:text-[20px] xl:text-[21px]"
     />
   )
 }

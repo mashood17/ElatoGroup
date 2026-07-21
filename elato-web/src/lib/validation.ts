@@ -1,8 +1,6 @@
 // PRD Ch. 30 field validation rules, shared across every public form.
 
 export const NAME_RE = /^[A-Za-z\s-]{2,60}$/
-// E.164-normalized, validated against India (+91) and UAE (+971) patterns.
-export const PHONE_RE = /^(\+91[6-9]\d{9}|\+971[2-9]\d{7,8})$/
 // RFC 5322-lite — sufficient for client-side sanity checking, not exhaustive.
 export const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
@@ -12,20 +10,30 @@ export function validateName(name: string): string | undefined {
     : 'Enter 2–60 letters, spaces or hyphens only.'
 }
 
-export function validatePhone(phone: string): string | undefined {
-  return PHONE_RE.test(phone.trim().replace(/[\s-]/g, ''))
-    ? undefined
-    : 'Enter a valid +91 or +971 number, e.g. +91 98765 43210.'
+// Every phone field pairs a country-code dropdown (see lib/countryCodes.ts)
+// with a national-number input — validated per selected country, mirrored
+// server-side in app/core/phone.py. India and UAE keep the specific digit
+// patterns the app has always enforced for its two established markets;
+// every other dial code (the dropdown offers many) gets a generic
+// length/shape check rather than a bespoke rule per country.
+const _STRICT_COUNTRY_RULES: Record<string, RegExp> = {
+  '+91': /^[6-9]\d{9}$/,
+  '+971': /^[2-9]\d{7,8}$/,
+}
+const _GENERIC_NATIONAL_NUMBER_RE = /^\d{6,14}$/
+
+export function validatePhoneForCountry(dialCode: string, nationalNumber: string): string | undefined {
+  const cleaned = nationalNumber.trim().replace(/[\s-]/g, '')
+  const rule = _STRICT_COUNTRY_RULES[dialCode]
+  if (rule) {
+    return rule.test(cleaned) ? undefined : `Enter a valid ${dialCode} number, e.g. ${dialCode === '+91' ? '98765 43210' : '50 123 4567'}.`
+  }
+  return _GENERIC_NATIONAL_NUMBER_RE.test(cleaned) ? undefined : 'Enter a valid phone number.'
 }
 
-// 10-digit Indian mobile number, no country code — used by forms that
-// intentionally omit the +91 prefix (e.g. the homepage Visit enquiry).
-export const PHONE_10_RE = /^[6-9]\d{9}$/
-
-export function validatePhone10(phone: string): string | undefined {
-  return PHONE_10_RE.test(phone.trim().replace(/[\s-]/g, ''))
-    ? undefined
-    : 'Enter a valid 10-digit mobile number.'
+/** Assembles the E.164 string the backend expects from a validated dial code + national number pair. */
+export function toE164(dialCode: string, nationalNumber: string): string {
+  return `${dialCode}${nationalNumber.trim().replace(/[\s-]/g, '')}`
 }
 
 export function validateEmail(email: string): string | undefined {

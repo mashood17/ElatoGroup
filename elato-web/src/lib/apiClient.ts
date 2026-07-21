@@ -5,7 +5,15 @@
  * typed `ApiError` so callers can show a real message instead of "failed".
  */
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8000'
+const configuredBaseUrl = import.meta.env.VITE_API_BASE_URL
+
+// A public production page must never fetch a bare `localhost` URL — Chrome's
+// Local Network Access check treats that as the page reaching into the
+// user's local network and shows an "Access other apps and services on this
+// device" permission prompt on every visit. If the build-time env var is
+// missing in production, fail each request instead of silently falling back.
+const isMisconfigured = !configuredBaseUrl && import.meta.env.PROD
+const API_BASE_URL = configuredBaseUrl ?? 'http://localhost:8000'
 
 export class ApiError extends Error {
   code: string
@@ -19,6 +27,10 @@ export class ApiError extends Error {
 }
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
+  if (isMisconfigured) {
+    throw new ApiError('config_error', 'API base URL is not configured for this deployment.', 0)
+  }
+
   const res = await fetch(`${API_BASE_URL}${path}`, {
     ...init,
     headers: {

@@ -11,6 +11,8 @@ import {
   FileText,
   Settings as SettingsIcon,
   Users,
+  Gift,
+  ClipboardList,
 } from "lucide-react";
 import type { AdminRole } from "../../types/api";
 
@@ -33,6 +35,9 @@ export const NAV_ITEMS: NavItem[] = [
   { to: "/celebre", label: "Celebré", icon: Cake, section: "Content" },
   { to: "/stay", label: "Stay", icon: BedDouble, section: "Content" },
   { to: "/events", label: "Events", icon: PartyPopper, section: "Content" },
+
+  { to: "/offers", label: "Offers", icon: Gift, section: "Marketing" },
+  { to: "/offer-registrations", label: "Offer Registrations", icon: ClipboardList, section: "Marketing" },
 
   { to: "/settings", label: "Settings", icon: SettingsIcon, roles: ["owner", "admin"], section: "Administration" },
   { to: "/users", label: "Users", icon: Users, roles: ["owner", "admin"], section: "Administration" },

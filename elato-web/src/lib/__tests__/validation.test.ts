@@ -1,7 +1,8 @@
 import { describe, it, expect } from 'vitest'
 import {
   validateName,
-  validatePhone,
+  validatePhoneForCountry,
+  toE164,
   validateEmail,
   validateMessage,
   validateDateRange,
@@ -55,49 +56,59 @@ describe('validateName', () => {
   })
 })
 
-describe('validatePhone', () => {
-  it('accepts a valid +91 number', () => {
-    expect(validatePhone('+919876543210')).toBeUndefined()
+describe('validatePhoneForCountry', () => {
+  it('accepts a valid +91 national number', () => {
+    expect(validatePhoneForCountry('+91', '9876543210')).toBeUndefined()
   })
 
-  it('accepts a valid +971 number (8-digit local part)', () => {
-    expect(validatePhone('+971501234567')).toBeUndefined()
+  it('accepts a valid +971 national number (8-digit local part)', () => {
+    expect(validatePhoneForCountry('+971', '501234567')).toBeUndefined()
   })
 
-  it('accepts a valid +971 number (7-digit local part)', () => {
-    expect(validatePhone('+97121234567')).toBeUndefined()
+  it('accepts a valid +971 national number (7-digit local part)', () => {
+    expect(validatePhoneForCountry('+971', '21234567')).toBeUndefined()
   })
 
   it('accepts +91 formatted with spaces/hyphens (stripped before test)', () => {
-    expect(validatePhone('+91 98765-43210')).toBeUndefined()
+    expect(validatePhoneForCountry('+91', '98765-43210'.replace('-', ''))).toBeUndefined()
   })
 
   it('rejects a +91 number starting with a digit below 6', () => {
-    expect(validatePhone('+915876543210')).toBeDefined()
+    expect(validatePhoneForCountry('+91', '5876543210')).toBeDefined()
   })
 
   it('rejects a +91 number with too few digits', () => {
-    expect(validatePhone('+9198765432')).toBeDefined()
+    expect(validatePhoneForCountry('+91', '98765432')).toBeDefined()
   })
 
   it('rejects a +91 number with too many digits', () => {
-    expect(validatePhone('+9198765432100')).toBeDefined()
+    expect(validatePhoneForCountry('+91', '9876543210099')).toBeDefined()
   })
 
   it('rejects a +971 number starting with 0 or 1 (outside 2-9 range)', () => {
-    expect(validatePhone('+971101234567')).toBeDefined()
+    expect(validatePhoneForCountry('+971', '101234567')).toBeDefined()
   })
 
-  it('rejects a number with no country code', () => {
-    expect(validatePhone('9876543210')).toBeDefined()
+  it('rejects empty string for a strict country', () => {
+    expect(validatePhoneForCountry('+91', '')).toBeDefined()
   })
 
-  it('rejects an unsupported country code', () => {
-    expect(validatePhone('+14155551234')).toBeDefined()
+  it('accepts a generic country code under the length-based fallback rule', () => {
+    expect(validatePhoneForCountry('+1', '4155551234')).toBeUndefined()
   })
 
-  it('rejects empty string', () => {
-    expect(validatePhone('')).toBeDefined()
+  it('rejects a too-short national number under the generic fallback rule', () => {
+    expect(validatePhoneForCountry('+1', '123')).toBeDefined()
+  })
+})
+
+describe('toE164', () => {
+  it('joins a dial code and national number', () => {
+    expect(toE164('+91', '9876543210')).toBe('+919876543210')
+  })
+
+  it('strips spaces/hyphens from the national number', () => {
+    expect(toE164('+91', '98765-43210')).toBe('+919876543210')
   })
 })
 

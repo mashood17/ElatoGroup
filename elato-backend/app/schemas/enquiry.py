@@ -2,10 +2,11 @@ from datetime import date
 
 from pydantic import BaseModel, Field, field_validator
 
+from app.core.phone import normalize_and_validate_phone
+
 # Mirrors elato-web/src/lib/validation.ts exactly — the server never trusts
 # client-side validation alone.
 _NAME_RE = r"^[A-Za-z\s-]{2,60}$"
-_PHONE_RE = r"^(\+91[6-9]\d{9}|\+971[2-9]\d{7,8})$"
 _SOURCE_PAGES = {"home", "stay", "events", "celebre"}
 
 
@@ -37,12 +38,7 @@ class EnquiryCreate(BaseModel):
     @field_validator("phone")
     @classmethod
     def validate_phone(cls, v: str) -> str:
-        import re
-
-        cleaned = re.sub(r"[\s-]", "", v.strip())
-        if not re.match(_PHONE_RE, cleaned):
-            raise ValueError("Enter a valid +91 or +971 number.")
-        return cleaned
+        return normalize_and_validate_phone(v)
 
     @field_validator("email")
     @classmethod

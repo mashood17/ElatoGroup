@@ -10,3 +10,6 @@ email-validator>=2.2
 python-multipart>=0.0.9
 Pillow>=10.4
 pillow-avif-plugin>=1.4
+# Hero video metadata probing + poster-frame extraction (app/services/hero_video_service.py) —
+# ships its own bundled decoder libraries, so no system ffmpeg install is required.
+av>=13.0

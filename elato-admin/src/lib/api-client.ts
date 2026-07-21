@@ -1,6 +1,6 @@
 import axios from "axios";
 import type { AxiosError, AxiosRequestConfig, InternalAxiosRequestConfig } from "axios";
-import { API_BASE_URL } from "./env";
+import { API_BASE_URL, isApiBaseUrlMisconfigured } from "./env";
 import { clearSession, getAccessToken, getRefreshToken, setAccessToken, setRefreshToken } from "./auth-storage";
 import type { AccessTokenResponse, ApiErrorBody } from "../types/api";
 
@@ -14,6 +14,9 @@ export const apiClient = axios.create({
 });
 
 apiClient.interceptors.request.use((config: InternalAxiosRequestConfig) => {
+  if (isApiBaseUrlMisconfigured) {
+    throw new ApiError("config_error", "API base URL is not configured for this deployment.", undefined);
+  }
   const token = getAccessToken();
   if (token) {
     config.headers.set("Authorization", `Bearer ${token}`);
@@ -57,6 +60,9 @@ function toApiError(error: AxiosError<ApiErrorBody>): ApiError {
 let refreshPromise: Promise<string> | null = null;
 
 async function performRefresh(): Promise<string> {
+  if (isApiBaseUrlMisconfigured) {
+    throw new ApiError("config_error", "API base URL is not configured for this deployment.", undefined);
+  }
   const refreshToken = getRefreshToken();
   if (!refreshToken) {
     throw new Error("No refresh token available.");

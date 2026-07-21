@@ -79,7 +79,7 @@ export function EventsPage() {
     <div>
       <PageHeader
         title="Events"
-        description="Event packages shown on the public site. The hero image is managed from Homepage → Services (Events) — it's shared with the homepage service card."
+        description="Event packages shown on the public site."
         actions={
           <Button
             size="sm"

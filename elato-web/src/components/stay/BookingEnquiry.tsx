@@ -1,23 +1,26 @@
 import { useState, type FormEvent } from 'react'
 import { motion } from 'framer-motion'
-import { User, Phone, Mail, CalendarDays, Users, MessageSquare, MessageCircle, type LucideIcon } from 'lucide-react'
+import { User, Mail, CalendarDays, Users, MessageSquare, MessageCircle, type LucideIcon } from 'lucide-react'
 import { Button } from '../ui/Button'
 import sectionBackground from '../../assets/newbg/bg.webp'
 import sectionBackgroundMobile from '../../assets/newbg/bg-mb.webp'
 import { SectionBackground } from '../ui/SectionBackground'
 import { SiteImage } from '../ui/SiteImage'
+import { PhoneCountryField } from '../ui/PhoneCountryField'
 import { businessInfo } from '../../content/siteContent'
 import { STAY_GUEST_MIN, STAY_GUEST_MAX } from '../../content/stayContent'
 import { buildWhatsAppLink } from '../../lib/whatsapp'
 import { deferredSectionStyle, sectionReveal, viewportOnce } from '../../lib/motion'
 import {
   validateName,
-  validatePhone10,
+  validatePhoneForCountry,
   validateEmail,
   validateMessage,
   validateDateRange,
   validateGuests,
+  toE164,
 } from '../../lib/validation'
+import { DEFAULT_COUNTRY_ISO, dialCodeForIso } from '../../lib/countryCodes'
 import { persistEnquiry } from '../../lib/enquiryRepository'
 import { trackEvent } from '../../lib/analytics'
 import { useSiteImage } from '../../lib/useSiteImage'
@@ -28,6 +31,7 @@ type Errors = Partial<
 
 export function BookingEnquiry() {
   const [name, setName] = useState('')
+  const [countryIso, setCountryIso] = useState(DEFAULT_COUNTRY_ISO)
   const [phone, setPhone] = useState('')
   const [email, setEmail] = useState('')
   const [checkIn, setCheckIn] = useState('')
@@ -43,7 +47,7 @@ export function BookingEnquiry() {
     const dateErrors = validateDateRange(checkIn, checkOut)
     return {
       name: validateName(name),
-      phone: validatePhone10(phone),
+      phone: validatePhoneForCountry(dialCodeForIso(countryIso), phone),
       email: validateEmail(email),
       checkIn: dateErrors.checkIn,
       checkOut: dateErrors.checkOut,
@@ -66,7 +70,7 @@ export function BookingEnquiry() {
       persistEnquiry({
         source_page: 'stay',
         name: name.trim(),
-        phone: phone.trim(),
+        phone: toE164(dialCodeForIso(countryIso), phone),
         email: email.trim() || undefined,
         message: `Check-out: ${checkOut}. ${message.trim()}`.trim(),
         guests,
@@ -148,16 +152,15 @@ export function BookingEnquiry() {
                       onBlur={() => setErrors((prev) => ({ ...prev, name: validate().name }))}
                       error={errors.name}
                     />
-                    <Field
-                      id="booking-phone"
+                    <PhoneCountryField
+                      idPrefix="booking"
                       label="Phone"
-                      type="tel"
-                      icon={Phone}
-                      value={phone}
-                      onChange={setPhone}
+                      countryIso={countryIso}
+                      onCountryChange={setCountryIso}
+                      phone={phone}
+                      onPhoneChange={setPhone}
                       onBlur={() => setErrors((prev) => ({ ...prev, phone: validate().phone }))}
                       error={errors.phone}
-                      placeholder="98765 43210"
                     />
                   </div>
 

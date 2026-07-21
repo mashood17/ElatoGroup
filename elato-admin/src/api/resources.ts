@@ -30,6 +30,13 @@ import type {
   AdminOut,
   AdminCreateRequest,
   AdminUpdateRequest,
+  HeroBackgroundOut,
+  HeroSlot,
+  OfferOut,
+  OfferCreate,
+  OfferUpdate,
+  OfferRegistrationOut,
+  OfferRegistrationRedeem,
 } from "../types/api";
 
 // Re-export a local alias so this file's imports stay self-documenting
@@ -84,6 +91,50 @@ export const mediaApi = {
     });
   },
   remove: (id: string) => apiDelete<void>(`/admin/media/${id}`),
+};
+
+// Hero Background: one video (+ optional poster) per slot (desktop/mobile),
+// replaced in place on re-upload — not a list-CRUD resource, so this isn't
+// built on createCrudApi.
+export const heroBackgroundsApi = {
+  list: () => apiGet<HeroBackgroundOut[]>("/admin/hero-backgrounds"),
+  uploadVideo: (slot: HeroSlot, file: File, onProgress?: (pct: number) => void) => {
+    const form = new FormData();
+    form.append("file", file);
+    return apiPost<HeroBackgroundOut>(`/admin/hero-backgrounds/${slot}/video`, form, {
+      headers: { "Content-Type": "multipart/form-data" },
+      onUploadProgress: (evt) => {
+        if (onProgress && evt.total) onProgress(Math.round((evt.loaded / evt.total) * 100));
+      },
+    });
+  },
+  uploadPoster: (slot: HeroSlot, file: File) => {
+    const form = new FormData();
+    form.append("file", file);
+    return apiPost<HeroBackgroundOut>(`/admin/hero-backgrounds/${slot}/poster`, form, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+  },
+  remove: (slot: HeroSlot) => apiDelete<void>(`/admin/hero-backgrounds/${slot}`),
+};
+
+// Offers: small list (rarely more than a handful), so no pagination — same
+// shape as usersApi. Activate/deactivate are dedicated endpoints (not a
+// plain field PATCH) because the backend enforces "only one active offer"
+// server-side when they're called.
+export const offersApi = {
+  list: () => apiGet<OfferOut[]>("/admin/offers"),
+  create: (payload: OfferCreate) => apiPost<OfferOut>("/admin/offers", payload),
+  update: (id: string, payload: OfferUpdate) => apiPatch<OfferOut>(`/admin/offers/${id}`, payload),
+  remove: (id: string) => apiDelete<void>(`/admin/offers/${id}`),
+  activate: (id: string) => apiPost<OfferOut>(`/admin/offers/${id}/activate`, {}),
+  deactivate: (id: string) => apiPost<OfferOut>(`/admin/offers/${id}/deactivate`, {}),
+};
+
+export const offerRegistrationsApi = {
+  search: (params?: ListParamsShape) => apiGet<Page<OfferRegistrationOut>>("/admin/offer-registrations", { params }),
+  redeem: (id: string, payload: OfferRegistrationRedeem) =>
+    apiPost<OfferRegistrationOut>(`/admin/offer-registrations/${id}/redeem`, payload),
 };
 
 // Instagram: read-only integration status + reel list, synced automatically

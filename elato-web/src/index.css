@@ -158,32 +158,14 @@
   }
 }
 
-/* Hero background: near-imperceptible cinematic drift (PRD hero motion note).
-   Transform-only (scale + translate3d) so it's GPU-accelerated and never
-   touches background-position/layout; base scale stays >1 so the drift never
-   reveals an edge. Frozen by the prefers-reduced-motion rule below. */
-@keyframes hero-ken-burns {
-  0% {
-    transform: scale(1.04) translate3d(0, 0, 0);
-  }
-  100% {
-    transform: scale(1.1) translate3d(-1.4%, -1%, 0);
-  }
-}
-
-.hero-bg-kenburns {
-  animation: hero-ken-burns 18s ease-in-out infinite alternate;
-  will-change: transform;
-}
-
 /* Gentle floating light, drifting across the hero background at a different
    speed/direction than the Ken Burns drift above — the two layers moving at
    different rates reads as depth/parallax without any scroll or pointer
    tracking. Blended with soft-light so it lands as ambient warmth over the
    photo, not a visible gradient shape. */
 @keyframes hero-light-drift {
-  0%, 100% { transform: translate3d(-6%, -4%, 0) scale(1); opacity: 0.4; }
-  50% { transform: translate3d(5%, 6%, 0) scale(1.2); opacity: 0.6; }
+  0%, 100% { transform: translate3d(-6%, -4%, 0) scale(1); opacity: 0.22; }
+  50% { transform: translate3d(5%, 6%, 0) scale(1.2); opacity: 0.34; }
 }
 
 .hero-bg-light {

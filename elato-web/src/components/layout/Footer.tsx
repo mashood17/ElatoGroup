@@ -121,8 +121,19 @@ export function Footer() {
       </div>
 
       <div className="border-t border-[#9E7641]/30">
-        <div className="container-elato flex flex-col items-center justify-between gap-2 py-6 text-[11px] text-primary-100 md:flex-row">
+        <div className="container-elato flex flex-col items-center justify-between gap-3 py-6 text-[11px] text-primary-100 md:flex-row">
           <span>&copy; {year} ELATŌ. All rights reserved.</span>
+          <nav aria-label="Legal" className="flex items-center gap-4">
+            <Link to="/privacy-policy" className="transition-colors duration-300 ease-out hover:text-[#E7CAA0]">
+              Privacy Policy
+            </Link>
+            <Link to="/terms-conditions" className="transition-colors duration-300 ease-out hover:text-[#E7CAA0]">
+              Terms & Conditions
+            </Link>
+            <Link to="/cookie-policy" className="transition-colors duration-300 ease-out hover:text-[#E7CAA0]">
+              Cookie Policy
+            </Link>
+          </nav>
           <span>
             Crafted by <span className="text-[#E7CAA0]">NoorGenesis</span>
           </span>

@@ -11,6 +11,7 @@ from app.repositories import (
     enquiry_repository,
     event_package_repository,
     gallery_repository,
+    hero_background_repository,
     instagram_repository,
     menu_item_repository,
     review_repository,
@@ -19,14 +20,17 @@ from app.repositories import (
     special_repository,
 )
 from app.repositories import analytics_repository
-from app.services import media_service
+from app.services import hero_video_service, media_service, offer_registration_service, offer_service
 from app.schemas.analytics_event import AnalyticsEventCreate
 from app.schemas.category import CategoryOut
 from app.schemas.enquiry import EnquiryCreate, EnquiryOut
 from app.schemas.event_package import EventPackageOut
 from app.schemas.gallery import GalleryItemOut
+from app.schemas.hero_background import HeroBackgroundOut
 from app.schemas.instagram_post import InstagramPostOut
 from app.schemas.menu_item import MenuItemOut
+from app.schemas.offer import ActiveOfferOut
+from app.schemas.offer_registration import OfferRegistrationCreate, OfferRegistrationOut
 from app.schemas.review import ReviewAggregateOut, ReviewOut
 from app.schemas.room import RoomOut
 from app.schemas.site_content import SiteContentOut
@@ -49,6 +53,34 @@ def list_site_content(response: Response):
 @router.get("/site-content/{key}", response_model=SiteContentOut)
 def get_site_content(key: str):
     return SiteContentOut(**site_content_repository.get(key))
+
+
+@router.get("/hero-backgrounds", response_model=list[HeroBackgroundOut])
+def list_hero_backgrounds(response: Response):
+    # Admin-managed hero videos change rarely — safe to cache briefly rather
+    # than hit Supabase/Storage on every homepage load.
+    response.headers["Cache-Control"] = "public, max-age=300"
+    return [hero_video_service.to_schema(row) for row in hero_background_repository.list_all()]
+
+
+@router.get("/offers/active", response_model=ActiveOfferOut | None)
+def get_active_offer():
+    # No cache header — an admin flipping the active offer should be
+    # reflected on the next popup immediately, not held behind a CDN TTL.
+    offer = offer_service.get_active_offer()
+    return ActiveOfferOut(**offer) if offer else None
+
+
+@router.get("/offers/active/claim-status")
+def get_active_offer_claim_status(visitor_id: str) -> dict[str, bool]:
+    return {"claimed": offer_registration_service.has_visitor_claimed_active_offer(visitor_id)}
+
+
+@router.post("/offers/register", response_model=OfferRegistrationOut, status_code=201)
+def register_for_offer(payload: OfferRegistrationCreate):
+    fields = payload.model_dump(mode="json")
+    row = offer_registration_service.register_for_active_offer(**fields)
+    return OfferRegistrationOut(**row)
 
 
 @router.get("/categories", response_model=list[CategoryOut])

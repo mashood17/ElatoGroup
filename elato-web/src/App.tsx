@@ -4,6 +4,8 @@ import { Navbar } from './components/layout/Navbar'
 import { Footer } from './components/layout/Footer'
 import { ErrorBoundary } from './components/ErrorBoundary'
 import { ScrollToTopButton } from './components/ui/ScrollToTopButton'
+import { ScratchOfferPopup } from './components/offers/ScratchOfferPopup'
+import { FloatingOfferButton } from './components/offers/FloatingOfferButton'
 import { PageTransitionProvider } from './lib/pageTransition'
 
 // Route-based code splitting (PRD Ch. 46.2) — each page ships as its own chunk.
@@ -12,6 +14,9 @@ const StayPage = lazy(() => import('./pages/StayPage').then((m) => ({ default: m
 const CelebrePage = lazy(() => import('./pages/CelebrePage').then((m) => ({ default: m.CelebrePage })))
 const EventsPage = lazy(() => import('./pages/EventsPage').then((m) => ({ default: m.EventsPage })))
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage').then((m) => ({ default: m.NotFoundPage })))
+const PrivacyPolicyPage = lazy(() => import('./pages/PrivacyPolicyPage').then((m) => ({ default: m.PrivacyPolicyPage })))
+const TermsPage = lazy(() => import('./pages/TermsPage').then((m) => ({ default: m.TermsPage })))
+const CookiePolicyPage = lazy(() => import('./pages/CookiePolicyPage').then((m) => ({ default: m.CookiePolicyPage })))
 
 function RouteFallback() {
   return <div className="min-h-screen bg-surface-base" aria-hidden="true" />
@@ -184,11 +189,16 @@ function App() {
               <Route path="/elato-stay" element={<StayPage />} />
               <Route path="/elato-celebre" element={<CelebrePage />} />
               <Route path="/elato-events" element={<EventsPage />} />
+              <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
+              <Route path="/terms-conditions" element={<TermsPage />} />
+              <Route path="/cookie-policy" element={<CookiePolicyPage />} />
               <Route path="*" element={<NotFoundPage />} />
             </Routes>
           </Suspense>
           <Footer />
           <ScrollToTopButton />
+          <FloatingOfferButton />
+          <ScratchOfferPopup />
         </PageTransitionProvider>
       </BrowserRouter>
     </ErrorBoundary>

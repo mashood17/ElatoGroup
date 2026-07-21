@@ -11,6 +11,8 @@ import { EventsPage } from "./features/events/EventsPage";
 import { StayPage } from "./features/stay/StayPage";
 import { CelebrePage } from "./features/celebre/CelebrePage";
 import { HomepagePage } from "./features/homepage/HomepagePage";
+import { OffersPage } from "./features/offers/OffersPage";
+import { OfferRegistrationsPage } from "./features/offers/OfferRegistrationsPage";
 import { SettingsPage } from "./features/settings/SettingsPage";
 import { UsersPage } from "./features/users/UsersPage";
 import { NotFoundPage } from "./features/misc/NotFoundPage";
@@ -36,6 +38,8 @@ function App() {
           <Route path="/events" element={<EventsPage />} />
           <Route path="/stay" element={<StayPage />} />
           <Route path="/homepage" element={<HomepagePage />} />
+          <Route path="/offers" element={<OffersPage />} />
+          <Route path="/offer-registrations" element={<OfferRegistrationsPage />} />
           <Route
             path="/settings"
             element={
