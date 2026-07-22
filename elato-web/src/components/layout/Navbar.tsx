@@ -165,7 +165,11 @@ export function Navbar() {
       >
         <nav className="container-elato flex h-20 items-center justify-between">
           <Link to="/">
-            <LogoImage ref={logoImgRef} src={logoSrc} className={isHome ? 'h-[3.28125rem]' : 'h-[4.375rem]'} />
+            <LogoImage
+              ref={logoImgRef}
+              src={logoSrc}
+              className={isHome ? 'h-[2.4609375rem] sm:h-[3.28125rem]' : 'h-[3.28125rem] sm:h-[4.375rem]'}
+            />
           </Link>
 
           <div className="hidden lg:block">
