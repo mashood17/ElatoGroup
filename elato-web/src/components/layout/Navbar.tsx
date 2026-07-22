@@ -12,6 +12,7 @@ import { LogoImage } from '../brand/LogoImage'
 import { Button } from '../ui/Button'
 import { NavPill, type ResolvedNavItem } from './NavPill'
 import { useScrollPast } from '../../lib/useScrollPast'
+import { useServicesSceneActive } from '../../lib/useServicesSceneActive'
 
 // `to` items are real routes; `hash` items are anchors on `basePath` (default home).
 const navItems = [
@@ -34,6 +35,13 @@ export function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false)
   const location = useLocation()
   const prefersReducedMotion = useReducedMotion()
+
+  // Hidden entirely while the Services section is the active full-screen
+  // scene — shared signal with the floating buttons (see
+  // useServicesSceneActive). Opacity-only on a fixed header, so nothing
+  // reflows either way.
+  const servicesActive = useServicesSceneActive()
+  const navHidden = servicesActive && !menuOpen
 
   const isHome = location.pathname === '/'
   const isCelebrePage = location.pathname === MENU_BASE_PATH
@@ -120,7 +128,10 @@ export function Navbar() {
   return (
     <>
       <header
-        className={`fixed inset-x-0 top-0 z-50 transition-all duration-200 ease-out ${
+        aria-hidden={navHidden || undefined}
+        className={`fixed inset-x-0 top-0 z-50 transition-all duration-300 ease-out ${
+          navHidden ? 'pointer-events-none opacity-0' : 'opacity-100'
+        } ${
           scrolled
             ? 'bg-surface-base/92 shadow-elato-sm backdrop-blur-[4px]'
             : 'bg-transparent'

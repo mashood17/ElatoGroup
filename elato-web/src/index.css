@@ -205,6 +205,39 @@
   will-change: transform;
 }
 
+/* Services carousel card — a slow diagonal glass reflection drifting across
+   the photograph, mostly idle (dwells at opacity 0 for most of the loop) so
+   it reads as an occasional sheen rather than a repeating shimmer loop.
+   Transform+opacity only, paused off-screen via the same useInView pattern
+   as .card-border-glow. */
+@keyframes card-glass-sheen {
+  0%, 100% { transform: translate3d(-55%, -55%, 0) rotate(22deg); opacity: 0; }
+  45% { opacity: 0; }
+  55% { opacity: 0.14; }
+  70% { opacity: 0; }
+  70.01%, 100% { transform: translate3d(55%, 55%, 0) rotate(22deg); }
+}
+.card-glass-sheen {
+  position: absolute;
+  inset: -25%;
+  background: linear-gradient(115deg, transparent 42%, rgba(255, 250, 235, 0.65) 50%, transparent 58%);
+  animation: card-glass-sheen 12s ease-in-out infinite;
+  will-change: transform, opacity;
+  pointer-events: none;
+}
+
+/* Hides the native scrollbar on the mobile Services carousel — touch/
+   trackpad scrolling (and its snap behavior) stays fully native, only the
+   scrollbar chrome is suppressed so the row reads as an editorial carousel
+   rather than a scroll pane. */
+.scrollbar-hide {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
 /* Mobile navigation — luxury glass panel ambient motion. Three blobs drift
    independently (different durations/paths) so the depth behind the glass
    never reads as a single repeating loop; the sheen is a single soft light

@@ -4,6 +4,7 @@ import { Gift } from 'lucide-react'
 import { getActiveOffer } from '../../lib/offerRepository'
 import { openOfferPopup } from '../../lib/offerPopupEvents'
 import { useScrollPast } from '../../lib/useScrollPast'
+import { useServicesSceneActive } from '../../lib/useServicesSceneActive'
 
 const SHOW_AFTER_PX = 480
 const getShowThreshold = () => SHOW_AFTER_PX
@@ -20,6 +21,10 @@ const getShowThreshold = () => SHOW_AFTER_PX
 export function FloatingOfferButton() {
   const [hasOffer, setHasOffer] = useState(false)
   const scrolledPast = useScrollPast(getShowThreshold)
+  // Hidden while Services is the active full-screen scene (same shared
+  // signal Navbar and ScrollToTopButton use) — AnimatePresence's existing
+  // exit transition handles the fade both ways.
+  const servicesActive = useServicesSceneActive()
 
   useEffect(() => {
     let cancelled = false
@@ -33,7 +38,7 @@ export function FloatingOfferButton() {
 
   return (
     <AnimatePresence>
-      {hasOffer && scrolledPast && (
+      {hasOffer && scrolledPast && !servicesActive && (
         <motion.button
           type="button"
           onClick={openOfferPopup}
