@@ -42,7 +42,7 @@ export function Hero({ id, ctaLabel, scrollTargetId }: HeroProps) {
       <div className="hero-bg-light" aria-hidden="true" style={{ animationPlayState: heroInView ? 'running' : 'paused' }} />
 
       <motion.div
-        className="absolute inset-x-0 bottom-10 flex flex-col items-center gap-4 sm:bottom-12"
+        className="absolute inset-x-0 bottom-[3.78125rem] flex flex-col items-center gap-4 sm:bottom-12"
         initial={{ opacity: 0, y: reduceMotion ? 0 : 12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: reduceMotion ? 0 : 0.6, duration: reduceMotion ? 0.3 : 0.9, ease: EASE_CINEMATIC }}
