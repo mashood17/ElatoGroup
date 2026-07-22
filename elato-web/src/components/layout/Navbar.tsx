@@ -1,4 +1,4 @@
-import { useEffect, useState, type MouseEvent } from 'react'
+import { useEffect, useRef, useState, type MouseEvent } from 'react'
 import { createPortal } from 'react-dom'
 import {
   AnimatePresence,
@@ -13,6 +13,18 @@ import { Button } from '../ui/Button'
 import { NavPill, type ResolvedNavItem } from './NavPill'
 import { useScrollPast } from '../../lib/useScrollPast'
 import { useServicesSceneActive } from '../../lib/useServicesSceneActive'
+import { setNavbarLogoEl, useSplashActive } from '../../lib/splashState'
+import elatoWordmark from '../../assets/logos/elato-wordmark.webp'
+import celebreWordmark from '../../assets/logos/celebre.webp'
+import eventsStayWordmark from '../../assets/logos/events_stay.webp'
+
+// Per-route navbar wordmark — same rendered height everywhere (LogoImage's
+// own default className), only the asset changes.
+const ROUTE_LOGOS: Record<string, string> = {
+  '/elato-celebre': celebreWordmark,
+  '/elato-stay': eventsStayWordmark,
+  '/elato-events': eventsStayWordmark,
+}
 
 // `to` items are real routes; `hash` items are anchors on `basePath` (default home).
 const navItems = [
@@ -41,10 +53,20 @@ export function Navbar() {
   // useServicesSceneActive). Opacity-only on a fixed header, so nothing
   // reflows either way.
   const servicesActive = useServicesSceneActive()
-  const navHidden = servicesActive && !menuOpen
+  const splashActive = useSplashActive()
+  const navHidden = (servicesActive && !menuOpen) || splashActive
 
   const isHome = location.pathname === '/'
   const isCelebrePage = location.pathname === MENU_BASE_PATH
+  const logoSrc = ROUTE_LOGOS[location.pathname] ?? elatoWordmark
+
+  // Registers this exact <img> so the splash can measure its resting
+  // position/size and fly its own wordmark there on exit.
+  const logoImgRef = useRef<HTMLImageElement>(null)
+  useEffect(() => {
+    setNavbarLogoEl(logoImgRef.current)
+    return () => setNavbarLogoEl(null)
+  }, [])
 
   // Section anchors only resolve on the Homepage — elsewhere, route back to it first.
   const resolveHref = (hash: string) => (isHome ? hash : `/${hash}`)
@@ -143,7 +165,7 @@ export function Navbar() {
       >
         <nav className="container-elato flex h-20 items-center justify-between">
           <Link to="/">
-            <LogoImage />
+            <LogoImage ref={logoImgRef} src={logoSrc} className={isHome ? 'h-[3.28125rem]' : 'h-[4.375rem]'} />
           </Link>
 
           <div className="hidden lg:block">

@@ -1,11 +1,11 @@
-import { useState } from 'react'
+import { forwardRef, useState } from 'react'
 
 /**
- * Self-animating ELATŌ wordmark, shared by every hero (Home/Stay/Celebré/
- * Events) — the client-supplied SVG's baked-in entrance (signal draw,
- * wireframe, material sweep, final static mark) rendered as an `<img>`,
- * parameterized by `src`/`alt`/`width`/`height` since each page has its own
- * sub-brand artwork.
+ * Self-animating ELATŌ wordmark, used by every hero (Home/Stay/Celebré/
+ * Events) previously and now by the splash screen — the client-supplied
+ * SVG's baked-in entrance (signal draw, wireframe, material sweep, final
+ * static mark) rendered as an `<img>`, parameterized by `src`/`alt`/`width`/
+ * `height` since each page has its own sub-brand artwork.
  *
  * Sizing contract: callers set only a responsive width via `className`;
  * `h-auto` plus the intrinsic width/height attributes keep the aspect ratio
@@ -18,24 +18,19 @@ import { useState } from 'react'
  * from frame one. Forcing a unique URL per mount (lazy `useState` so it's
  * computed once, not every render) guarantees a fresh decode — and with it
  * the full entrance sequence — on every page load.
+ *
+ * Forwards its ref so the splash can measure its own rendered rect at the
+ * moment it starts flying toward the navbar logo's resting position.
  */
-export function HeroWordmark({
-  src,
-  alt,
-  width,
-  height,
-  className = '',
-}: {
-  src: string
-  alt: string
-  width: number
-  height: number
-  className?: string
-}) {
+export const HeroWordmark = forwardRef<
+  HTMLImageElement,
+  { src: string; alt: string; width: number; height: number; className?: string }
+>(function HeroWordmark({ src, alt, width, height, className = '' }, ref) {
   const [animatedSrc] = useState(() => `${src}?play=${Date.now()}`)
 
   return (
     <img
+      ref={ref}
       src={animatedSrc}
       alt={alt}
       width={width}
@@ -46,4 +41,4 @@ export function HeroWordmark({
       className={`h-auto max-w-none select-none ${className}`}
     />
   )
-}
+})

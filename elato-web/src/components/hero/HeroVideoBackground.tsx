@@ -77,20 +77,15 @@ export function HeroVideoBackground({ inView }: HeroVideoBackgroundProps) {
           <source src={active.video_url} type={active.video_mime} />
         </video>
       )}
-      {/* Premium readability overlay — a soft radial "spotlight" pool centred
-          on the wordmark/headline, layered under a top/bottom vignette, so
-          the gold logo and copy read clearly against any footage without
-          flattening the frame into a uniformly dark video. The corners and
-          edges stay comparatively bright — only the content's own footprint
-          gets meaningfully dimmed — which is what keeps this cinematic
-          rather than a plain dark scrim. */}
+      {/* Readability scrim — the hero no longer carries a logo/headline to
+          protect, just the bottom-center CTA, so the footage stays fully
+          rich everywhere except a light bottom-anchored gradient that keeps
+          the CTA legible. */}
       <div
         className="absolute inset-0 -z-10"
         aria-hidden="true"
         style={{
-          background:
-            'radial-gradient(120% 85% at 50% 42%, rgba(12,8,5,0.5) 0%, rgba(12,8,5,0.26) 45%, rgba(12,8,5,0) 78%),' +
-            'linear-gradient(180deg, rgba(12,8,5,0.5) 0%, rgba(12,8,5,0.22) 20%, rgba(12,8,5,0.24) 55%, rgba(12,8,5,0.2) 75%, rgba(12,8,5,0.46) 100%)',
+          background: 'linear-gradient(180deg, rgba(12,8,5,0) 0%, rgba(12,8,5,0) 60%, rgba(12,8,5,0.32) 100%)',
         }}
       />
     </>

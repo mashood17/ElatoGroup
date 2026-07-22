@@ -47,6 +47,9 @@
   --color-surface-elevated: #FFFFFF;
   --color-surface-inverse: #170F0A;
 
+  /* Splash screen — exact brand color, solid fill only, no overlays. */
+  --color-splash: #E7CAA0;
+
   /* Radius tokens (PRD Ch. 21.1) */
   --radius-sm: 4px;
   --radius-md: 8px;

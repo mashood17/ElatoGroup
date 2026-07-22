@@ -9,6 +9,20 @@ import { Services } from './Services'
 // transition.
 const TOUCH_INTENT_PX = 6
 
+// How much the vertical component of a gesture must exceed its horizontal
+// component before it's eligible to trigger the page transition at all.
+// Services' mobile carousel is a horizontal swipe strip living on the same
+// screen this controller listens across, and a real horizontal swipe is
+// almost never perfectly axis-aligned — some vertical drift is inevitable.
+// Without this, that drift alone (once past TOUCH_INTENT_PX) could read as
+// scroll intent and fire the transition mid-swipe, most confusingly right
+// after the last card, where the carousel has nowhere further to consume
+// the gesture. Requiring vertical to clearly dominate (not just narrowly
+// win) keeps every horizontal carousel gesture — including diagonal
+// noise — entirely off this controller's radar; only a genuinely vertical
+// gesture ever reaches the trigger checks below.
+const AXIS_DOMINANCE_RATIO = 1.2
+
 // Length of the scripted Hero → Services glide. Time-based (not
 // distance-based): the trip is always ~one viewport, and a fixed 900ms with
 // an ease-in-out curve is what gives it the slow, deliberate, cinematic feel
@@ -23,26 +37,17 @@ function easeInOutCubic(t: number): number {
  * Hero → Services — one scene change, same behaviour on every breakpoint.
  *
  * Hero is a plain 100vh section with Services as its normal next sibling —
- * no pin, no sticky reveal, no extra scroll range, no spacer. A single
- * transition controller (the effect below) owns the handoff — in both
- * directions, as exact mirrors of each other. While the Hero is on screen,
- * downward input — a touchmove past a tiny intent threshold, or any
- * wheel/trackpad tick — is intercepted at the source with
- * `preventDefault()`, before the browser commits to a native scroll, so no
- * momentum ever exists. In its place runs one scripted, eased glide of
- * `window.scrollTo` that lands exactly on Services' top edge and stops.
- * Upward input while parked at Services (or anywhere in the boundary zone
- * between the two scenes) triggers the identical glide back to the page
- * top, landing the Hero perfectly in the viewport — same easing, same
- * duration, same lock. During either glide all further input is swallowed —
- * `animating` is the only lock in this controller, and it exists solely for
- * the glide's own ~900ms. The instant that rAF loop ends, the lock drops
- * and scrolling is fully native again — no post-landing grace window, no
- * momentum-swallowing timer that could outlive the animation. A wheel tick
- * or touchmove that arrives after landing is judged fresh against the
- * current zone (heroOnScreen / servicesAtBoundary), so leftover momentum
- * either does nothing (already past the trigger zone) or just continues as
- * an ordinary native scroll — it can never hold the page hostage.
+ * no pin, no sticky reveal, no extra scroll range, no spacer. While Hero is
+ * on screen, this controller intercepts downward input (wheel/trackpad tick,
+ * or a touchmove past a tiny intent threshold) with `preventDefault()`
+ * before the browser commits to a native scroll, and instead runs one
+ * scripted, eased glide of `window.scrollTo` that lands exactly on Services'
+ * top edge.
+ *
+ * The return trip mirrors this in reverse once Services is settled as the
+ * resting scene. Both glides share one `animating` lock, dropped the instant
+ * the ~900ms rAF loop ends — no grace window, no timer that could outlive
+ * the animation.
  *
  * The visual fade is not scripted separately: Hero's opacity (video
  * included, plus a slight downward lag that lets Services slide up *over*
@@ -51,9 +56,7 @@ function easeInOutCubic(t: number): number {
  * so the two scenes read as one continuous transformation instead of a fade
  * followed by an arrival. The glide animates scroll, so that dissolve rides
  * the same eased curve for free — and scrolling back up from Services
- * naturally un-fades the Hero, keeping both directions consistent. The
- * controller re-arms whenever the Hero is back on screen, so leaving it is
- * always this one transition.
+ * naturally un-fades the Hero, keeping both directions consistent.
  */
 export function HeroServicesReveal() {
   const reduceMotion = useReducedMotion()
@@ -87,29 +90,52 @@ export function HeroServicesReveal() {
     // Non-nullable local: TS narrowing from the guard above doesn't reach
     // into the nested closures below.
     const hero: HTMLDivElement = heroEl
+    // Services renders as this component's own JSX sibling below (see the
+    // return at the bottom of this file) — mounted in the same render pass
+    // as Hero, not behind a lazy route boundary — so this lookup is always
+    // reliable by the time this effect runs.
+    const servicesEl = document.getElementById('services')
 
     let animating = false
     let rafId = 0
     let touchStartY = 0
+    let touchStartX = 0
     // Most recent known finger position, updated on every touch event
     // regardless of whether that event triggered anything — used to give a
     // continued (non-lifted) drag a completely fresh reference point the
     // instant a glide lands, so it always needs a full new intent threshold
     // of movement before it can trigger anything again.
     let lastTouchY = 0
+    let lastTouchX = 0
 
     // Measured fresh at every use — mobile browsers resize the viewport as
     // the address bar collapses/expands, and desktop windows can be
     // resized, either of which moves this landing target.
     const servicesTop = () => hero.offsetTop + hero.offsetHeight
     const heroOnScreen = () => window.scrollY < servicesTop() - 1
-    // Mirror zone for the reverse trip: anywhere from just below the page
-    // top down to the Services landing point. Parked at Services (the
-    // normal case) sits exactly at the upper bound; anything in between is
-    // a mid-transition park that glides home to the Hero the same way the
-    // forward direction glides to Services.
-    const servicesAtBoundary = () =>
-      window.scrollY > 1 && window.scrollY <= servicesTop() + 1
+
+    const EDGE_EPSILON_PX = 1
+
+    // "Services is the active scene" = its box fully spans the viewport,
+    // top to bottom. Read directly off its live geometry — the same source
+    // of truth the shared chrome-visibility store uses.
+    const isServicesFillingViewport = () => {
+      if (!servicesEl) return false
+      const rect = servicesEl.getBoundingClientRect()
+      return rect.top <= EDGE_EPSILON_PX && rect.bottom >= window.innerHeight - EDGE_EPSILON_PX
+    }
+
+    // Whether Services is *currently the settled, at-rest scene* — the only
+    // state in which an upward gesture may trigger the Services → Hero
+    // glide. Set from the browser's own confirmation that a scroll has
+    // finished (`scrollend`), never a guess mid-motion.
+    let servicesResting = false
+    function onScrollStart() {
+      servicesResting = false
+    }
+    function onScrollEnd() {
+      servicesResting = !animating && isServicesFillingViewport()
+    }
 
     function glide(targetY: number) {
       animating = true
@@ -130,6 +156,7 @@ export function HeroServicesReveal() {
           // gesture started well before landing.
           animating = false
           touchStartY = lastTouchY
+          touchStartX = lastTouchX
         }
       }
       rafId = requestAnimationFrame(step)
@@ -140,29 +167,34 @@ export function HeroServicesReveal() {
         e.preventDefault()
         return
       }
-      if (e.deltaY > 0 && heroOnScreen()) {
+      // A horizontal trackpad pan (e.g. over the mobile carousel on a
+      // touchscreen-plus-trackpad device) reports mostly deltaX with some
+      // incidental deltaY — never eligible to trigger the page transition.
+      const isVerticalGesture = Math.abs(e.deltaY) > Math.abs(e.deltaX) * AXIS_DOMINANCE_RATIO
+      if (isVerticalGesture && e.deltaY > 0 && heroOnScreen()) {
         e.preventDefault()
         glide(servicesTop())
-      } else if (e.deltaY < 0 && servicesAtBoundary()) {
+      } else if (isVerticalGesture && e.deltaY < 0 && servicesResting) {
         e.preventDefault()
         glide(0)
       }
-      // Any other tick — including whatever momentum tail follows the
-      // gesture that just triggered a glide — is left alone. By the time
-      // it arrives `animating` is already true (swallowed above) or the
-      // glide has already landed and the zone check above no longer
-      // matches, so it simply scrolls natively; nothing here can hold a
-      // lock past the animation that owns it.
+      // Any other tick — including a momentum tail, or one arriving while
+      // still travelling toward Services — just scrolls natively; nothing
+      // here holds a lock past the animation that owns it.
     }
 
     function onTouchStart(e: TouchEvent) {
       touchStartY = e.touches[0]?.clientY ?? 0
+      touchStartX = e.touches[0]?.clientX ?? 0
       lastTouchY = touchStartY
+      lastTouchX = touchStartX
     }
 
     function onTouchMove(e: TouchEvent) {
       const currentY = e.touches[0]?.clientY ?? touchStartY
+      const currentX = e.touches[0]?.clientX ?? touchStartX
       lastTouchY = currentY
+      lastTouchX = currentX
       if (animating) {
         // Swallow residual finger movement mid-glide only — released the
         // instant the glide's own rAF loop ends (see glide()).
@@ -171,10 +203,21 @@ export function HeroServicesReveal() {
       }
       // positive = finger moved up = downward-scroll intent
       const travel = touchStartY - currentY
-      if (travel > TOUCH_INTENT_PX && heroOnScreen()) {
+      const horizontalTravel = currentX - touchStartX
+      // Services' carousel is a horizontal swipe strip on the same screen
+      // this listens across. A real horizontal swipe is rarely perfectly
+      // axis-aligned, so vertical drift alone (once past TOUCH_INTENT_PX)
+      // could otherwise read as scroll intent — most confusingly right
+      // after the last card, with nowhere further for the carousel to
+      // consume the gesture. Requiring vertical to clearly dominate keeps
+      // every horizontal carousel gesture off this controller entirely;
+      // it's never prevented, so the carousel's own native scroll handles
+      // it exclusively.
+      const isVerticalGesture = Math.abs(travel) > Math.abs(horizontalTravel) * AXIS_DOMINANCE_RATIO
+      if (isVerticalGesture && travel > TOUCH_INTENT_PX && heroOnScreen()) {
         e.preventDefault()
         glide(servicesTop())
-      } else if (-travel > TOUCH_INTENT_PX && servicesAtBoundary()) {
+      } else if (isVerticalGesture && -travel > TOUCH_INTENT_PX && servicesResting) {
         e.preventDefault()
         glide(0)
       }
@@ -183,11 +226,22 @@ export function HeroServicesReveal() {
     window.addEventListener('wheel', onWheel, { passive: false })
     window.addEventListener('touchstart', onTouchStart, { passive: true })
     window.addEventListener('touchmove', onTouchMove, { passive: false })
+    // Both passive and read-only: neither intercepts or alters a scroll in
+    // progress. `scroll` only disarms; `scrollend` — the browser's own
+    // "this scroll has finished" event — is the sole place arming happens.
+    window.addEventListener('scroll', onScrollStart, { passive: true })
+    window.addEventListener('scrollend', onScrollEnd, { passive: true })
+    // Establishes the initial armed/disarmed state on mount (e.g. a page
+    // refresh landing already settled on Services) rather than waiting for
+    // the first subsequent scroll to finish.
+    onScrollEnd()
 
     return () => {
       window.removeEventListener('wheel', onWheel)
       window.removeEventListener('touchstart', onTouchStart)
       window.removeEventListener('touchmove', onTouchMove)
+      window.removeEventListener('scroll', onScrollStart)
+      window.removeEventListener('scrollend', onScrollEnd)
       cancelAnimationFrame(rafId)
     }
   }, [reduceMotion])

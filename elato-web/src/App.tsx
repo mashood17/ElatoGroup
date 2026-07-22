@@ -2,6 +2,7 @@ import { Suspense, lazy, useEffect, useRef } from 'react'
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom'
 import { Navbar } from './components/layout/Navbar'
 import { Footer } from './components/layout/Footer'
+import { Splash } from './components/splash/Splash'
 import { ErrorBoundary } from './components/ErrorBoundary'
 import { ScrollToTopButton } from './components/ui/ScrollToTopButton'
 import { ScratchOfferPopup } from './components/offers/ScratchOfferPopup'
@@ -182,6 +183,7 @@ function App() {
           <ScrollToTop />
           <ScrollPositionRestoration />
           <HashScroll />
+          <Splash />
           <Navbar />
           <Suspense fallback={<RouteFallback />}>
             <Routes>
