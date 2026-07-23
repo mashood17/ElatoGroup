@@ -1,0 +1,94 @@
+- generic [ref=e2]:
+  - banner:
+    - navigation:
+      - link:
+        - /url: /
+      - generic:
+        - list:
+          - listitem:
+            - link:
+              - /url: /
+              - generic: Home
+          - listitem:
+            - link:
+              - /url: /elato-celebre
+              - generic: Celebré
+          - listitem:
+            - link:
+              - /url: /elato-stay
+              - generic: Stay
+          - listitem:
+            - link:
+              - /url: /elato-events
+              - generic: Events
+          - listitem:
+            - link:
+              - /url: /#about
+              - generic: About
+          - listitem:
+            - link:
+              - /url: /#visit
+              - generic: Visit
+      - generic:
+        - link:
+          - /url: /elato-celebre#menu
+          - text: Our Menu
+  - contentinfo [ref=e7]:
+    - generic [ref=e8]:
+      - generic [ref=e9]:
+        - link [ref=e10] [cursor=pointer]:
+          - /url: /
+          - img "ELATŌ" [ref=e11]
+        - paragraph [ref=e12]: Where Every Celebration Begins
+      - generic [ref=e13]:
+        - paragraph [ref=e14]: Explore
+        - list [ref=e15]:
+          - listitem [ref=e16]:
+            - link "Home" [ref=e17] [cursor=pointer]:
+              - /url: "#home"
+          - listitem [ref=e18]:
+            - link "Stay" [ref=e19] [cursor=pointer]:
+              - /url: /elato-stay
+          - listitem [ref=e20]:
+            - link "Celebré" [ref=e21] [cursor=pointer]:
+              - /url: /elato-celebre
+          - listitem [ref=e22]:
+            - link "Events" [ref=e23] [cursor=pointer]:
+              - /url: /elato-events
+      - generic [ref=e24]:
+        - paragraph [ref=e25]: Visit
+        - list [ref=e26]:
+          - listitem [ref=e27]: ELATŌ CELEBRÉ,
+          - listitem [ref=e28]: Near Mandovi Motors,
+          - listitem [ref=e29]: Melkar,
+          - listitem [ref=e30]: Panemangalore,
+          - listitem [ref=e31]: Bantwal,
+          - listitem [ref=e32]: Karnataka 574231
+        - generic [ref=e33]:
+          - paragraph [ref=e34]: Daily
+          - paragraph [ref=e35]: 11:00 AM – 11:30 PM
+      - generic [ref=e36]:
+        - paragraph [ref=e37]: Contact
+        - list [ref=e38]:
+          - listitem [ref=e39]:
+            - link "+91 97314 00313" [ref=e40] [cursor=pointer]:
+              - /url: tel:+919731400313
+          - listitem [ref=e44]:
+            - link "+91 97314 00313" [ref=e45] [cursor=pointer]:
+              - /url: https://wa.me/919731400313?text=Hi%20Elato!
+          - listitem [ref=e49]:
+            - link "@elato.in" [ref=e50] [cursor=pointer]:
+              - /url: https://instagram.com/elato.in
+          - listitem [ref=e56]:
+            - link "elatogroups@gmail.com" [ref=e57] [cursor=pointer]:
+              - /url: mailto:elatogroups@gmail.com
+    - generic [ref=e63]:
+      - generic [ref=e64]: © 2026 ELATŌ. All rights reserved.
+      - navigation "Legal" [ref=e65]:
+        - link "Privacy Policy" [ref=e66] [cursor=pointer]:
+          - /url: /privacy-policy
+        - link "Terms & Conditions" [ref=e67] [cursor=pointer]:
+          - /url: /terms-conditions
+        - link "Cookie Policy" [ref=e68] [cursor=pointer]:
+          - /url: /cookie-policy
+      - generic [ref=e69]: Crafted by NoorGenesis

@@ -6,6 +6,12 @@ import { SPLASH_DURATION_MS, getNavbarLogoEl, markSplashExiting, shouldPlaySplas
 
 const EASE_CINEMATIC = [0.16, 1, 0.3, 1] as const
 const EXIT_FADE_S = 0.7
+// Matches Navbar's `duration-300` opacity transition. The flying logo is
+// pixel-identical to the navbar's own asset, already sitting at its resting
+// rect once the flight lands — keeping it mounted for exactly as long as the
+// real navbar takes to fade in underneath makes removing it an invisible
+// no-op instead of a flicker.
+const NAV_REVEAL_MS = 300
 
 type Rect = { top: number; left: number; width: number; height: number }
 
@@ -40,6 +46,13 @@ export function Splash() {
   const [toRect, setToRect] = useState<Rect | null>(null)
   const [flightSrc, setFlightSrc] = useState(heroLogo)
   const logoRef = useRef<HTMLImageElement>(null)
+  const revealTimerRef = useRef<number | null>(null)
+
+  useEffect(() => {
+    return () => {
+      if (revealTimerRef.current !== null) window.clearTimeout(revealTimerRef.current)
+    }
+  }, [])
 
   // Reduced-motion (or a repeat mount within the same session) bails before
   // paint so the navbar is never stuck hidden behind a splash that isn't
@@ -64,8 +77,8 @@ export function Splash() {
         setPhase('flying')
       } else {
         setPhase('done')
+        markSplashExiting()
       }
-      markSplashExiting()
     }, SPLASH_DURATION_MS)
     return () => window.clearTimeout(timer)
   }, [shouldRender, reduceMotion])
@@ -107,7 +120,13 @@ export function Splash() {
           initial={{ top: fromRect.top, left: fromRect.left, width: fromRect.width, height: fromRect.height }}
           animate={{ top: toRect.top, left: toRect.left, width: toRect.width, height: toRect.height }}
           transition={{ duration: EXIT_FADE_S, ease: EASE_CINEMATIC }}
-          onAnimationComplete={() => setPhase('done')}
+          onAnimationComplete={() => {
+            // Reveal the real navbar now — it fades in via CSS opacity
+            // underneath this flying image, which stays put (identical
+            // asset, identical rect) until that fade-in finishes.
+            markSplashExiting()
+            revealTimerRef.current = window.setTimeout(() => setPhase('done'), NAV_REVEAL_MS)
+          }}
           className="fixed z-[10000]"
         />
       )}

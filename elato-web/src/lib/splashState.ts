@@ -16,11 +16,16 @@ export const SPLASH_DURATION_MS = 2800
  * `active` is seeded synchronously from `hasPlayed` at module-eval time —
  * not flipped on from an effect — so Navbar's very first render already
  * agrees with Splash's own first render on whether a splash is about to
- * play. `hasPlayed` only resets on an actual full page reload (fresh module
- * evaluation), which is the entire "first load vs. SPA nav" detection: no
- * sessionStorage, no pathname checks.
+ * play. `hasPlayed` is backed by `sessionStorage`: some in-site links (e.g.
+ * the "Our Menu" button when it's not already on that page) are plain
+ * `<a href>` hard navigations rather than SPA route changes, which re-evaluate
+ * every module — a module-level-only flag would forget it already played and
+ * replay the splash. `sessionStorage` survives that reload but clears when
+ * the tab/browser session ends, which is exactly the "once per fresh
+ * session" contract.
  */
-let hasPlayed = false
+const SPLASH_PLAYED_KEY = 'elato:splash-played'
+let hasPlayed = sessionStorage.getItem(SPLASH_PLAYED_KEY) === '1'
 let active = !hasPlayed
 
 const subscribers = new Set<() => void>()
@@ -43,6 +48,7 @@ export function markSplashExiting() {
   if (!active && hasPlayed) return
   hasPlayed = true
   active = false
+  sessionStorage.setItem(SPLASH_PLAYED_KEY, '1')
   notify()
 }
 

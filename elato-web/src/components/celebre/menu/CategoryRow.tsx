@@ -1,4 +1,4 @@
-import { memo, useRef } from 'react'
+import { memo, useLayoutEffect, useRef, useState } from 'react'
 import { motion, useScroll, useTransform } from 'framer-motion'
 import { MenuItemRow } from './MenuItemRow'
 import type { Category, MenuItem } from '../../../content/celebreContent'
@@ -26,6 +26,30 @@ export const CategoryRow = memo(function CategoryRow({
 }) {
   const reversed = index % 2 === 1
   const rowRef = useRef<HTMLDivElement>(null)
+  const columnRef = useRef<HTMLDivElement>(null)
+  const itemsRef = useRef<HTMLDivElement>(null)
+
+  // Distance from the text column's top to the first menu item's top (i.e.
+  // the heading + description block's rendered height). Measured rather
+  // than hardcoded so the sticky image can be offset to start flush with
+  // the first item regardless of how many lines the heading/description
+  // wrap to.
+  const [imageOffset, setImageOffset] = useState(0)
+
+  useLayoutEffect(() => {
+    const column = columnRef.current
+    const itemsEl = itemsRef.current
+    if (!column || !itemsEl) return
+
+    const measure = () => {
+      setImageOffset(itemsEl.getBoundingClientRect().top - column.getBoundingClientRect().top)
+    }
+    measure()
+
+    const observer = new ResizeObserver(measure)
+    observer.observe(column)
+    return () => observer.disconnect()
+  }, [])
 
   // Tracks scroll progress across the row (first item to last item) so the
   // sticky image drifts down as the category scrolls by, and back up in reverse.
@@ -40,22 +64,24 @@ export const CategoryRow = memo(function CategoryRow({
       variants={sectionReveal}
       className="py-16 lg:py-24"
     >
-      <h3 className="text-h2 font-sans font-bold text-[#9e7641]">{category.name}</h3>
-      <p className="text-body mt-3 max-w-md text-neutral-warm-500">{category.description}</p>
-
       <div
         ref={rowRef}
-        className={`mt-8 grid grid-cols-1 items-start gap-12 lg:grid-cols-2 lg:gap-20 ${
+        className={`grid grid-cols-1 items-start gap-12 lg:grid-cols-2 lg:gap-20 ${
           reversed ? 'lg:[&>*:first-child]:order-2' : ''
         }`}
       >
-        <div>
-          {items.map((item) => (
-            <MenuItemRow key={item.id} item={item} onOpen={onOpenItem} />
-          ))}
+        <div ref={columnRef}>
+          <h3 className="text-h2 font-sans font-bold text-[#9e7641]">{category.name}</h3>
+          <p className="text-body mt-3 max-w-md text-neutral-warm-500">{category.description}</p>
+
+          <div ref={itemsRef} className="mt-8">
+            {items.map((item) => (
+              <MenuItemRow key={item.id} item={item} onOpen={onOpenItem} />
+            ))}
+          </div>
         </div>
 
-        <div className="hidden lg:sticky lg:top-28 lg:block">
+        <div className="hidden lg:sticky lg:top-28 lg:block" style={{ marginTop: imageOffset }}>
           <motion.div
             style={{ y, willChange: 'transform' }}
             className={`relative aspect-[4/3] w-full overflow-hidden rounded-3xl shadow-elato-xl ring-1 ring-black/5 bg-gradient-to-br ${gradients[index % gradients.length]}`}
