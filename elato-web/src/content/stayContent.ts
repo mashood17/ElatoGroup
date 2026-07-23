@@ -10,27 +10,27 @@ export const stayHero = {
 
 export const stayInfo = [
   { label: 'Capacity', value: '6–8 guests' },
-  { label: 'Bedrooms', value: '2 (family rooms)' },
-  { label: 'Bathrooms', value: '2' },
-  { label: 'Kitchen', value: 'Fully equipped' },
+  { label: 'Bedrooms', value: '2 family bedrooms' },
+  { label: 'Kitchen', value: 'Kitchen area available' },
+  { label: 'Location', value: 'Panemangalore, Bantwal' },
 ]
 
 export const introduction = {
   overline: 'The Stay',
   title: 'A spacious 2BHK, for however long the occasion needs',
   paragraphs: [
-    'Elato Events & Stay offers a spacious apartment with two bedrooms and two bathrooms, with family rooms ensuring comfort for all guests.',
-    'Guests enjoy free WiFi, air-conditioning, and a terrace. The apartment includes a balcony, kitchen, and a fully equipped kitchen — built for family trips, wedding guests, business travelers, and vacation stays alike.',
+    'Elato Events & Stay offers a spacious two-bedroom apartment with two bathrooms, thoughtfully designed to provide a comfortable and relaxing stay for families, wedding guests, business travelers, and vacationers alike.',
+    'Enjoy a peaceful environment with free WiFi, air-conditioning, a private balcony, and comfortable living spaces. The apartment also includes a kitchen area for added convenience, with additional kitchen amenities being introduced over time.',
   ],
-  highlights: ['Fully furnished', 'Spacious living area', 'Peaceful environment'],
+  highlights: ['Semi-furnished apartment', 'Spacious living area', 'Peaceful environment'],
 }
 
 export const amenities = [
-  'Fully Furnished',
+  'Semi-Furnished',
   'Spacious Living Area',
-  'Premium Bedrooms',
+  'Comfortable Bedrooms',
   'Modern Bathrooms',
-  'Kitchen',
+  'Private Kitchen Space',
   'Parking',
   'Peaceful Environment',
   'Free Wi-Fi',
@@ -50,7 +50,7 @@ export const galleryItems: GalleryItem[] = [
   { id: 'g-1', caption: 'Morning light in the living area', span: 'tall' },
   { id: 'g-2', caption: 'The apartment, in the afternoon', span: 'normal' },
   { id: 'g-3', caption: 'A considered corner of the bedroom', span: 'wide' },
-  { id: 'g-4', caption: 'The fully equipped kitchen', span: 'normal' },
+  { id: 'g-4', caption: 'The kitchen area', span: 'normal' },
   { id: 'g-5', caption: 'The terrace, in the evening', span: 'tall' },
   { id: 'g-6', caption: 'Evening on the balcony', span: 'normal' },
   { id: 'g-7', caption: 'Textures of the stay', span: 'wide' },

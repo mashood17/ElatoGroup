@@ -11,11 +11,11 @@ import { deferredSectionStyle, sectionReveal, staggerContainer, viewportOnce } f
 import { useSectionExitFade } from '../../lib/useSectionExitFade'
 
 const amenityIcons: Record<string, LucideIcon> = {
-  'Fully Furnished': Sofa,
+  'Semi-Furnished': Sofa,
   'Spacious Living Area': Maximize,
-  'Premium Bedrooms': BedDouble,
+  'Comfortable Bedrooms': BedDouble,
   'Modern Bathrooms': Bath,
-  Kitchen: ChefHat,
+  'Private Kitchen Space': ChefHat,
   Parking: ParkingCircle,
   'Peaceful Environment': Leaf,
   'Free Wi-Fi': Wifi,
@@ -91,14 +91,14 @@ export function Amenities() {
         >
           <motion.div variants={sectionReveal} className="order-1 flex-1 lg:order-1">
             <p className="text-caption text-[#9e7641]">Boutique Retreat</p>
-            <h2 className="text-h2 mt-3 font-sans font-bold text-[#9e7641]">Where Comfort Meets Quiet Luxury</h2>
+            <h2 className="text-h2 mt-3 font-sans font-bold text-[#9e7641]">Comfort Designed for Every Stay</h2>
             <p className="text-body mt-4 max-w-md font-sans text-[#9e7641]">
-              Nothing to arrange, nothing missing — every stay comes fully equipped and ready from the moment you
-              arrive.
+              Enjoy a spacious, comfortable stay with thoughtfully designed interiors, essential amenities, and a
+              peaceful atmosphere—ideal for families, wedding guests, business travelers, and extended stays.
             </p>
 
-            <p className="text-h3 mt-10 font-bold text-[#9e7641]">What's Included</p>
-            <ul className="mt-4 grid grid-cols-4 gap-2">
+            <p className="text-h3 mt-10 font-bold text-[#9e7641]">Stay Highlights</p>
+            <ul className="mt-4 grid grid-cols-4 gap-2.5">
               {amenities.map((amenity) => {
                 const Icon = amenityIcons[amenity]
                 return (
@@ -116,12 +116,12 @@ export function Amenities() {
                           }
                     }
                     transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
-                    className="group flex flex-col items-center gap-1 rounded-md border border-[#9e7641]/20 bg-primary-50 px-1.5 py-1.5 text-center shadow-elato-lg"
+                    className="group flex flex-col items-center gap-1.5 rounded-md border border-[#9e7641]/20 bg-primary-50 px-1.5 py-2 text-center shadow-elato-lg"
                   >
-                    <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#9e7641]/10 text-[#9e7641] transition-colors duration-300 ease-out group-hover:bg-[#9e7641]/20">
-                      <Icon className="h-2.5 w-2.5 transition-transform duration-300 ease-out group-hover:scale-110" strokeWidth={1.75} />
+                    <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#9e7641]/10 text-[#9e7641] transition-colors duration-300 ease-out group-hover:bg-[#9e7641]/20">
+                      <Icon className="h-3 w-3 transition-transform duration-300 ease-out group-hover:scale-110" strokeWidth={1.75} />
                     </span>
-                    <span className="text-[9px] font-sans normal-case leading-tight tracking-normal text-[#9e7641]">
+                    <span className="text-[9px] font-sans font-medium normal-case leading-tight tracking-normal text-[#9e7641]">
                       {amenity}
                     </span>
                   </motion.li>

@@ -14,17 +14,18 @@ const experience = {
   overline: 'The Experience',
   title: 'Where Every Celebration Becomes a Lasting Memory',
   paragraphs: [
-    'An event at ELATŌ is not a hall booked by the hour — it is a room prepared for one occasion, once, with nothing borrowed from the celebration before it.',
-    'Every detail is arranged around the people arriving, not a standard package: the lighting, the pacing, the dessert course that closes the evening.',
+    "Every celebration at ELATŌ is thoughtfully prepared to create a seamless and memorable experience. Whether it's a wedding, reception, engagement, birthday, corporate gathering, or family celebration, our venue provides a beautiful setting designed for every occasion.",
+    'From a professionally decorated stage and comfortable guest seating to elegant lighting and a spacious banquet hall, every detail is thoughtfully arranged to create a seamless celebration.',
   ],
   highlights: [
-    'Elegant venue',
-    'Premium hospitality',
-    'Personalized celebrations',
-    'Curated dessert experiences',
-    'Luxury ambience',
-    'Professional service',
-    'Memorable moments',
+    'Professionally decorated stage',
+    'Comfortable guest seating',
+    'Elegant event lighting',
+    'Spacious banquet hall',
+    'Professional venue setup',
+    'Customizable event layouts',
+    'Family & corporate events',
+    'Memorable ambience',
   ],
 }
 
@@ -108,7 +109,10 @@ export function EventExperience() {
               <p className="text-h3 text-secondary-900">
                 Up to {EVENTS_HALL_CAPACITY_MIN}–{EVENTS_HALL_CAPACITY_MAX} Guests
               </p>
-              <p className="text-body text-neutral-warm-500">One hall, set for your occasion.</p>
+              <p className="text-body text-neutral-warm-500">
+                One spacious banquet hall, ideal for weddings, receptions, birthdays, corporate events, engagements,
+                and family celebrations.
+              </p>
             </div>
           </div>
         </motion.div>
