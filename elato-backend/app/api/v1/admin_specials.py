@@ -4,6 +4,7 @@ from app.core.dependencies import CurrentAdmin, get_current_admin, require_role
 from app.repositories import special_repository
 from app.schemas.common import Page, PaginationParams
 from app.schemas.special import SpecialCreate, SpecialOut, SpecialUpdate
+from app.services import media_service
 
 router = APIRouter(prefix="/admin/specials", tags=["admin-specials"])
 
@@ -28,7 +29,10 @@ def create_special(payload: SpecialCreate, admin: CurrentAdmin = Depends(require
 def update_special(
     special_id: str, payload: SpecialUpdate, admin: CurrentAdmin = Depends(require_role("owner", "admin", "editor"))
 ):
-    return special_repository.update(special_id, payload.model_dump(mode="json", exclude_none=True))
+    fields = payload.model_dump(mode="json", exclude_none=True)
+    return media_service.update_with_image_cleanup(
+        special_repository.get, special_repository.update, special_id, fields, "image_id"
+    )
 
 
 @router.delete("/{special_id}", status_code=204)

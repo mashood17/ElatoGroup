@@ -28,6 +28,7 @@ from app.core.config import get_settings
 from app.core.exceptions import AppError
 from app.db import get_supabase
 from app.repositories import hero_background_repository
+from app.services import media_service
 
 VIDEO_BUCKET = "hero-videos"
 POSTER_BUCKET = "hero"
@@ -196,7 +197,7 @@ async def upload_hero_video(file: UploadFile, slot: str, uploaded_by: str) -> di
     if existing:
         _delete_storage_object(existing["video_bucket"], existing["video_path"])
         if existing.get("poster_bucket") and existing.get("poster_path"):
-            _delete_storage_object(existing["poster_bucket"], existing["poster_path"])
+            media_service.delete_image_variants(existing["poster_bucket"], existing["poster_path"])
 
     return row
 
@@ -213,8 +214,6 @@ async def upload_hero_poster(file: UploadFile, slot: str, uploaded_by: str) -> d
     if not existing:
         raise AppError(code="not_found", message=f"Upload a {slot} hero video first.", status_code=404)
 
-    from app.services import media_service
-
     media_row, _variants = await media_service.process_and_store(file, POSTER_BUCKET, f"{slot} hero poster", uploaded_by)
 
     old_poster_bucket, old_poster_path = existing.get("poster_bucket"), existing.get("poster_path")
@@ -223,7 +222,7 @@ async def upload_hero_poster(file: UploadFile, slot: str, uploaded_by: str) -> d
     )
 
     if old_poster_bucket and old_poster_path and old_poster_path != media_row["storage_path"]:
-        _delete_storage_object(old_poster_bucket, old_poster_path)
+        media_service.delete_image_variants(old_poster_bucket, old_poster_path)
 
     return row
 
@@ -236,7 +235,7 @@ def delete_hero_video(slot: str) -> None:
         return
     _delete_storage_object(row["video_bucket"], row["video_path"])
     if row.get("poster_bucket") and row.get("poster_path"):
-        _delete_storage_object(row["poster_bucket"], row["poster_path"])
+        media_service.delete_image_variants(row["poster_bucket"], row["poster_path"])
     hero_background_repository.delete(slot)
 
 

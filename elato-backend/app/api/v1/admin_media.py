@@ -36,7 +36,7 @@ async def upload_media(
 
 @router.delete("/{media_id}", status_code=204)
 def delete_media(media_id: str, admin: CurrentAdmin = Depends(require_role("owner", "admin"))):
-    media_repository.delete(media_id)
+    media_service.delete_media(media_id)
 
 
 def _to_media_out(row: dict) -> MediaOut:

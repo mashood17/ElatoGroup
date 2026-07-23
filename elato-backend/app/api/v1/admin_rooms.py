@@ -4,6 +4,7 @@ from app.core.dependencies import CurrentAdmin, get_current_admin, require_role
 from app.repositories import room_repository
 from app.schemas.common import Page, PaginationParams
 from app.schemas.room import RoomCreate, RoomOut, RoomUpdate
+from app.services import media_service
 
 router = APIRouter(prefix="/admin/rooms", tags=["admin-rooms"])
 
@@ -28,7 +29,10 @@ def create_room(payload: RoomCreate, admin: CurrentAdmin = Depends(require_role(
 def update_room(
     room_id: str, payload: RoomUpdate, admin: CurrentAdmin = Depends(require_role("owner", "admin", "editor"))
 ):
-    return room_repository.update(room_id, payload.model_dump(exclude_none=True))
+    fields = payload.model_dump(exclude_none=True)
+    return media_service.update_with_image_list_cleanup(
+        room_repository.get, room_repository.update, room_id, fields, "image_ids"
+    )
 
 
 @router.delete("/{room_id}", status_code=204)

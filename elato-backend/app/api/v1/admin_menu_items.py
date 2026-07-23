@@ -4,6 +4,7 @@ from app.core.dependencies import CurrentAdmin, get_current_admin, require_role
 from app.repositories import menu_item_repository
 from app.schemas.common import Page, PaginationParams
 from app.schemas.menu_item import MenuItemCreate, MenuItemOut, MenuItemUpdate
+from app.services import media_service
 
 router = APIRouter(prefix="/admin/menu-items", tags=["admin-menu-items"])
 
@@ -32,7 +33,10 @@ def create_menu_item(payload: MenuItemCreate, admin: CurrentAdmin = Depends(requ
 def update_menu_item(
     item_id: str, payload: MenuItemUpdate, admin: CurrentAdmin = Depends(require_role("owner", "admin", "editor"))
 ):
-    return menu_item_repository.update(item_id, payload.model_dump(exclude_none=True))
+    fields = payload.model_dump(exclude_none=True)
+    return media_service.update_with_image_cleanup(
+        menu_item_repository.get, menu_item_repository.update, item_id, fields, "image_id"
+    )
 
 
 @router.delete("/{item_id}", status_code=204)

@@ -4,6 +4,7 @@ from app.core.dependencies import CurrentAdmin, get_current_admin, require_role
 from app.repositories import category_repository
 from app.schemas.category import CategoryCreate, CategoryOut, CategoryUpdate
 from app.schemas.common import Page, PaginationParams
+from app.services import media_service
 
 router = APIRouter(prefix="/admin/categories", tags=["admin-categories"])
 
@@ -29,7 +30,9 @@ def update_category(
     category_id: str, payload: CategoryUpdate, admin: CurrentAdmin = Depends(require_role("owner", "admin", "editor"))
 ):
     fields = payload.model_dump(exclude_none=True)
-    return category_repository.update(category_id, fields)
+    return media_service.update_with_image_cleanup(
+        category_repository.get, category_repository.update, category_id, fields, "image_id"
+    )
 
 
 @router.delete("/{category_id}", status_code=204)

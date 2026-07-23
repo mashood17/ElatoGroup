@@ -4,6 +4,7 @@ from app.core.dependencies import CurrentAdmin, get_current_admin, require_role
 from app.repositories import event_package_repository
 from app.schemas.common import Page, PaginationParams
 from app.schemas.event_package import EventPackageCreate, EventPackageOut, EventPackageUpdate
+from app.services import media_service
 
 router = APIRouter(prefix="/admin/event-packages", tags=["admin-event-packages"])
 
@@ -32,7 +33,10 @@ def update_event_package(
     payload: EventPackageUpdate,
     admin: CurrentAdmin = Depends(require_role("owner", "admin", "editor")),
 ):
-    return event_package_repository.update(package_id, payload.model_dump(exclude_none=True))
+    fields = payload.model_dump(exclude_none=True)
+    return media_service.update_with_image_cleanup(
+        event_package_repository.get, event_package_repository.update, package_id, fields, "image_id"
+    )
 
 
 @router.delete("/{package_id}", status_code=204)

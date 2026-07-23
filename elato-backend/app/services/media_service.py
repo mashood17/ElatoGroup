@@ -2,11 +2,20 @@
 Upload -> validate -> resize -> convert -> store -> record, in one place.
 Every admin upload (menu photos, gallery, room photos, etc.) goes through
 `process_and_store`; nothing writes to Storage or the `media` table directly.
+
+Image *replacement* cleanup (deleting the previous image's Storage variants
+once an entity has been repointed at a new one) also lives here —
+`update_with_image_cleanup`/`update_with_image_list_cleanup` are the single
+reusable entry points every admin router's update endpoint calls, so the
+delete-old-variants logic exists in exactly one place rather than being
+copy-pasted per entity.
 """
 
 import io
+import logging
 import uuid
 from dataclasses import dataclass
+from typing import Any, Callable
 
 from PIL import Image, ImageOps
 from fastapi import UploadFile
@@ -16,6 +25,8 @@ from app.core.config import get_settings
 from app.core.exceptions import AppError
 from app.db import get_supabase
 from app.repositories import media_repository
+
+logger = logging.getLogger("elato.media_cleanup")
 
 # First few bytes of each format — checked against the real file content,
 # never the filename/extension, per the media-pipeline spec.
@@ -211,3 +222,140 @@ async def process_and_store(
         }
     )
     return media_row, variants
+
+
+def _variant_paths(storage_path: str) -> list[str]:
+    """Every object `process_and_store` could have written for one upload —
+    the 3 breakpoints x (WebP, JPEG, best-effort AVIF) — derived from the
+    canonical `{stem}/lg.webp` path so this never drifts from the encode loop
+    above. If `storage_path` isn't in that shape (unexpected/legacy row),
+    falls back to just that one path rather than guessing."""
+    if not storage_path.endswith("/lg.webp"):
+        return [storage_path]
+    stem = storage_path.removesuffix("/lg.webp")
+    return [f"{stem}/{label}.{ext}" for label in _BREAKPOINTS for ext in ("webp", "jpg", "avif")]
+
+
+def delete_image_variants(bucket: str | None, storage_path: str | None) -> None:
+    """Storage-only counterpart to `delete_media`, for images tracked by raw
+    (bucket, path) rather than a `media` row id — currently just the hero
+    video poster, which `hero_background_repository` stores as bucket/path
+    columns on `hero_backgrounds` instead of a `media_id` FK. Safe for both
+    poster origins: a manually-uploaded poster went through
+    `process_and_store` (so `path` is a `.../lg.webp` canonical path and
+    `_variant_paths` expands it to all 9 variant files); an auto-extracted
+    poster is a single raw JPEG (so `_variant_paths` falls back to just that
+    one path). Best-effort — logs and returns on failure rather than raising,
+    same contract as `delete_media`."""
+    if not bucket or not storage_path:
+        return
+    try:
+        get_supabase().storage.from_(bucket).remove(_variant_paths(storage_path))
+    except Exception as exc:
+        logger.error(f"Failed to delete Storage files at {bucket}/{storage_path} — left in place for manual cleanup: {exc}")
+
+
+def delete_media(media_id: str | None) -> None:
+    """Best-effort teardown of one `media` row and every Storage variant file
+    it owns. Only ever called *after* the entity that referenced it has
+    already been repointed at a different image (see
+    `update_with_image_cleanup` below) — so a failure here can never leave an
+    entity pointing at a missing image, only leave a harmless orphaned file/
+    row behind. Storage removal is attempted first; the `media` row itself is
+    only deleted once that succeeds, so a failed Storage delete leaves the
+    row in place as a record of what still needs cleaning up, logged for a
+    later manual/scripted sweep rather than silently lost."""
+    if not media_id:
+        return
+
+    try:
+        row = media_repository.get(media_id)
+    except Exception as exc:
+        logger.info(f"Nothing to clean up — media {media_id} is already gone: {exc}")
+        return
+
+    try:
+        get_supabase().storage.from_(row["bucket"]).remove(_variant_paths(row["storage_path"]))
+    except Exception as exc:
+        logger.error(
+            f"Failed to delete Storage files for replaced media {media_id} "
+            f"(bucket={row.get('bucket')!r}, path={row.get('storage_path')!r}) — "
+            f"left in place for manual cleanup: {exc}"
+        )
+        return
+
+    try:
+        media_repository.delete(media_id)
+    except Exception as exc:
+        logger.error(f"Storage files for media {media_id} were deleted but its `media` row could not be removed: {exc}")
+
+
+def cleanup_replaced_image(old_media_id: str | None, new_media_id: str | None) -> None:
+    """Deletes the previous image only when the reference genuinely changed
+    to something else. A no-op PATCH that repeats the same id, or one that
+    never touched the image field at all, must never delete anything —
+    callers should only invoke this after their own DB update already
+    committed the new reference."""
+    if old_media_id and old_media_id != new_media_id:
+        delete_media(old_media_id)
+
+
+def update_with_image_cleanup(
+    get_fn: Callable[[str], dict[str, Any]],
+    update_fn: Callable[[str, dict[str, Any]], dict[str, Any]],
+    entity_id: str,
+    fields: dict[str, Any],
+    image_field: str = "image_id",
+) -> dict[str, Any]:
+    """Shared "replace an entity's image" sequence for every admin PATCH
+    endpoint whose row owns a single reference into the `media` table
+    (`image_id` on categories/menu_items/specials/event_packages, `media_id`
+    on gallery items): read the current reference, run the caller's normal
+    update, and only once that update has actually committed does it delete
+    the previous image's Storage files. If `update_fn` raises, nothing is
+    deleted and the old image is untouched. If the Storage cleanup that
+    follows a successful update then fails, it's logged and left for later —
+    the entity update itself is never rolled back.
+    """
+    old_media_id = None
+    if image_field in fields:
+        try:
+            old_media_id = get_fn(entity_id).get(image_field)
+        except Exception:
+            old_media_id = None
+
+    updated = update_fn(entity_id, fields)
+
+    if image_field in fields:
+        cleanup_replaced_image(old_media_id, fields.get(image_field))
+
+    return updated
+
+
+def update_with_image_list_cleanup(
+    get_fn: Callable[[str], dict[str, Any]],
+    update_fn: Callable[[str, dict[str, Any]], dict[str, Any]],
+    entity_id: str,
+    fields: dict[str, Any],
+    image_field: str = "image_ids",
+) -> dict[str, Any]:
+    """Same sequence as `update_with_image_cleanup`, for entities that own a
+    *list* of image references (rooms.image_ids) rather than a single one —
+    once the update has committed, deletes every id that was in the old list
+    but is no longer in the new one. Ids still present in both (unchanged
+    photos) are left untouched."""
+    old_ids: list[str] = []
+    if image_field in fields:
+        try:
+            old_ids = get_fn(entity_id).get(image_field) or []
+        except Exception:
+            old_ids = []
+
+    updated = update_fn(entity_id, fields)
+
+    if image_field in fields:
+        new_ids = fields.get(image_field) or []
+        for media_id in set(old_ids) - set(new_ids):
+            delete_media(media_id)
+
+    return updated

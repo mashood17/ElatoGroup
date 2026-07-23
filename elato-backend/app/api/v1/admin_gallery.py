@@ -35,7 +35,10 @@ def create_gallery_item(payload: GalleryItemCreate, admin: CurrentAdmin = Depend
 def update_gallery_item(
     item_id: str, payload: GalleryItemUpdate, admin: CurrentAdmin = Depends(require_role("owner", "admin", "editor"))
 ):
-    return gallery_repository.update(item_id, payload.model_dump(exclude_none=True))
+    fields = payload.model_dump(exclude_none=True)
+    return media_service.update_with_image_cleanup(
+        gallery_repository.get, gallery_repository.update, item_id, fields, "media_id"
+    )
 
 
 @router.delete("/{item_id}", status_code=204)
