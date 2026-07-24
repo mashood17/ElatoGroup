@@ -5,6 +5,7 @@ import { MemoryRouter } from 'react-router-dom'
 import { QueryClientProvider } from '@tanstack/react-query'
 import { LoginPage } from '../LoginPage'
 import { AuthProvider } from '../../../context/AuthContext'
+import { ToastProvider } from '../../../context/ToastContext'
 import { queryClient } from '../../../lib/query-client'
 import { authApi } from '../../../api/auth'
 
@@ -16,14 +17,19 @@ vi.mock('../../../api/auth', () => ({
   },
 }))
 
+// Provider order mirrors main.tsx exactly (QueryClientProvider > ToastProvider
+// > AuthProvider > App): AuthProvider calls useToast() to surface a "session
+// expired" notice, so it must be rendered under a real ToastProvider here too.
 function renderLoginPage() {
   return render(
     <QueryClientProvider client={queryClient}>
-      <MemoryRouter initialEntries={['/login']}>
-        <AuthProvider>
-          <LoginPage />
-        </AuthProvider>
-      </MemoryRouter>
+      <ToastProvider>
+        <MemoryRouter initialEntries={['/login']}>
+          <AuthProvider>
+            <LoginPage />
+          </AuthProvider>
+        </MemoryRouter>
+      </ToastProvider>
     </QueryClientProvider>,
   )
 }
