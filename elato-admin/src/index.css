@@ -2,6 +2,7 @@
 @import "@fontsource-variable/montserrat";
 @import "@fontsource/playfair-display/400.css";
 @import "@fontsource/playfair-display/600.css";
+@import "@fontsource/cormorant-garamond/700.css";
 
 @theme {
   /* Same warm caramel accent as before, now paired with the public site's
@@ -21,6 +22,11 @@
 
   --font-sans: "Montserrat Variable", "Montserrat", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-display: "Playfair Display", ui-serif, Georgia, serif;
+  /* Dedicated page-heading serif (Homepage/Analytics/Menu/etc. via PageHeader) —
+     a more elegant, higher-contrast luxury serif than Playfair Display alone,
+     kept separate from --font-display so the Sidebar/LoginPage wordmark is
+     unaffected. */
+  --font-heading: "Cormorant Garamond", "Playfair Display", ui-serif, Georgia, serif;
 
   --shadow-elevation-sm: 0 1px 2px 0 rgb(15 15 14 / 0.04), 0 1px 1px 0 rgb(15 15 14 / 0.03);
   --shadow-elevation-md: 0 4px 10px -2px rgb(15 15 14 / 0.06), 0 2px 4px -2px rgb(15 15 14 / 0.05);

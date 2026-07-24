@@ -1,6 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import type { ReactNode } from "react";
 import { authApi } from "../api/auth";
+import { useToast } from "./ToastContext";
 import { SESSION_EXPIRED_EVENT, refreshSession } from "../lib/api-client";
 import {
   clearSession,
@@ -25,6 +26,7 @@ interface AuthContextValue {
 const AuthContext = createContext<AuthContextValue | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
+  const { showToast } = useToast();
   const [admin, setAdmin] = useState<AdminOut | null>(null);
   const [status, setStatus] = useState<AuthStatus>("loading");
 
@@ -66,14 +68,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // The api-client dispatches this when a background refresh fails
   // (refresh token expired/rotated elsewhere) — force back to the login screen.
+  // Only reached from a live session (see api-client.ts), so the toast is
+  // never shown on a plain first-visit/never-logged-in redirect.
   useEffect(() => {
     function handleSessionExpired() {
       setAdmin(null);
       setStatus("unauthenticated");
+      showToast({
+        title: "Session expired",
+        description: "Please sign in again to continue.",
+        variant: "warning",
+      });
     }
     window.addEventListener(SESSION_EXPIRED_EVENT, handleSessionExpired);
     return () => window.removeEventListener(SESSION_EXPIRED_EVENT, handleSessionExpired);
-  }, []);
+  }, [showToast]);
 
   const login = useCallback(async (email: string, password: string) => {
     const res = await authApi.login({ email, password });

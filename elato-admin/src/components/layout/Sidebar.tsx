@@ -3,6 +3,7 @@ import { NavLink } from "react-router-dom";
 import { useMutation } from "@tanstack/react-query";
 import { ChevronUp, Eye, EyeOff, KeyRound, LogOut, X } from "lucide-react";
 import { NAV_ITEMS } from "./nav-items";
+import { Logo } from "../brand/Logo";
 import { authApi } from "../../api/auth";
 import { useAuth } from "../../context/AuthContext";
 import { useToast } from "../../context/ToastContext";
@@ -31,8 +32,8 @@ export function Sidebar({ mobileOpen, onMobileClose }: { mobileOpen: boolean; on
       >
         <div className="flex items-center justify-between px-5 py-5">
           <div>
-            <p className="font-display text-lg font-semibold tracking-[0.2em] text-neutral-900">ELATŌ</p>
-            <p className="text-[11px] font-medium uppercase tracking-wide text-neutral-400">Admin panel</p>
+            <Logo height={32} />
+            <p className="mt-1 text-sm font-medium uppercase tracking-wide text-neutral-400">Admin panel</p>
           </div>
           <button
             type="button"

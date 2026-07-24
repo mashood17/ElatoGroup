@@ -4,6 +4,7 @@ import { Navbar } from './components/layout/Navbar'
 import { Footer } from './components/layout/Footer'
 import { Splash } from './components/splash/Splash'
 import { ErrorBoundary } from './components/ErrorBoundary'
+import { OfflineBanner } from './components/OfflineBanner'
 import { ScrollToTopButton } from './components/ui/ScrollToTopButton'
 import { ScratchOfferPopup } from './components/offers/ScratchOfferPopup'
 import { FloatingOfferButton } from './components/offers/FloatingOfferButton'
@@ -180,6 +181,7 @@ function App() {
     <ErrorBoundary>
       <BrowserRouter>
         <PageTransitionProvider>
+          <OfflineBanner />
           <ScrollToTop />
           <ScrollPositionRestoration />
           <HashScroll />
